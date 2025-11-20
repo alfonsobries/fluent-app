@@ -2,3 +2,8 @@
 .DS_Store
 *.zip
 *.xcodeproj
+*.dmg
+*.app
+.swiftpm
+.build/
+xcuserdata/
