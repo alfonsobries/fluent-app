@@ -7,32 +7,36 @@ A macOS Menu Bar app that allows you to process selected text in any application
 - **Context Aware**: Copies selected text, sends it to ChatGPT, and replaces the selection with the response.
 - **Configurable**: Set your own OpenAI API Key and Custom Instructions.
 
-## Installation & Usage
+## Installation
 
-1. **Build the App**:
-   ```bash
-   swift build -c release
-   ```
-   The executable will be in `.build/release/TranslateTool`.
+### Download
+[Download the latest release](https://github.com/yourusername/TranslateTool/releases) (Coming soon)
 
-2. **Run the App**:
-   Double-click the executable or run it from terminal.
+### Build from Source
+1.  Clone the repository:
+    ```bash
+    git clone https://github.com/yourusername/TranslateTool.git
+    cd TranslateTool
+    ```
+2.  Build and Run:
+    ```bash
+    swift run
+    ```
+3.  **Create DMG Installer**:
+    ```bash
+    ./build_dmg.sh
+    ```
+    This will create `TranslateTool.dmg` in the project root.
 
-3. **Permissions**:
-   On first run, you must grant **Accessibility Permissions** to allow the app to simulate Copy/Paste (Cmd+C / Cmd+V).
-   - Go to System Settings -> Privacy & Security -> Accessibility.
-   - Enable `TranslateTool` (or the terminal app if running from terminal).
+## Usage
+1.  **Permissions**: On first run, grant **Accessibility Permissions** when prompted (or in System Settings -> Privacy & Security -> Accessibility).
+2.  **Setup**: Click the Menu Bar icon (Globe) -> Enter OpenAI API Key.
+3.  **Translate**: Select text in any app -> Press `Cmd + Shift + O`.
 
-4. **Setup**:
-   - Click the Menu Bar icon (Globe).
-   - Enter your OpenAI API Key.
-   - Customize the prompt if desired.
+## Development
+- Built with **Swift** and **SwiftUI**.
+- Uses **Carbon** for global hotkeys.
+- Uses **Accessibility API** for clipboard manipulation.
 
-5. **Use**:
-   - Select text in any app.
-   - Press `Cmd + Shift + O`.
-   - Wait for the text to be replaced.
-
-## Troubleshooting
-- **Permissions**: If the app beeps or doesn't copy/paste, check Accessibility permissions.
-- **API Key**: Ensure your API key has credits and is valid.
+## License
+MIT
