@@ -1,9 +1,19 @@
-name: Release
+name: Manual Release
+
+# This workflow is for manual releases only.
+# Automatic releases are handled by release-please.yml
+#
+# To create a manual release:
+# 1. Go to Actions > Manual Release > Run workflow
+# 2. Enter the version number (e.g., 1.2.3)
 
 on:
-  push:
-    tags:
-      - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.2.3)'
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -22,25 +32,29 @@ jobs:
         with:
           swift-version: "5.9"
 
-      - name: Get version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ inputs.version }}" -m "Release ${{ inputs.version }}"
+          git push origin "v${{ inputs.version }}"
 
       - name: Build Release
         run: |
-          VERSION=${{ steps.version.outputs.VERSION }} ./build_dmg.sh
+          VERSION=${{ inputs.version }} ./build_dmg.sh
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: v${{ inputs.version }}
           files: |
-            TranslateTool-${{ steps.version.outputs.VERSION }}.dmg
-            TranslateTool-${{ steps.version.outputs.VERSION }}.dmg.sha256
+            TranslateTool-${{ inputs.version }}.dmg
+            TranslateTool-${{ inputs.version }}.dmg.sha256
           body: |
-            ## TranslateTool ${{ steps.version.outputs.VERSION }}
+            ## TranslateTool ${{ inputs.version }}
 
             ### Installation
-            1. Download `TranslateTool-${{ steps.version.outputs.VERSION }}.dmg`
+            1. Download `TranslateTool-${{ inputs.version }}.dmg`
             2. Open the DMG file
             3. Drag TranslateTool to your Applications folder
             4. Open TranslateTool from Applications
