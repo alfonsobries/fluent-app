@@ -1,150 +1,246 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const title = "Fluent — Free AI Translation & Writing App for Mac";
+const description = "Fluent is a free, open-source macOS menu bar app that translates text and improves writing using AI. Works with ChatGPT, Claude, Gemini, and Grok. Just select text and press a keyboard shortcut.";
 ---
 
-<Layout title="TranslateTool">
+<Layout title={title} description={description}>
+  <!-- GitHub Corner -->
+  <a href="https://github.com/alfonsobries/translate-tool" class="github-corner" aria-label="Fork me on GitHub" title="Fork me on GitHub">
+    <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#000; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+      <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C ## 94.5,69.0 197.7,73.2 200.1,77.6 C## 213.8,80.2 216.3,84.9 216.3,84.9 C## 212.7,93.1 206.9,96.0 205.4,96.6 C## 205.1,102.4 203.0,107.8 198.3,112.5 C## 181.9,128.9 168.3,122.5 157.7,googlen114.1 C## googlen57.9,googlen17.3 googlen59.2,googlen17.5 googlen58.0,googlen17.5 L googlen44.2,googlen31.3 C googlen42.8,googlen30.2 googlen44.1,googlen26.5 googlen44.1,googlen26.5 Z" fill="currentColor" class="octo-body"></path>
+    </svg>
+  </a>
+
   <main>
     <header>
       <nav>
-        <span class="logo">TranslateTool</span>
-        <a href="https://github.com/alfonsobries/translate-tool">GitHub</a>
+        <a href="/" class="logo">Fluent</a>
+        <div class="nav-links">
+          <!-- GitHub Star Button -->
+          <a href="https://github.com/alfonsobries/translate-tool" class="github-button" aria-label="Star on GitHub">
+            <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+              <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+            </svg>
+            Star
+          </a>
+        </div>
       </nav>
     </header>
 
-    <section class="hero">
-      <h1>Process text with AI,<br/>from anywhere on your Mac.</h1>
-      <p class="lead">
-        Select text. Press a shortcut. Get results instantly.<br/>
-        Translate, improve writing, fix grammar — all without switching apps.
-      </p>
-      <div class="actions">
-        <a href="https://github.com/alfonsobries/translate-tool/releases/latest" class="btn-primary">Download for macOS</a>
-        <span class="note">Requires macOS 13.0+</span>
-      </div>
-    </section>
+    <!-- Badges -->
+    <div class="badges">
+      <a href="https://github.com/alfonsobries/translate-tool/releases"><img src="https://img.shields.io/github/v/release/alfonsobries/translate-tool?style=flat-square&label=version" alt="Latest version" loading="lazy" /></a>
+      <a href="https://github.com/alfonsobries/translate-tool"><img src="https://img.shields.io/github/stars/alfonsobries/translate-tool?style=flat-square" alt="GitHub stars" loading="lazy" /></a>
+      <a href="https://github.com/alfonsobries/translate-tool/blob/main/LICENSE"><img src="https://img.shields.io/github/license/alfonsobries/translate-tool?style=flat-square" alt="MIT License" loading="lazy" /></a>
+      <img src="https://img.shields.io/badge/platform-macOS%2013+-000?style=flat-square" alt="macOS 13+" loading="lazy" />
+    </div>
 
-    <section class="how">
-      <div class="step">
-        <span class="num">1</span>
-        <div>
-          <h3>Select any text</h3>
-          <p>In any application — browser, editor, email, notes.</p>
+    <article>
+      <!-- Hero -->
+      <section class="hero">
+        <h1>Translate and improve text with AI — directly from any Mac app</h1>
+        <p class="lead">
+          Fluent is a free macOS menu bar app that processes selected text using AI.
+          Translate between languages, improve your writing, or fix grammar with a single keyboard shortcut.
+          No copy-pasting. No switching apps.
+        </p>
+        <div class="actions">
+          <a href="https://github.com/alfonsobries/translate-tool/releases/latest" class="btn-primary">
+            Download Free for macOS
+          </a>
+          <span class="note">v1.0 · macOS 13 Ventura or later · 5MB</span>
         </div>
-      </div>
-      <div class="step">
-        <span class="num">2</span>
-        <div>
-          <h3>Press your shortcut</h3>
-          <p>Default is <kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>O</kbd> for translate.</p>
-        </div>
-      </div>
-      <div class="step">
-        <span class="num">3</span>
-        <div>
-          <h3>Done</h3>
-          <p>The processed text replaces your selection automatically.</p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="features">
-      <h2>Features</h2>
-      <div class="grid">
-        <div class="item">
-          <h3>Multiple AI Providers</h3>
-          <p>OpenAI, Claude, Gemini, or Grok. Choose your preferred model and switch anytime.</p>
+      <!-- How it works -->
+      <section class="how" aria-labelledby="how-it-works">
+        <h2 id="how-it-works">How the AI Translation Works</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="num" aria-hidden="true">1</span>
+            <div>
+              <h3>Select any text on your Mac</h3>
+              <p>Works in Safari, Chrome, VS Code, Mail, Notes, Slack, or any other application.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num" aria-hidden="true">2</span>
+            <div>
+              <h3>Press your keyboard shortcut</h3>
+              <p>The default is <kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>O</kbd> for translation. Fully customizable.</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="num" aria-hidden="true">3</span>
+            <div>
+              <h3>Your text is instantly replaced</h3>
+              <p>The AI-processed text replaces your selection. Translation, grammar fixes, or improvements — done in seconds.</p>
+            </div>
+          </div>
         </div>
-        <div class="item">
-          <h3>Custom Shortcuts</h3>
-          <p>Create unlimited shortcuts with custom AI instructions. Record keys visually.</p>
-        </div>
-        <div class="item">
-          <h3>Works System-wide</h3>
-          <p>Global keyboard shortcuts work in any application. No context switching.</p>
-        </div>
-        <div class="item">
-          <h3>Privacy First</h3>
-          <p>API keys stored locally. Text sent directly to your chosen provider. No tracking.</p>
-        </div>
-        <div class="item">
-          <h3>Native Performance</h3>
-          <p>Built with Swift. Lives in your menu bar. Minimal resource usage.</p>
-        </div>
-        <div class="item">
-          <h3>Open Source</h3>
-          <p>MIT licensed. Review the code, contribute, or fork it.</p>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="shortcuts">
-      <h2>Default Shortcuts</h2>
-      <table>
-        <tr>
-          <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>O</kbd></td>
-          <td>Translate</td>
-          <td>Detect language and translate</td>
-        </tr>
-        <tr>
-          <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>I</kbd></td>
-          <td>Improve</td>
-          <td>Better grammar, clarity, style</td>
-        </tr>
-        <tr class="muted">
-          <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>G</kbd></td>
-          <td>Grammar</td>
-          <td>Fix spelling and grammar only</td>
-        </tr>
-      </table>
-      <p class="note">All shortcuts are customizable. Create your own with any prompt.</p>
-    </section>
+      <!-- Features -->
+      <section class="features" aria-labelledby="features">
+        <h2 id="features">Features</h2>
+        <div class="grid">
+          <div class="item">
+            <h3>Multiple AI Providers</h3>
+            <p>Choose between OpenAI (ChatGPT), Anthropic (Claude), Google (Gemini), or xAI (Grok). Switch providers anytime without losing your settings.</p>
+          </div>
+          <div class="item">
+            <h3>Custom Keyboard Shortcuts</h3>
+            <p>Create unlimited shortcuts, each with its own AI instructions. Translate with one shortcut, improve writing with another.</p>
+          </div>
+          <div class="item">
+            <h3>Works in Every App</h3>
+            <p>System-wide global hotkeys work in any macOS application — browsers, text editors, email clients, design tools, terminals.</p>
+          </div>
+          <div class="item">
+            <h3>Privacy-Focused Design</h3>
+            <p>Your API keys are stored locally on your Mac. Text is sent directly to your chosen AI provider. No data collection. No tracking.</p>
+          </div>
+          <div class="item">
+            <h3>Native macOS Performance</h3>
+            <p>Built with Swift. Runs as a lightweight menu bar app. Uses minimal memory and CPU. Starts instantly.</p>
+          </div>
+          <div class="item">
+            <h3>100% Open Source</h3>
+            <p>MIT licensed. Audit the code, submit issues, contribute features, or fork it for your own projects.</p>
+          </div>
+        </div>
+      </section>
 
-    <section class="providers">
-      <h2>Supported Providers</h2>
-      <div class="provider-list">
-        <div class="provider">
-          <strong>OpenAI</strong>
-          <span>GPT-4o-mini</span>
-        </div>
-        <div class="provider">
-          <strong>Anthropic</strong>
-          <span>Claude 3 Haiku</span>
-        </div>
-        <div class="provider">
-          <strong>Google</strong>
-          <span>Gemini 1.5 Flash</span>
-        </div>
-        <div class="provider">
-          <strong>xAI</strong>
-          <span>Grok</span>
-        </div>
-      </div>
-    </section>
+      <!-- Shortcuts -->
+      <section class="shortcuts" aria-labelledby="shortcuts">
+        <h2 id="shortcuts">Default Keyboard Shortcuts</h2>
+        <table>
+          <thead class="sr-only">
+            <tr>
+              <th>Shortcut</th>
+              <th>Action</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>O</kbd></td>
+              <td>Translate</td>
+              <td>Auto-detect language and translate to English or Spanish</td>
+            </tr>
+            <tr>
+              <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>I</kbd></td>
+              <td>Improve</td>
+              <td>Enhance grammar, clarity, and professional tone</td>
+            </tr>
+            <tr class="muted">
+              <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>G</kbd></td>
+              <td>Grammar</td>
+              <td>Fix spelling and grammar errors only</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note">All shortcuts are customizable. Record any key combination and write your own AI instructions.</p>
+      </section>
 
-    <section class="setup">
-      <h2>Setup</h2>
-      <ol>
-        <li>Download and drag to Applications</li>
-        <li>Open and grant Accessibility permissions</li>
-        <li>Add your API key from your preferred provider</li>
-        <li>Start using — select text and press your shortcut</li>
-      </ol>
-    </section>
+      <!-- Providers -->
+      <section class="providers" aria-labelledby="providers">
+        <h2 id="providers">Supported AI Providers</h2>
+        <p class="section-intro">Bring your own API key. Use the AI model you prefer.</p>
+        <div class="provider-list">
+          <div class="provider">
+            <strong>OpenAI</strong>
+            <span>GPT-4o-mini</span>
+          </div>
+          <div class="provider">
+            <strong>Anthropic</strong>
+            <span>Claude 3 Haiku</span>
+          </div>
+          <div class="provider">
+            <strong>Google</strong>
+            <span>Gemini 1.5 Flash</span>
+          </div>
+          <div class="provider">
+            <strong>xAI</strong>
+            <span>Grok</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Setup -->
+      <section class="setup" aria-labelledby="setup">
+        <h2 id="setup">Quick Setup Guide</h2>
+        <ol>
+          <li><strong>Download</strong> — Get the DMG file and drag Fluent to your Applications folder</li>
+          <li><strong>Permissions</strong> — Grant Accessibility access when macOS prompts you (required to read selected text)</li>
+          <li><strong>API Key</strong> — Click the menu bar icon and add your API key from OpenAI, Anthropic, Google, or xAI</li>
+          <li><strong>Use</strong> — Select any text, press <kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>O</kbd>, and watch it translate</li>
+        </ol>
+      </section>
+
+      <!-- Open Source -->
+      <section class="open-source" aria-labelledby="open-source">
+        <h2 id="open-source">Free and Open Source</h2>
+        <p>
+          Fluent is completely free and open source under the MIT license.
+          The code is available on <a href="https://github.com/alfonsobries/translate-tool">GitHub</a>.
+          Contributions, bug reports, and feature requests are welcome.
+        </p>
+        <div class="github-cta">
+          <a href="https://github.com/alfonsobries/translate-tool" class="btn-secondary">
+            <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor">
+              <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+            </svg>
+            View on GitHub
+          </a>
+          <a href="https://github.com/alfonsobries/translate-tool/fork" class="btn-outline">Fork Repository</a>
+        </div>
+      </section>
+    </article>
 
     <footer>
       <p>
         Built by <a href="https://github.com/alfonsobries">Alfonso Bribiesca</a>
       </p>
-      <p>
-        <a href="https://github.com/alfonsobries/translate-tool">Source</a> ·
-        <a href="https://github.com/alfonsobries/translate-tool/issues">Issues</a> ·
+      <nav aria-label="Footer">
+        <a href="https://github.com/alfonsobries/translate-tool">Source Code</a>
+        <a href="https://github.com/alfonsobries/translate-tool/issues">Report Bug</a>
         <a href="https://github.com/alfonsobries/translate-tool/blob/main/LICENSE">MIT License</a>
-      </p>
+      </nav>
     </footer>
   </main>
 </Layout>
 
 <style>
+  /* GitHub Corner */
+  .github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+  }
+
+  @keyframes octocat-wave {
+    0%, 100% { transform: rotate(0); }
+    20%, 60% { transform: rotate(-25deg); }
+    40%, 80% { transform: rotate(10deg); }
+  }
+
+  @media (max-width: 500px) {
+    .github-corner:hover .octo-arm {
+      animation: none;
+    }
+    .github-corner .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+  }
+
+  .github-corner {
+    text-decoration: none;
+  }
+
+  /* Layout */
   main {
     max-width: 720px;
     margin: 0 auto;
@@ -154,7 +250,7 @@ import Layout from '../layouts/Layout.astro';
   header {
     padding: 24px 0;
     border-bottom: 1px solid #e5e5e5;
-    margin-bottom: 80px;
+    margin-bottom: 32px;
   }
 
   nav {
@@ -164,32 +260,74 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .logo {
-    font-weight: 600;
-    font-size: 1rem;
-    letter-spacing: -0.02em;
+    font-weight: 700;
+    font-size: 1.125rem;
+    letter-spacing: -0.03em;
+    text-decoration: none;
   }
 
-  nav a {
-    font-size: 0.875rem;
-    color: #666;
+  .nav-links {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .github-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #000;
+    background: #f5f5f5;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .github-button:hover {
+    background: #e5e5e5;
+    text-decoration: none;
+  }
+
+  /* Badges */
+  .badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 64px;
+  }
+
+  .badges a {
+    text-decoration: none;
+  }
+
+  .badges img {
+    height: 20px;
+  }
+
+  /* Article */
+  article {
+    margin-bottom: 80px;
   }
 
   /* Hero */
   .hero {
-    margin-bottom: 100px;
+    margin-bottom: 80px;
   }
 
   h1 {
-    font-size: 2.75rem;
-    font-weight: 600;
+    font-size: 2.5rem;
+    font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.03em;
     margin-bottom: 24px;
   }
 
   .lead {
-    font-size: 1.125rem;
-    color: #666;
+    font-size: 1.0625rem;
+    color: #444;
     line-height: 1.7;
     margin-bottom: 32px;
   }
@@ -205,9 +343,9 @@ import Layout from '../layouts/Layout.astro';
     display: inline-block;
     background: #000;
     color: #fff;
-    padding: 12px 24px;
+    padding: 14px 28px;
     font-size: 0.9375rem;
-    font-weight: 500;
+    font-weight: 600;
     border-radius: 6px;
     text-decoration: none;
     transition: background 0.15s;
@@ -218,17 +356,59 @@ import Layout from '../layouts/Layout.astro';
     text-decoration: none;
   }
 
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #000;
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .btn-secondary:hover {
+    background: #333;
+    text-decoration: none;
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #000;
+    padding: 12px 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+
+  .btn-outline:hover {
+    border-color: #000;
+    text-decoration: none;
+  }
+
   .note {
     font-size: 0.8125rem;
-    color: #999;
+    color: #888;
   }
 
   /* How it works */
   .how {
-    margin-bottom: 100px;
+    margin-bottom: 80px;
+  }
+
+  .steps {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 28px;
   }
 
   .step {
@@ -246,7 +426,7 @@ import Layout from '../layouts/Layout.astro';
     align-items: center;
     justify-content: center;
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
     flex-shrink: 0;
   }
 
@@ -258,26 +438,34 @@ import Layout from '../layouts/Layout.astro';
 
   .step p {
     font-size: 0.9375rem;
-    color: #666;
+    color: #555;
+    line-height: 1.5;
   }
 
   /* Sections */
   section {
-    margin-bottom: 100px;
+    margin-bottom: 80px;
   }
 
   h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
+    font-size: 1.375rem;
+    font-weight: 700;
     letter-spacing: -0.02em;
-    margin-bottom: 32px;
+    margin-bottom: 24px;
+  }
+
+  .section-intro {
+    color: #555;
+    margin-top: -16px;
+    margin-bottom: 24px;
+    font-size: 0.9375rem;
   }
 
   /* Features */
   .grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 32px 48px;
+    gap: 28px 40px;
   }
 
   .item h3 {
@@ -288,7 +476,7 @@ import Layout from '../layouts/Layout.astro';
 
   .item p {
     font-size: 0.875rem;
-    color: #666;
+    color: #555;
     line-height: 1.6;
   }
 
@@ -299,13 +487,24 @@ import Layout from '../layouts/Layout.astro';
     font-size: 0.9375rem;
   }
 
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
   tr {
     border-bottom: 1px solid #e5e5e5;
   }
 
   td {
-    padding: 16px 0;
-    vertical-align: top;
+    padding: 14px 0;
+    vertical-align: middle;
   }
 
   td:first-child {
@@ -314,12 +513,12 @@ import Layout from '../layouts/Layout.astro';
   }
 
   td:nth-child(2) {
-    font-weight: 500;
+    font-weight: 600;
     width: 100px;
   }
 
   td:last-child {
-    color: #666;
+    color: #555;
   }
 
   tr.muted {
@@ -327,11 +526,11 @@ import Layout from '../layouts/Layout.astro';
   }
 
   tr.muted td:nth-child(2) {
-    font-weight: 400;
+    font-weight: 500;
   }
 
   .shortcuts .note {
-    margin-top: 24px;
+    margin-top: 20px;
     display: block;
   }
 
@@ -339,11 +538,14 @@ import Layout from '../layouts/Layout.astro';
   .provider-list {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
+    gap: 20px;
   }
 
   .provider {
     text-align: center;
+    padding: 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
   }
 
   .provider strong {
@@ -354,7 +556,7 @@ import Layout from '../layouts/Layout.astro';
   }
 
   .provider span {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: #666;
   }
 
@@ -366,52 +568,95 @@ import Layout from '../layouts/Layout.astro';
 
   ol li {
     counter-increment: setup;
-    padding: 16px 0;
+    padding: 14px 0;
     border-bottom: 1px solid #e5e5e5;
     font-size: 0.9375rem;
+    line-height: 1.5;
   }
 
   ol li::before {
     content: counter(setup) ".";
     margin-right: 12px;
-    color: #999;
+    color: #888;
+    font-weight: 500;
+  }
+
+  ol li strong {
+    font-weight: 600;
+  }
+
+  /* Open Source */
+  .open-source p {
+    font-size: 0.9375rem;
+    color: #444;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .github-cta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   /* Footer */
   footer {
-    padding: 48px 0;
+    padding: 40px 0;
     border-top: 1px solid #e5e5e5;
     text-align: center;
-    margin-top: 100px;
   }
 
   footer p {
     font-size: 0.8125rem;
     color: #666;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
 
-  footer a {
+  footer nav {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+  }
+
+  footer nav a {
+    font-size: 0.8125rem;
     color: #666;
   }
 
   /* Mobile */
   @media (max-width: 640px) {
+    .github-corner svg {
+      width: 60px;
+      height: 60px;
+    }
+
     header {
-      margin-bottom: 48px;
+      margin-bottom: 24px;
+    }
+
+    .badges {
+      margin-bottom: 40px;
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 1.875rem;
     }
 
     .lead {
       font-size: 1rem;
     }
 
+    .hero {
+      margin-bottom: 60px;
+    }
+
+    section {
+      margin-bottom: 60px;
+    }
+
     .grid {
       grid-template-columns: 1fr;
-      gap: 24px;
+      gap: 20px;
     }
 
     .provider-list {
@@ -428,6 +673,11 @@ import Layout from '../layouts/Layout.astro';
 
     td:nth-child(2) {
       display: none;
+    }
+
+    footer nav {
+      flex-direction: column;
+      gap: 12px;
     }
   }
 </style>
