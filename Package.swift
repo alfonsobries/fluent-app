@@ -19,6 +19,11 @@ let package = Package(
                 .linkedFramework("Carbon"),
                 .linkedFramework("AppKit")
             ]
+        ),
+        .testTarget(
+            name: "TranslateToolTests",
+            dependencies: [],
+            path: "Tests/TranslateToolTests"
         )
     ]
 )
