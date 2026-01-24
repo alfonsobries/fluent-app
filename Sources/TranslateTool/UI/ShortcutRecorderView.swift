@@ -7,6 +7,7 @@ struct ShortcutRecorderView: View {
 
     @State private var isRecording = false
     @State private var displayText: String = ""
+    @State private var eventMonitor: Any?
 
     var body: some View {
         HStack {
@@ -32,18 +33,13 @@ struct ShortcutRecorderView: View {
         .onAppear {
             updateDisplayText()
         }
-        .onChange(of: keyCode) { _, _ in updateDisplayText() }
-        .onChange(of: modifiers) { _, _ in updateDisplayText() }
-        .focusable()
-        .onKeyPress { keyPress in
-            if isRecording {
-                handleKeyPress(keyPress)
-                return .handled
-            }
-            return .ignored
-        }
+        .onChange(of: keyCode) { _ in updateDisplayText() }
+        .onChange(of: modifiers) { _ in updateDisplayText() }
         .onTapGesture {
             startRecording()
+        }
+        .onDisappear {
+            removeEventMonitor()
         }
     }
 
@@ -52,29 +48,48 @@ struct ShortcutRecorderView: View {
         displayText = "Press shortcut..."
         // Pause hotkeys while recording
         HotKeyManager.shared.isPaused = true
+        installEventMonitor()
     }
 
     private func stopRecording() {
         isRecording = false
         updateDisplayText()
         HotKeyManager.shared.isPaused = false
+        removeEventMonitor()
     }
 
-    private func handleKeyPress(_ keyPress: KeyPress) {
-        // Get modifiers from the key press
+    private func installEventMonitor() {
+        removeEventMonitor()
+        eventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            handleKeyEvent(event)
+            return nil // Consume the event
+        }
+    }
+
+    private func removeEventMonitor() {
+        if let monitor = eventMonitor {
+            NSEvent.removeMonitor(monitor)
+            eventMonitor = nil
+        }
+    }
+
+    private func handleKeyEvent(_ event: NSEvent) {
+        guard isRecording else { return }
+
+        // Get modifiers
         var newModifiers: UInt32 = 0
 
-        if keyPress.modifiers.contains(.command) {
-            newModifiers |= 256 // cmdKey
+        if event.modifierFlags.contains(.command) {
+            newModifiers |= UInt32(cmdKey)
         }
-        if keyPress.modifiers.contains(.shift) {
-            newModifiers |= 512 // shiftKey
+        if event.modifierFlags.contains(.shift) {
+            newModifiers |= UInt32(shiftKey)
         }
-        if keyPress.modifiers.contains(.option) {
-            newModifiers |= 2048 // optionKey
+        if event.modifierFlags.contains(.option) {
+            newModifiers |= UInt32(optionKey)
         }
-        if keyPress.modifiers.contains(.control) {
-            newModifiers |= 4096 // controlKey
+        if event.modifierFlags.contains(.control) {
+            newModifiers |= UInt32(controlKey)
         }
 
         // Need at least one modifier
@@ -83,12 +98,12 @@ struct ShortcutRecorderView: View {
             return
         }
 
-        // Get key code from character
-        if let newKeyCode = keyCodeFromCharacter(keyPress.characters) {
-            keyCode = newKeyCode
-            modifiers = newModifiers
-            stopRecording()
-        }
+        // Get key code
+        let newKeyCode = UInt32(event.keyCode)
+
+        keyCode = newKeyCode
+        modifiers = newModifiers
+        stopRecording()
     }
 
     private func updateDisplayText() {
@@ -107,18 +122,5 @@ struct ShortcutRecorderView: View {
             modifiers: modifiers,
             prompt: ""
         )
-    }
-
-    private func keyCodeFromCharacter(_ char: String) -> UInt32? {
-        let keyMap: [String: UInt32] = [
-            "a": 0, "s": 1, "d": 2, "f": 3, "h": 4, "g": 5, "z": 6, "x": 7,
-            "c": 8, "v": 9, "b": 11, "q": 12, "w": 13, "e": 14, "r": 15,
-            "y": 16, "t": 17, "1": 18, "2": 19, "3": 20, "4": 21, "6": 22,
-            "5": 23, "=": 24, "9": 25, "7": 26, "-": 27, "8": 28, "0": 29,
-            "]": 30, "o": 31, "u": 32, "[": 33, "i": 34, "p": 35, "l": 37,
-            "j": 38, "'": 39, "k": 40, ";": 41, "\\": 42, ",": 43, "/": 44,
-            "n": 45, "m": 46, ".": 47, " ": 49, "`": 50
-        ]
-        return keyMap[char.lowercased()]
     }
 }

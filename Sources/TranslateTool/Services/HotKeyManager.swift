@@ -30,7 +30,7 @@ class HotKeyManager: ObservableObject {
 
     private func registerSingleHotKey(action: ShortcutAction, id: UInt32) {
         var hotKeyID = EventHotKeyID()
-        hotKeyID.signature = OSType("htk\(id)".prefix(4).asUInt32)
+        hotKeyID.signature = OSType(String("htk\(id)".prefix(4)).asUInt32)
         hotKeyID.id = id
 
         var hotKeyRef: EventHotKeyRef?
