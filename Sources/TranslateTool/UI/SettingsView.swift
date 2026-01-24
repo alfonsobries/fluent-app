@@ -26,6 +26,18 @@ struct SettingsView: View {
 
             Divider()
 
+            // General Settings
+            VStack(alignment: .leading, spacing: 8) {
+                Text("General")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
+                Toggle("Launch at startup", isOn: $settings.launchAtStartup)
+                    .toggleStyle(.checkbox)
+            }
+
+            Divider()
+
             // AI Provider Settings
             AIProviderSettingsView(settings: settings)
 

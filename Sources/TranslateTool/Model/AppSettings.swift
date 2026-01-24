@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import ServiceManagement
 
 class AppSettings: ObservableObject {
     // MARK: - AI Provider Settings
@@ -22,6 +23,15 @@ class AppSettings: ObservableObject {
         }
     }
 
+    // MARK: - Launch at Startup Setting
+
+    @Published var launchAtStartup: Bool {
+        didSet {
+            UserDefaults.standard.set(launchAtStartup, forKey: "launchAtStartup")
+            updateLaunchAtStartup()
+        }
+    }
+
     // Callback when shortcuts change (for re-registering hotkeys)
     var onShortcutsChanged: (() -> Void)?
 
@@ -40,8 +50,20 @@ class AppSettings: ObservableObject {
         // Load shortcut actions
         self.shortcutActions = Self.loadShortcutActions()
 
+        // Load launch at startup setting (default: true for new users)
+        if UserDefaults.standard.object(forKey: "launchAtStartup") != nil {
+            self.launchAtStartup = UserDefaults.standard.bool(forKey: "launchAtStartup")
+        } else {
+            // First launch - enable by default and register
+            self.launchAtStartup = true
+            UserDefaults.standard.set(true, forKey: "launchAtStartup")
+        }
+
         // Migrate old single apiKey if exists
         migrateOldAPIKey()
+
+        // Ensure launch at startup is in sync with system
+        updateLaunchAtStartup()
     }
 
     // MARK: - Current API Key (convenience)
@@ -93,6 +115,30 @@ class AppSettings: ObservableObject {
             }
             UserDefaults.standard.removeObject(forKey: "apiKey")
         }
+    }
+
+    // MARK: - Launch at Startup
+
+    private func updateLaunchAtStartup() {
+        let service = SMAppService.mainApp
+        do {
+            if launchAtStartup {
+                if service.status != .enabled {
+                    try service.register()
+                }
+            } else {
+                if service.status == .enabled {
+                    try service.unregister()
+                }
+            }
+        } catch {
+            print("Failed to update launch at startup: \(error)")
+        }
+    }
+
+    /// Check if the app is currently registered to launch at startup
+    var isLaunchAtStartupEnabled: Bool {
+        SMAppService.mainApp.status == .enabled
     }
 
     // MARK: - Shortcut Actions Persistence
