@@ -26,14 +26,8 @@ struct SettingsView: View {
 
             Divider()
 
-            // API Key
-            VStack(alignment: .leading, spacing: 4) {
-                Text("OpenAI API Key")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                SecureField("sk-...", text: $settings.apiKey)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-            }
+            // AI Provider Settings
+            AIProviderSettingsView(settings: settings)
 
             Divider()
 
@@ -68,7 +62,7 @@ struct SettingsView: View {
                             }
                         }
                     }
-                    .frame(maxHeight: 200)
+                    .frame(maxHeight: 160)
                 }
             }
 
@@ -86,7 +80,7 @@ struct SettingsView: View {
             }
         }
         .padding()
-        .frame(width: 400)
+        .frame(width: 420)
         .sheet(item: $selectedAction) { action in
             ShortcutEditSheet(
                 action: action,

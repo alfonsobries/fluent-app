@@ -33,6 +33,12 @@ class AppController: ObservableObject {
             return
         }
 
+        // Check if API key is configured
+        guard !settings.currentAPIKey.isEmpty else {
+            print("API key not configured for \(settings.selectedProvider.displayName)")
+            return
+        }
+
         DispatchQueue.main.async {
             self.isProcessing = true
             self.currentActionName = action.name
@@ -47,10 +53,13 @@ class AppController: ObservableObject {
             return
         }
 
-        // 2. Call API with the action's specific prompt
-        OpenAIService.shared.processText(
+        // 2. Get the current AI provider and process
+        let provider = settings.currentProvider
+        let apiKey = settings.currentAPIKey
+
+        provider.processText(
             text: text,
-            apiKey: settings.apiKey,
+            apiKey: apiKey,
             instructions: action.prompt
         ) { [weak self] result in
             DispatchQueue.main.async {
@@ -60,7 +69,7 @@ class AppController: ObservableObject {
                     // 3. Paste the result
                     ClipboardService.shared.pasteText(responseText)
                 case .failure(let error):
-                    print("Error processing '\(action.name)': \(error)")
+                    print("Error processing '\(action.name)': \(error.localizedDescription)")
                 }
                 self.isProcessing = false
                 self.currentActionName = nil

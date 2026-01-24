@@ -2,9 +2,17 @@ import Foundation
 import Combine
 
 class AppSettings: ObservableObject {
-    @Published var apiKey: String {
+    // MARK: - AI Provider Settings
+
+    @Published var selectedProvider: AIProviderType {
         didSet {
-            UserDefaults.standard.set(apiKey, forKey: "apiKey")
+            UserDefaults.standard.set(selectedProvider.rawValue, forKey: "selectedProvider")
+        }
+    }
+
+    @Published var apiKeys: [AIProviderType: String] {
+        didSet {
+            saveAPIKeys()
         }
     }
 
@@ -18,8 +26,73 @@ class AppSettings: ObservableObject {
     var onShortcutsChanged: (() -> Void)?
 
     init() {
-        self.apiKey = UserDefaults.standard.string(forKey: "apiKey") ?? ""
+        // Load selected provider
+        if let savedProvider = UserDefaults.standard.string(forKey: "selectedProvider"),
+           let provider = AIProviderType(rawValue: savedProvider) {
+            self.selectedProvider = provider
+        } else {
+            self.selectedProvider = .openai
+        }
+
+        // Load API keys
+        self.apiKeys = Self.loadAPIKeys()
+
+        // Load shortcut actions
         self.shortcutActions = Self.loadShortcutActions()
+
+        // Migrate old single apiKey if exists
+        migrateOldAPIKey()
+    }
+
+    // MARK: - Current API Key (convenience)
+
+    /// Get the API key for the currently selected provider
+    var currentAPIKey: String {
+        apiKeys[selectedProvider] ?? ""
+    }
+
+    /// Set the API key for a specific provider
+    func setAPIKey(_ key: String, for provider: AIProviderType) {
+        apiKeys[provider] = key
+    }
+
+    /// Get the current AI provider instance
+    var currentProvider: AIProvider {
+        AIProviderFactory.shared.resolve(selectedProvider)
+    }
+
+    // MARK: - API Keys Persistence
+
+    private func saveAPIKeys() {
+        var keysDict: [String: String] = [:]
+        for (provider, key) in apiKeys {
+            keysDict[provider.rawValue] = key
+        }
+        UserDefaults.standard.set(keysDict, forKey: "apiKeys")
+    }
+
+    private static func loadAPIKeys() -> [AIProviderType: String] {
+        guard let keysDict = UserDefaults.standard.dictionary(forKey: "apiKeys") as? [String: String] else {
+            return [:]
+        }
+
+        var result: [AIProviderType: String] = [:]
+        for (key, value) in keysDict {
+            if let provider = AIProviderType(rawValue: key) {
+                result[provider] = value
+            }
+        }
+        return result
+    }
+
+    private func migrateOldAPIKey() {
+        // Migrate from old single apiKey format
+        if let oldKey = UserDefaults.standard.string(forKey: "apiKey"), !oldKey.isEmpty {
+            if apiKeys[.openai]?.isEmpty ?? true {
+                apiKeys[.openai] = oldKey
+            }
+            UserDefaults.standard.removeObject(forKey: "apiKey")
+        }
     }
 
     // MARK: - Shortcut Actions Persistence
