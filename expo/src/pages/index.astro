@@ -2,560 +2,432 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="TranslateTool - AI Text Processing for macOS">
+<Layout title="TranslateTool">
   <main>
-    <!-- Hero Section -->
+    <header>
+      <nav>
+        <span class="logo">TranslateTool</span>
+        <a href="https://github.com/alfonsobries/translate-tool">GitHub</a>
+      </nav>
+    </header>
+
     <section class="hero">
-      <div class="container">
-        <div class="hero-content">
-          <div class="app-icon">
-            <svg viewBox="0 0 1024 1024" width="120" height="120">
-              <defs>
-                <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#6366F1" />
-                  <stop offset="100%" style="stop-color:#8B5CF6" />
-                </linearGradient>
-              </defs>
-              <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#bgGradient)"/>
-              <text x="280" y="580" font-family="system-ui" font-size="280" font-weight="700" fill="white">A</text>
-              <text x="580" y="580" font-family="system-ui" font-size="280" font-weight="700" fill="white">文</text>
-              <g fill="none" stroke="white" stroke-width="28" stroke-linecap="round" opacity="0.9">
-                <path d="M320 280 L704 280"/>
-                <path d="M640 220 L704 280 L640 340"/>
-                <path d="M704 744 L320 744"/>
-                <path d="M384 684 L320 744 L384 804"/>
-              </g>
-            </svg>
-          </div>
-          <h1>TranslateTool</h1>
-          <p class="tagline">AI-powered text processing for macOS.<br/>Translate, improve, and fix text with a keyboard shortcut.</p>
-          <div class="cta-buttons">
-            <a href="https://github.com/alfonsobries/translate-tool/releases/latest" class="btn btn-primary">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download for macOS
-            </a>
-            <a href="https://github.com/alfonsobries/translate-tool" class="btn btn-secondary">
-              View on GitHub
-            </a>
-          </div>
-          <p class="requirements">Requires macOS 13.0 or later</p>
+      <h1>Process text with AI,<br/>from anywhere on your Mac.</h1>
+      <p class="lead">
+        Select text. Press a shortcut. Get results instantly.<br/>
+        Translate, improve writing, fix grammar — all without switching apps.
+      </p>
+      <div class="actions">
+        <a href="https://github.com/alfonsobries/translate-tool/releases/latest" class="btn-primary">Download for macOS</a>
+        <span class="note">Requires macOS 13.0+</span>
+      </div>
+    </section>
+
+    <section class="how">
+      <div class="step">
+        <span class="num">1</span>
+        <div>
+          <h3>Select any text</h3>
+          <p>In any application — browser, editor, email, notes.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="num">2</span>
+        <div>
+          <h3>Press your shortcut</h3>
+          <p>Default is <kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>O</kbd> for translate.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="num">3</span>
+        <div>
+          <h3>Done</h3>
+          <p>The processed text replaces your selection automatically.</p>
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
     <section class="features">
-      <div class="container">
-        <h2>Features</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m5 8 6 6"/>
-                <path d="m4 14 6-6 2-3"/>
-                <path d="M2 5h12"/>
-                <path d="M7 2h1"/>
-                <path d="m22 22-5-10-5 10"/>
-                <path d="M14 18h6"/>
-              </svg>
-            </div>
-            <h3>Instant Translation</h3>
-            <p>Translate text between languages with a single shortcut. Supports automatic language detection.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 20h9"/>
-                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
-              </svg>
-            </div>
-            <h3>Improve Writing</h3>
-            <p>Enhance your text with better grammar, clarity, and professional tone.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-              </svg>
-            </div>
-            <h3>Privacy First</h3>
-            <p>Your API key stays on your device. No tracking, no data collection.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/>
-              </svg>
-            </div>
-            <h3>Custom Shortcuts</h3>
-            <p>Define multiple keyboard shortcuts with custom AI instructions for different tasks.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
-                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
-                <path d="M4 22h16"/>
-                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
-                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
-                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
-              </svg>
-            </div>
-            <h3>Works Everywhere</h3>
-            <p>Use in any macOS application - browsers, editors, email, and more.</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M12 6v6l4 2"/>
-              </svg>
-            </div>
-            <h3>Lightning Fast</h3>
-            <p>Native Swift app with minimal resource usage. Always ready in your menu bar.</p>
-          </div>
+      <h2>Features</h2>
+      <div class="grid">
+        <div class="item">
+          <h3>Multiple AI Providers</h3>
+          <p>OpenAI, Claude, Gemini, or Grok. Choose your preferred model and switch anytime.</p>
+        </div>
+        <div class="item">
+          <h3>Custom Shortcuts</h3>
+          <p>Create unlimited shortcuts with custom AI instructions. Record keys visually.</p>
+        </div>
+        <div class="item">
+          <h3>Works System-wide</h3>
+          <p>Global keyboard shortcuts work in any application. No context switching.</p>
+        </div>
+        <div class="item">
+          <h3>Privacy First</h3>
+          <p>API keys stored locally. Text sent directly to your chosen provider. No tracking.</p>
+        </div>
+        <div class="item">
+          <h3>Native Performance</h3>
+          <p>Built with Swift. Lives in your menu bar. Minimal resource usage.</p>
+        </div>
+        <div class="item">
+          <h3>Open Source</h3>
+          <p>MIT licensed. Review the code, contribute, or fork it.</p>
         </div>
       </div>
     </section>
 
-    <!-- How It Works Section -->
-    <section class="how-it-works">
-      <div class="container">
-        <h2>How It Works</h2>
-        <div class="steps">
-          <div class="step">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <h3>Select Text</h3>
-              <p>Highlight any text in any application on your Mac.</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <h3>Press Shortcut</h3>
-              <p>Use your configured keyboard shortcut (default: <code>Cmd+Shift+O</code>).</p>
-            </div>
-          </div>
-          <div class="step">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <h3>Get Results</h3>
-              <p>The processed text automatically replaces your selection.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Setup Section -->
-    <section class="setup">
-      <div class="container">
-        <h2>Getting Started</h2>
-        <div class="setup-steps">
-          <div class="setup-card">
-            <h3>1. Download & Install</h3>
-            <p>Download the DMG file, open it, and drag TranslateTool to your Applications folder.</p>
-          </div>
-          <div class="setup-card">
-            <h3>2. Grant Permissions</h3>
-            <p>When prompted, grant Accessibility permissions in System Settings. This allows the app to read and modify selected text.</p>
-          </div>
-          <div class="setup-card">
-            <h3>3. Add API Key</h3>
-            <p>Click the globe icon in your menu bar and enter your <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API key</a>.</p>
-          </div>
-          <div class="setup-card">
-            <h3>4. Start Using</h3>
-            <p>Select text anywhere and press your shortcut. That's it!</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Default Shortcuts -->
     <section class="shortcuts">
-      <div class="container">
-        <h2>Default Shortcuts</h2>
-        <p class="section-subtitle">All shortcuts are customizable in the app settings.</p>
-        <div class="shortcuts-table">
-          <div class="shortcut-row">
-            <div class="shortcut-keys"><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>O</kbd></div>
-            <div class="shortcut-action">
-              <strong>Translate</strong>
-              <span>Automatically detect language and translate</span>
-            </div>
-          </div>
-          <div class="shortcut-row">
-            <div class="shortcut-keys"><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd></div>
-            <div class="shortcut-action">
-              <strong>Improve Writing</strong>
-              <span>Enhance grammar, clarity, and style</span>
-            </div>
-          </div>
-          <div class="shortcut-row disabled">
-            <div class="shortcut-keys"><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>G</kbd></div>
-            <div class="shortcut-action">
-              <strong>Fix Grammar</strong>
-              <span>Correct spelling and grammar only (disabled by default)</span>
-            </div>
-          </div>
+      <h2>Default Shortcuts</h2>
+      <table>
+        <tr>
+          <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>O</kbd></td>
+          <td>Translate</td>
+          <td>Detect language and translate</td>
+        </tr>
+        <tr>
+          <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>I</kbd></td>
+          <td>Improve</td>
+          <td>Better grammar, clarity, style</td>
+        </tr>
+        <tr class="muted">
+          <td><kbd>Cmd</kbd> <kbd>Shift</kbd> <kbd>G</kbd></td>
+          <td>Grammar</td>
+          <td>Fix spelling and grammar only</td>
+        </tr>
+      </table>
+      <p class="note">All shortcuts are customizable. Create your own with any prompt.</p>
+    </section>
+
+    <section class="providers">
+      <h2>Supported Providers</h2>
+      <div class="provider-list">
+        <div class="provider">
+          <strong>OpenAI</strong>
+          <span>GPT-4o-mini</span>
+        </div>
+        <div class="provider">
+          <strong>Anthropic</strong>
+          <span>Claude 3 Haiku</span>
+        </div>
+        <div class="provider">
+          <strong>Google</strong>
+          <span>Gemini 1.5 Flash</span>
+        </div>
+        <div class="provider">
+          <strong>xAI</strong>
+          <span>Grok</span>
         </div>
       </div>
     </section>
 
-    <!-- Footer -->
+    <section class="setup">
+      <h2>Setup</h2>
+      <ol>
+        <li>Download and drag to Applications</li>
+        <li>Open and grant Accessibility permissions</li>
+        <li>Add your API key from your preferred provider</li>
+        <li>Start using — select text and press your shortcut</li>
+      </ol>
+    </section>
+
     <footer>
-      <div class="container">
-        <p>
-          Made with care by <a href="https://github.com/alfonsobries">Alfonso Bribiesca</a>
-        </p>
-        <p class="footer-links">
-          <a href="https://github.com/alfonsobries/translate-tool">GitHub</a>
-          <span class="separator">|</span>
-          <a href="https://github.com/alfonsobries/translate-tool/issues">Report Issue</a>
-          <span class="separator">|</span>
-          <a href="https://github.com/alfonsobries/translate-tool/blob/main/LICENSE">MIT License</a>
-        </p>
-      </div>
+      <p>
+        Built by <a href="https://github.com/alfonsobries">Alfonso Bribiesca</a>
+      </p>
+      <p>
+        <a href="https://github.com/alfonsobries/translate-tool">Source</a> ·
+        <a href="https://github.com/alfonsobries/translate-tool/issues">Issues</a> ·
+        <a href="https://github.com/alfonsobries/translate-tool/blob/main/LICENSE">MIT License</a>
+      </p>
     </footer>
   </main>
 </Layout>
 
 <style>
-  .container {
-    max-width: 1100px;
+  main {
+    max-width: 720px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 24px;
+  }
+
+  header {
+    padding: 24px 0;
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 80px;
+  }
+
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .logo {
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  nav a {
+    font-size: 0.875rem;
+    color: #666;
   }
 
   /* Hero */
   .hero {
-    padding: 6rem 0 4rem;
-    text-align: center;
-    background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
-  }
-
-  .app-icon {
-    margin-bottom: 1.5rem;
-  }
-
-  .app-icon svg {
-    border-radius: 24px;
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+    margin-bottom: 100px;
   }
 
   h1 {
-    font-size: 3.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .tagline {
-    font-size: 1.25rem;
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-    line-height: 1.6;
-  }
-
-  .cta-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 1rem;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.5rem;
-    border-radius: 8px;
+    font-size: 2.75rem;
     font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.2s;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
   }
 
-  .btn .icon {
-    width: 20px;
-    height: 20px;
+  .lead {
+    font-size: 1.125rem;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 32px;
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
   }
 
   .btn-primary {
-    background: var(--accent);
-    color: white;
+    display: inline-block;
+    background: #000;
+    color: #fff;
+    padding: 12px 24px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background 0.15s;
   }
 
   .btn-primary:hover {
-    background: var(--accent-dark);
-    text-decoration: none;
-    transform: translateY(-2px);
-  }
-
-  .btn-secondary {
-    background: var(--bg-card);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-
-  .btn-secondary:hover {
-    background: var(--border);
+    background: #333;
     text-decoration: none;
   }
 
-  .requirements {
-    font-size: 0.875rem;
-    color: var(--text-muted);
+  .note {
+    font-size: 0.8125rem;
+    color: #999;
   }
 
-  /* Features */
-  .features {
-    padding: 5rem 0;
-  }
-
-  h2 {
-    font-size: 2.25rem;
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .feature-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    transition: transform 0.2s, border-color 0.2s;
-  }
-
-  .feature-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent);
-  }
-
-  .feature-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
-    border-radius: 10px;
+  /* How it works */
+  .how {
+    margin-bottom: 100px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-
-  .feature-icon svg {
-    width: 24px;
-    height: 24px;
-    color: white;
-  }
-
-  .feature-card h3 {
-    font-size: 1.125rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .feature-card p {
-    color: var(--text-muted);
-    font-size: 0.9375rem;
-    line-height: 1.6;
-  }
-
-  /* How It Works */
-  .how-it-works {
-    padding: 5rem 0;
-    background: var(--bg-card);
-  }
-
-  .steps {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 32px;
   }
 
   .step {
     display: flex;
+    gap: 20px;
     align-items: flex-start;
-    gap: 1rem;
-    max-width: 280px;
   }
 
-  .step-number {
-    width: 40px;
-    height: 40px;
-    background: var(--accent);
-    color: white;
+  .num {
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid #000;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 700;
-    font-size: 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 500;
     flex-shrink: 0;
   }
 
-  .step-content h3 {
-    font-size: 1.125rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .step-content p {
-    color: var(--text-muted);
-    font-size: 0.9375rem;
-  }
-
-  /* Setup */
-  .setup {
-    padding: 5rem 0;
-  }
-
-  .setup-steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .setup-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-  }
-
-  .setup-card h3 {
+  .step h3 {
     font-size: 1rem;
-    color: var(--accent-light);
-    margin-bottom: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 4px;
   }
 
-  .setup-card p {
-    color: var(--text-muted);
+  .step p {
     font-size: 0.9375rem;
+    color: #666;
+  }
+
+  /* Sections */
+  section {
+    margin-bottom: 100px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+  }
+
+  /* Features */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px 48px;
+  }
+
+  .item h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .item p {
+    font-size: 0.875rem;
+    color: #666;
     line-height: 1.6;
   }
 
   /* Shortcuts */
-  .shortcuts {
-    padding: 5rem 0;
-    background: var(--bg-card);
-  }
-
-  .section-subtitle {
-    text-align: center;
-    color: var(--text-muted);
-    margin-top: -2rem;
-    margin-bottom: 2rem;
-  }
-
-  .shortcuts-table {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .shortcut-row {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-  }
-
-  .shortcut-row:nth-child(odd) {
-    background: rgba(255, 255, 255, 0.02);
-  }
-
-  .shortcut-row.disabled {
-    opacity: 0.5;
-  }
-
-  .shortcut-keys {
-    display: flex;
-    gap: 0.25rem;
-    flex-shrink: 0;
-  }
-
-  kbd {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.25rem 0.5rem;
-    font-family: inherit;
-    font-size: 0.8125rem;
-    font-weight: 500;
-  }
-
-  .shortcut-action {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .shortcut-action strong {
+  table {
+    width: 100%;
+    border-collapse: collapse;
     font-size: 0.9375rem;
   }
 
-  .shortcut-action span {
+  tr {
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  td {
+    padding: 16px 0;
+    vertical-align: top;
+  }
+
+  td:first-child {
+    width: 200px;
+    white-space: nowrap;
+  }
+
+  td:nth-child(2) {
+    font-weight: 500;
+    width: 100px;
+  }
+
+  td:last-child {
+    color: #666;
+  }
+
+  tr.muted {
+    color: #999;
+  }
+
+  tr.muted td:nth-child(2) {
+    font-weight: 400;
+  }
+
+  .shortcuts .note {
+    margin-top: 24px;
+    display: block;
+  }
+
+  /* Providers */
+  .provider-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .provider {
+    text-align: center;
+  }
+
+  .provider strong {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .provider span {
     font-size: 0.8125rem;
-    color: var(--text-muted);
+    color: #666;
+  }
+
+  /* Setup */
+  ol {
+    list-style: none;
+    counter-reset: setup;
+  }
+
+  ol li {
+    counter-increment: setup;
+    padding: 16px 0;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 0.9375rem;
+  }
+
+  ol li::before {
+    content: counter(setup) ".";
+    margin-right: 12px;
+    color: #999;
   }
 
   /* Footer */
   footer {
-    padding: 3rem 0;
+    padding: 48px 0;
+    border-top: 1px solid #e5e5e5;
     text-align: center;
-    border-top: 1px solid var(--border);
+    margin-top: 100px;
   }
 
   footer p {
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
+    color: #666;
+    margin-bottom: 8px;
   }
 
-  .footer-links {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
+  footer a {
+    color: #666;
   }
 
-  .separator {
-    color: var(--border);
-  }
-
+  /* Mobile */
   @media (max-width: 640px) {
+    header {
+      margin-bottom: 48px;
+    }
+
     h1 {
-      font-size: 2.5rem;
+      font-size: 2rem;
     }
 
-    .tagline {
-      font-size: 1.125rem;
+    .lead {
+      font-size: 1rem;
     }
 
-    .steps {
-      flex-direction: column;
-      align-items: center;
+    .grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
     }
 
-    .shortcut-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
+    .provider-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    table {
+      font-size: 0.875rem;
+    }
+
+    td:first-child {
+      width: auto;
+    }
+
+    td:nth-child(2) {
+      display: none;
     }
   }
 </style>

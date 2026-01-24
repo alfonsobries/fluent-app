@@ -1,17 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <defs>
-    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366F1;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect x="64" y="64" width="896" height="896" rx="200" ry="200" fill="url(#bgGradient)"/>
-  <text x="280" y="580" font-family="SF Pro Display, -apple-system, Helvetica Neue, Arial, sans-serif" font-size="280" font-weight="700" fill="white" opacity="0.95">A</text>
-  <text x="580" y="580" font-family="SF Pro Display, -apple-system, Helvetica Neue, Arial, sans-serif" font-size="280" font-weight="700" fill="white" opacity="0.95">文</text>
-  <g fill="none" stroke="white" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" opacity="0.9">
-    <path d="M320 280 L704 280"/>
-    <path d="M640 220 L704 280 L640 340"/>
-    <path d="M704 744 L320 744"/>
-    <path d="M384 684 L320 744 L384 804"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#000"/>
+  <text x="4" y="22" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#fff">T</text>
+  <path d="M18 10h8M22 10v12" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
 </svg>

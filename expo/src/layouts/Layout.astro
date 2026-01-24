@@ -4,7 +4,7 @@ interface Props {
   description?: string;
 }
 
-const { title, description = "TranslateTool - AI-powered text translation for macOS" } = Astro.props;
+const { title, description = "AI-powered text processing for macOS" } = Astro.props;
 ---
 
 <!doctype html>
@@ -16,6 +16,9 @@ const { title, description = "TranslateTool - AI-powered text translation for ma
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   </head>
   <body>
     <slot />
@@ -23,17 +26,6 @@ const { title, description = "TranslateTool - AI-powered text translation for ma
 </html>
 
 <style is:global>
-  :root {
-    --accent: #6366f1;
-    --accent-light: #818cf8;
-    --accent-dark: #4f46e5;
-    --bg: #0f0f10;
-    --bg-card: #18181b;
-    --text: #fafafa;
-    --text-muted: #a1a1aa;
-    --border: #27272a;
-  }
-
   * {
     margin: 0;
     padding: 0;
@@ -41,42 +33,48 @@ const { title, description = "TranslateTool - AI-powered text translation for ma
   }
 
   html {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #fff;
+    color: #000;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
 
   body {
     min-height: 100vh;
   }
 
+  ::selection {
+    background: #000;
+    color: #fff;
+  }
+
   a {
-    color: var(--accent-light);
-    text-decoration: none;
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   a:hover {
-    text-decoration: underline;
+    text-decoration-thickness: 2px;
   }
 
   code {
-    font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
-    background: var(--bg-card);
-    padding: 0.2em 0.4em;
-    border-radius: 4px;
-    font-size: 0.9em;
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 0.875em;
+    background: #f0f0f0;
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
   }
 
-  pre {
-    background: var(--bg-card);
-    padding: 1rem;
-    border-radius: 8px;
-    overflow-x: auto;
-    border: 1px solid var(--border);
-  }
-
-  pre code {
-    background: none;
-    padding: 0;
+  kbd {
+    font-family: 'SF Mono', Menlo, monospace;
+    font-size: 0.75em;
+    background: #000;
+    color: #fff;
+    padding: 0.2em 0.5em;
+    border-radius: 3px;
+    font-weight: 500;
   }
 </style>
