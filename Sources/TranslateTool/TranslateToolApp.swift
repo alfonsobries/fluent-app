@@ -3,10 +3,18 @@ import SwiftUI
 @main
 struct TranslateToolApp: App {
     @StateObject var controller = AppController.shared
-    
+
     var body: some Scene {
-        MenuBarExtra("Translate Tool", systemImage: controller.isProcessing ? "hourglass" : "globe") {
+        MenuBarExtra {
             SettingsView(settings: controller.settings)
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: controller.isProcessing ? "hourglass" : "globe")
+                if controller.isProcessing, let actionName = controller.currentActionName {
+                    Text(actionName)
+                        .font(.caption)
+                }
+            }
         }
         .menuBarExtraStyle(.window)
     }

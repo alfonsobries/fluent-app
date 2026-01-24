@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build & Release
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Swift
+        uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.9"
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Build Release
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }} ./build_dmg.sh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            TranslateTool-${{ steps.version.outputs.VERSION }}.dmg
+            TranslateTool-${{ steps.version.outputs.VERSION }}.dmg.sha256
+          body: |
+            ## TranslateTool ${{ steps.version.outputs.VERSION }}
+
+            ### Installation
+            1. Download `TranslateTool-${{ steps.version.outputs.VERSION }}.dmg`
+            2. Open the DMG file
+            3. Drag TranslateTool to your Applications folder
+            4. Open TranslateTool from Applications
+            5. Grant Accessibility permissions when prompted
+            6. Add your API key for your preferred AI provider
+
+            ### Requirements
+            - macOS 13.0 (Ventura) or later
+            - API key from OpenAI, Anthropic, Google, or xAI
+
+            ### Supported AI Providers
+            - OpenAI (GPT-4o-mini)
+            - Anthropic (Claude 3 Haiku)
+            - Google (Gemini 1.5 Flash)
+            - xAI (Grok)
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
