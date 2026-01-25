@@ -203,6 +203,10 @@ class AppSettings: ObservableObject {
         shortcutActions.move(fromOffsets: source, toOffset: destination)
     }
 
+    func resetToDefaults() {
+        shortcutActions = ShortcutAction.defaults
+    }
+
     // MARK: - Enabled Actions
 
     var enabledActions: [ShortcutAction] {

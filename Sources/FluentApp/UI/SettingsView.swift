@@ -50,6 +50,11 @@ struct SettingsView: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     Spacer()
+                    Button(action: { settings.resetToDefaults() }) {
+                        Image(systemName: "arrow.counterclockwise")
+                    }
+                    .buttonStyle(.plain)
+                    .help("Reset to defaults")
                     Button(action: { addNewAction() }) {
                         Image(systemName: "plus")
                     }
