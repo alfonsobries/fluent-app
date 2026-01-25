@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct TranslateToolApp: App {
+struct FluentApp: App {
     @StateObject var controller = AppController.shared
 
     var body: some Scene {

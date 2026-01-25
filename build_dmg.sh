@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# TranslateTool Build Script
+# FluentApp Build Script
 # Builds the app and creates a distributable DMG
 
 set -e
 
-APP_NAME="TranslateTool"
+APP_NAME="FluentApp"
 VERSION="${VERSION:-1.0.0}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
 BUILD_DIR=".build/release"
@@ -63,11 +63,11 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
     <key>CFBundleExecutable</key>
     <string>$APP_NAME</string>
     <key>CFBundleIdentifier</key>
-    <string>com.alfonsobries.$APP_NAME</string>
+    <string>com.alfonsobries.FluentApp</string>
     <key>CFBundleName</key>
     <string>$APP_NAME</string>
     <key>CFBundleDisplayName</key>
-    <string>TranslateTool</string>
+    <string>Fluent</string>
     <key>CFBundleShortVersionString</key>
     <string>$VERSION</string>
     <key>CFBundleVersion</key>
@@ -102,7 +102,13 @@ echo "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"
 
 echo "App Bundle created: $APP_BUNDLE"
 
-# Step 4: Create DMG
+# Step 4: Code Sign the app (ad-hoc signing)
+echo ""
+echo "Code signing the app (ad-hoc)..."
+codesign --force --deep --sign - "$APP_BUNDLE"
+echo "Code signing complete."
+
+# Step 5: Create DMG
 echo ""
 echo "Creating DMG installer..."
 rm -f "$DMG_NAME"
@@ -122,7 +128,7 @@ hdiutil create -volname "$APP_NAME" -srcfolder "$DMG_TEMP" -ov -format UDZO "$DM
 # Cleanup
 rm -rf "$DMG_TEMP"
 
-# Step 5: Generate checksums
+# Step 6: Generate checksums
 echo ""
 echo "Generating checksums..."
 if command -v shasum &> /dev/null; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# GitHub Release Script for TranslateTool
+# GitHub Release Script for FluentApp
 # Creates a new release with DMG artifact
 
 set -e
@@ -14,9 +14,9 @@ fi
 
 VERSION="$1"
 TAG="v$VERSION"
-DMG_NAME="TranslateTool-${VERSION}.dmg"
+DMG_NAME="FluentApp-${VERSION}.dmg"
 
-echo "Creating release for TranslateTool $VERSION..."
+echo "Creating release for FluentApp $VERSION..."
 
 # Step 1: Build the app
 echo ""
@@ -44,7 +44,7 @@ if command -v gh &> /dev/null; then
     echo ""
     echo "Step 4: Creating GitHub release..."
 
-    RELEASE_NOTES="## TranslateTool $VERSION
+    RELEASE_NOTES="## FluentApp $VERSION
 
 ### What's New
 - See commit history for changes
@@ -52,8 +52,8 @@ if command -v gh &> /dev/null; then
 ### Installation
 1. Download \`$DMG_NAME\`
 2. Open the DMG file
-3. Drag TranslateTool to your Applications folder
-4. Open TranslateTool from Applications
+3. Drag FluentApp to your Applications folder
+4. Open FluentApp from Applications
 5. Grant Accessibility permissions when prompted
 6. Add your OpenAI API key in settings
 
@@ -68,12 +68,12 @@ $(cat "$DMG_NAME.sha256" 2>/dev/null || echo "SHA256 not available")
 "
 
     gh release create "$TAG" "$DMG_NAME" "$DMG_NAME.sha256" \
-        --title "TranslateTool $VERSION" \
+        --title "FluentApp $VERSION" \
         --notes "$RELEASE_NOTES"
 
     echo ""
     echo "Release created successfully!"
-    echo "View at: https://github.com/$(gh repo view --json owner,name -q '.owner.login + \"/\" + .name')/releases/tag/$TAG"
+    echo "View at: https://github.com/$(gh repo view --json owner,name -q '.owner.login + "/" + .name')/releases/tag/$TAG"
 else
     echo ""
     echo "GitHub CLI (gh) not installed. To create the release manually:"

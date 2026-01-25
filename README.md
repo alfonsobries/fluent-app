@@ -1,8 +1,8 @@
-# TranslateTool
+# Fluent
 
 A lightweight macOS menu bar app that processes selected text using AI. Translate, improve writing, fix grammar, and more with customizable keyboard shortcuts.
 
-![CI](https://github.com/alfonsobries/translate-tool/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/alfonsobries/fluent-app/actions/workflows/ci.yml/badge.svg)
 ![macOS](https://img.shields.io/badge/macOS-13.0+-blue)
 ![Swift](https://img.shields.io/badge/Swift-5.9-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
@@ -40,10 +40,10 @@ All shortcuts are fully customizable in the app settings.
 
 ### Download (Recommended)
 
-1. Download the latest release from [GitHub Releases](https://github.com/alfonsobries/translate-tool/releases)
+1. Download the latest release from [GitHub Releases](https://github.com/alfonsobries/fluent-app/releases)
 2. Open the DMG file
-3. Drag TranslateTool to your Applications folder
-4. Open TranslateTool from Applications
+3. Drag FluentApp to your Applications folder
+4. Open FluentApp from Applications
 5. Grant Accessibility permissions when prompted
 
 ### Build from Source
@@ -54,8 +54,8 @@ All shortcuts are fully customizable in the app settings.
 
 ```bash
 # Clone the repository
-git clone https://github.com/alfonsobries/translate-tool.git
-cd translate-tool
+git clone https://github.com/alfonsobries/fluent-app.git
+cd fluent-app
 
 # Run in development mode
 swift run
@@ -72,7 +72,7 @@ swift test
 1. **Grant Permissions**
    - On first launch, macOS will ask for Accessibility permissions
    - Go to System Settings > Privacy & Security > Accessibility
-   - Enable TranslateTool
+   - Enable FluentApp
 
 2. **Select AI Provider**
    - Click the globe icon in your menu bar
@@ -115,7 +115,7 @@ Instructions: Rewrite the following text in a formal, professional tone. Maintai
 
 ## Architecture
 
-TranslateTool uses a **Contract/Provider pattern** (similar to Laravel's Service Container) for AI services:
+Fluent uses a **Contract/Provider pattern** (similar to Laravel's Service Container) for AI services:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -144,9 +144,9 @@ This makes it easy to add new AI providers by implementing the `AIProvider` prot
 ## Project Structure
 
 ```
-translate-tool/
-├── Sources/TranslateTool/
-│   ├── TranslateToolApp.swift      # App entry point
+fluent-app/
+├── Sources/FluentApp/
+│   ├── FluentApp.swift            # App entry point
 │   ├── Contracts/
 │   │   ├── AIProvider.swift        # Provider protocol
 │   │   └── AIProviderFactory.swift # Dependency resolver
@@ -167,7 +167,7 @@ translate-tool/
 │       ├── AIProviderSettingsView.swift # Provider config
 │       ├── ShortcutEditView.swift       # Action editor
 │       └── ShortcutRecorderView.swift   # Shortcut capture
-├── Tests/TranslateToolTests/       # Unit tests
+├── Tests/FluentAppTests/           # Unit tests
 ├── Resources/
 │   ├── AppIcon.svg                 # App icon source
 │   └── generate_icon.sh            # Icon generator
@@ -212,7 +212,7 @@ npm run build    # Build for production
 
 ## Privacy
 
-TranslateTool respects your privacy:
+Fluent respects your privacy:
 
 - All API keys are stored only on your device
 - Text is sent directly to your chosen AI provider's API
@@ -226,7 +226,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Adding a New AI Provider
 
-1. Create a new file in `Sources/TranslateTool/Providers/`
+1. Create a new file in `Sources/FluentApp/Providers/`
 2. Implement the `AIProvider` protocol
 3. Add the provider type to `AIProviderType` enum
 4. Register in `AIProviderFactory`

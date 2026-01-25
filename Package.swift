@@ -4,16 +4,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "TranslateTool",
+    name: "FluentApp",
     platforms: [
         .macOS(.v13)
     ],
     products: [
-        .executable(name: "TranslateTool", targets: ["TranslateTool"])
+        .executable(name: "FluentApp", targets: ["FluentApp"])
     ],
     targets: [
         .executableTarget(
-            name: "TranslateTool",
+            name: "FluentApp",
             dependencies: [],
             linkerSettings: [
                 .linkedFramework("Carbon"),
@@ -21,9 +21,9 @@ let package = Package(
             ]
         ),
         .testTarget(
-            name: "TranslateToolTests",
+            name: "FluentAppTests",
             dependencies: [],
-            path: "Tests/TranslateToolTests"
+            path: "Tests/FluentAppTests"
         )
     ]
 )

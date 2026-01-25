@@ -48,16 +48,16 @@ jobs:
         with:
           tag_name: v${{ inputs.version }}
           files: |
-            TranslateTool-${{ inputs.version }}.dmg
-            TranslateTool-${{ inputs.version }}.dmg.sha256
+            FluentApp-${{ inputs.version }}.dmg
+            FluentApp-${{ inputs.version }}.dmg.sha256
           body: |
-            ## TranslateTool ${{ inputs.version }}
+            ## FluentApp ${{ inputs.version }}
 
             ### Installation
-            1. Download `TranslateTool-${{ inputs.version }}.dmg`
+            1. Download `FluentApp-${{ inputs.version }}.dmg`
             2. Open the DMG file
-            3. Drag TranslateTool to your Applications folder
-            4. Open TranslateTool from Applications
+            3. Drag FluentApp to your Applications folder
+            4. Open FluentApp from Applications
             5. Grant Accessibility permissions when prompted
             6. Add your API key for your preferred AI provider
 

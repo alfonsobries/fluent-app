@@ -15,7 +15,7 @@ struct SettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             // Header
             HStack {
-                Text("TranslateTool")
+                Text("Fluent")
                     .font(.title2)
                     .fontWeight(.semibold)
                 Spacer()
