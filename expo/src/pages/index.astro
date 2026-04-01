@@ -9,38 +9,53 @@ const releasesUrl = `${repoUrl}/releases/latest`;
 
 const featureCards = [
   {
-    title: 'Translate in place',
-    body: 'Select text in Mail, Slack, Notes, Safari, VS Code, or any editable app. Fluent App replaces the selection directly.'
+    title: 'Translate without switching apps',
+    body: 'Select text in Mail, Slack, Notes, Docs, Figma, Safari, or your editor and translate it right there instead of bouncing to ChatGPT or DeepL.'
   },
   {
-    title: 'Custom prompts per shortcut',
-    body: 'Create dedicated actions for rewriting, summarizing, translating, fixing grammar, or any custom text workflow.'
+    title: 'Improve writing in one shortcut',
+    body: 'Fix grammar, make text clearer, change tone, or rewrite something to sound more polished while keeping your flow.'
   },
   {
-    title: 'Bring your own model',
-    body: 'Works with OpenAI, Anthropic, Gemini, and Grok so you can keep using the provider you already prefer.'
+    title: 'Works inside the apps you already use',
+    body: 'The point is convenience. Fluent App works on top of the app you are already in, so you do not have to copy, open another tool, paste, and come back.'
   },
   {
-    title: 'Native and lightweight',
-    body: 'Built with Swift and AppKit for a real macOS feel. No Electron shell, no tab switching, no analytics pipeline.'
+    title: 'Expandable beyond translation',
+    body: 'Create shortcuts for summaries, professional rewrites, language changes, cleanup, or any repeated text task you want to automate.'
+  }
+];
+
+const problemCards = [
+  {
+    title: 'You keep rewriting the same text by hand',
+    body: 'Messages, emails, docs, comments, tickets, product copy, support responses. The work repeats, but the apps keep changing.'
+  },
+  {
+    title: 'You lose time copy-pasting into AI tools',
+    body: 'Select text, copy, open another window, paste, ask, copy again, come back, paste again. It breaks concentration every time.'
+  },
+  {
+    title: 'You want the result where you are already working',
+    body: 'The useful part is not just AI. It is getting translation or improved writing directly inside the current app with one shortcut.'
   }
 ];
 
 const steps = [
   {
     index: '01',
-    title: 'Select text anywhere',
-    body: 'Fluent App uses macOS Accessibility permissions to capture the current text selection from the active app.'
+    title: 'Select any text',
+    body: 'Highlight text in whatever app you are using at the moment.'
   },
   {
     index: '02',
-    title: 'Press your shortcut',
-    body: 'Use the default actions or define your own global shortcuts with custom prompts and providers.'
+    title: 'Trigger a shortcut',
+    body: 'Use a built-in action like Translate or Improve Writing, or create your own.'
   },
   {
     index: '03',
-    title: 'Replace it instantly',
-    body: 'The selected text is sent to your chosen model and pasted back in place without leaving your current context.'
+    title: 'Get the new text in place',
+    body: 'Fluent App sends the text to your chosen model and pastes the result back into the same spot.'
   }
 ];
 
@@ -85,9 +100,9 @@ const defaultShortcuts = [
 ---
 
 <Layout title={title} description={description}>
-  <main class="mx-auto max-w-[1240px] px-4 pb-16 pt-5 sm:px-6 sm:pb-24">
-    <section class="surface-card bg-hero-glow p-6 shadow-halo sm:p-8">
-      <header class="mb-14 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+  <main class="mx-auto max-w-[1180px] px-5 pb-24 pt-6 sm:px-8 sm:pb-32">
+    <section class="surface-card bg-hero-glow p-7 shadow-halo sm:p-10">
+      <header class="mb-16 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <a href="/" class="inline-flex items-center gap-3 no-underline">
           <span class="inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
             <img src="/favicon.svg" alt="" class="h-full w-full object-cover" />
@@ -103,20 +118,21 @@ const defaultShortcuts = [
         </nav>
       </header>
 
-      <div class="grid gap-12 lg:grid-cols-[minmax(0,1.12fr)_minmax(380px,0.88fr)] lg:items-center">
+      <div class="grid gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)] lg:items-start">
         <div>
           <span class="eyebrow">
             <span class="h-2 w-2 rounded-full bg-white/90"></span>
-            Native macOS menu bar app
+            For people who translate and rewrite all day
           </span>
 
-          <h1 class="mt-5 max-w-[11ch] text-5xl font-semibold leading-[0.93] tracking-tighterest text-white sm:text-7xl xl:text-[5.7rem]">
-            AI shortcuts for the text you already have selected.
+          <h1 class="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.95] tracking-tighterest text-white sm:text-7xl xl:text-[5.5rem]">
+            Translate and improve text in any app without breaking your flow.
           </h1>
 
-          <p class="mt-6 max-w-2xl text-base leading-7 text-white/68 sm:text-lg">
-            Fluent App lives in the menu bar, listens for your global shortcuts, captures selected text from any app,
-            sends it to your preferred model, and pastes the result back in place. No manual copy and paste. No context switching.
+          <p class="mt-7 max-w-2xl text-[1.05rem] leading-8 text-white/68 sm:text-[1.15rem]">
+            Fluent App is built for the annoying part of modern writing work: translating messages, fixing grammar,
+            improving tone, rewriting copy, and summarizing text across different apps all day long. Instead of leaving
+            the app you are in, you select text, press a shortcut, and get the result right there.
           </p>
 
           <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -134,70 +150,66 @@ const defaultShortcuts = [
             </a>
           </div>
 
-          <div class="mt-6 flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/45">
-            <span>MIT licensed</span>
+          <div class="mt-7 flex max-w-3xl flex-wrap gap-x-5 gap-y-2 text-sm text-white/45">
+            <span>Works across apps</span>
+            <span>Translation and writing shortcuts</span>
             <span>Open source</span>
             <span>macOS 13+</span>
-            <span>OpenAI, Claude, Gemini, Grok</span>
           </div>
         </div>
 
         <div class="relative">
-          <div class="overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
-            <div class="flex h-14 items-center gap-2 border-b border-white/5 px-5">
-              <span class="h-3 w-3 rounded-full bg-white/15"></span>
-              <span class="h-3 w-3 rounded-full bg-white/15"></span>
-              <span class="h-3 w-3 rounded-full bg-white/15"></span>
+          <div class="space-y-4">
+            <div class="surface-card p-6">
+              <p class="text-sm font-medium text-white/40">What it feels like</p>
+              <div class="mt-5 space-y-4">
+                <div class="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
+                  <p class="text-xs uppercase tracking-[0.18em] text-white/35">Before</p>
+                  <p class="mt-2 text-sm leading-6 text-white/62">
+                    Copy selected text, open another AI tab, paste it, ask for translation or cleanup, copy the answer, return, paste again.
+                  </p>
+                </div>
+                <div class="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
+                  <p class="text-xs uppercase tracking-[0.18em] text-white/35">With Fluent App</p>
+                  <p class="mt-2 text-sm leading-6 text-white/78">
+                    Select text, press a shortcut, keep working.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div class="space-y-5 p-5">
+            <div class="surface-card p-6">
               <div class="flex items-center justify-between gap-4">
-                <div class="inline-flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-white/10 bg-white/5">
-                  <img src="/favicon.svg" alt="" class="h-full w-full object-cover" />
+                <div>
+                  <p class="text-sm font-semibold text-white">Default shortcuts</p>
+                  <p class="mt-1 text-sm text-white/45">Ready on day one</p>
                 </div>
                 <div class="rounded-full border border-white/10 bg-black/70 px-3 py-2 text-xs font-medium text-white/90">
                   Translating...
                 </div>
               </div>
 
-              <div class="rounded-[24px] border border-white/10 bg-white/[0.035] p-5">
-                <div class="flex items-start justify-between gap-4">
+              <div class="mt-5 space-y-3">
+                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
                   <div>
-                    <p class="text-sm font-semibold text-white">Fluent App</p>
-                    <p class="mt-1 text-sm text-white/50">Shortcuts</p>
+                    <p class="text-sm font-semibold text-white">Translate</p>
+                    <p class="text-sm text-white/50">Cmd + Shift + O</p>
                   </div>
-                  <div class="rounded-full bg-white/6 px-3 py-1.5 text-xs text-white/80">OpenAI</div>
+                  <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">Default</span>
                 </div>
-
-                <div class="mt-5 space-y-3">
-                  <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
-                    <div>
-                      <p class="text-sm font-semibold text-white">Translate</p>
-                      <p class="text-sm text-white/50">Cmd + Shift + O</p>
-                    </div>
-                    <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">On</span>
+                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
+                  <div>
+                    <p class="text-sm font-semibold text-white">Improve Writing</p>
+                    <p class="text-sm text-white/50">Cmd + Shift + I</p>
                   </div>
-                  <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
-                    <div>
-                      <p class="text-sm font-semibold text-white">Improve Writing</p>
-                      <p class="text-sm text-white/50">Cmd + Shift + I</p>
-                    </div>
-                    <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">On</span>
-                  </div>
-                  <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3 opacity-80">
-                    <div>
-                      <p class="text-sm font-semibold text-white">Summarize</p>
-                      <p class="text-sm text-white/50">Custom prompt</p>
-                    </div>
-                    <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">New</span>
-                  </div>
+                  <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">Default</span>
                 </div>
-
-                <div class="mt-4 rounded-2xl bg-black/20 p-4">
-                  <p class="text-xs uppercase tracking-[0.12em] text-white/45">Prompt</p>
-                  <p class="mt-2 text-sm leading-6 text-white/78">
-                    Summarize the selected text in 3 concise bullet points. Keep the same language as the input.
-                  </p>
+                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
+                  <div>
+                    <p class="text-sm font-semibold text-white">Custom actions</p>
+                    <p class="text-sm text-white/50">Summaries, tone changes, language conversion, cleanup</p>
+                  </div>
+                  <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">Flexible</span>
                 </div>
               </div>
             </div>
@@ -206,30 +218,24 @@ const defaultShortcuts = [
       </div>
     </section>
 
-    <section class="mt-5 grid gap-4 lg:grid-cols-3">
-      <article class="surface-card p-6">
-        <h2 class="text-lg font-semibold tracking-[-0.03em] text-white">Global shortcuts</h2>
-        <p class="mt-2 text-sm leading-6 text-white/65">Trigger actions from any app and keep your hands on the keyboard.</p>
-      </article>
-      <article class="surface-card p-6">
-        <h2 class="text-lg font-semibold tracking-[-0.03em] text-white">Bring your own model</h2>
-        <p class="mt-2 text-sm leading-6 text-white/65">Use OpenAI, Claude, Gemini, or Grok without changing the app around your workflow.</p>
-      </article>
-      <article class="surface-card p-6">
-        <h2 class="text-lg font-semibold tracking-[-0.03em] text-white">Open-source release flow</h2>
-        <p class="mt-2 text-sm leading-6 text-white/65">GitHub releases, checksums, CI, and Apple signing support are already part of the project.</p>
-      </article>
+    <section class="mt-8 grid gap-4 lg:grid-cols-3">
+      {problemCards.map((card) => (
+        <article class="surface-card p-6">
+          <h2 class="text-lg font-semibold tracking-[-0.03em] text-white">{card.title}</h2>
+          <p class="mt-3 text-sm leading-6 text-white/65">{card.body}</p>
+        </article>
+      ))}
     </section>
 
-    <section id="features" class="mt-24">
+    <section id="features" class="mt-32">
       <div class="max-w-3xl">
-        <span class="eyebrow">Features</span>
-        <h2 class="section-title">Built for people who rewrite text all day.</h2>
+        <span class="eyebrow">Why it is useful</span>
+        <h2 class="section-title">Made for real text work, not just AI demos.</h2>
       </div>
 
-      <div class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {featureCards.map((feature) => (
-          <article class="surface-card p-6">
+          <article class="surface-card p-7">
             <h3 class="text-lg font-semibold tracking-[-0.03em] text-white">{feature.title}</h3>
             <p class="mt-3 text-sm leading-6 text-white/65">{feature.body}</p>
           </article>
@@ -237,15 +243,15 @@ const defaultShortcuts = [
       </div>
     </section>
 
-    <section id="how-it-works" class="mt-24">
+    <section id="how-it-works" class="mt-32">
       <div class="max-w-3xl">
         <span class="eyebrow">How it works</span>
-        <h2 class="section-title">Three steps. No context switching.</h2>
+        <h2 class="section-title">Three steps, inside the app you are already using.</h2>
       </div>
 
-      <div class="mt-8 grid gap-4 lg:grid-cols-3">
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
         {steps.map((step) => (
-          <article class="surface-card p-6">
+          <article class="surface-card p-7">
             <p class="text-xs uppercase tracking-[0.18em] text-white/40">{step.index}</p>
             <h3 class="mt-6 text-lg font-semibold tracking-[-0.03em] text-white">{step.title}</h3>
             <p class="mt-3 text-sm leading-6 text-white/65">{step.body}</p>
@@ -254,15 +260,15 @@ const defaultShortcuts = [
       </div>
     </section>
 
-    <section class="mt-24">
+    <section class="mt-32">
       <div class="max-w-3xl">
-        <span class="eyebrow">Defaults</span>
-        <h2 class="section-title">Start useful, then make it your own.</h2>
+        <span class="eyebrow">Shortcuts</span>
+        <h2 class="section-title">Start with translation and writing help, then expand from there.</h2>
       </div>
 
-      <div class="surface-card mt-8 overflow-hidden">
+      <div class="surface-card mt-10 overflow-hidden">
         {defaultShortcuts.map((shortcut) => (
-          <div class="grid gap-4 border-b border-white/5 px-6 py-6 last:border-b-0 md:grid-cols-[240px_1fr] md:items-center">
+          <div class="grid gap-4 border-b border-white/5 px-7 py-7 last:border-b-0 md:grid-cols-[240px_1fr] md:items-center">
             <div class="flex flex-wrap items-center gap-2">
               {shortcut.keys.map((key) => (
                 <kbd class="rounded-lg border border-white/10 bg-white/8 px-2.5 py-1 font-mono text-xs text-white">
@@ -279,14 +285,14 @@ const defaultShortcuts = [
       </div>
     </section>
 
-    <section class="mt-24">
-      <div class="surface-card grid gap-8 p-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+    <section class="mt-32">
+      <div class="surface-card grid gap-8 p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div class="max-w-3xl">
           <span class="eyebrow">Download</span>
-          <h2 class="section-title">Install the latest release.</h2>
+          <h2 class="section-title">Install it and use it where you already work.</h2>
           <p class="mt-4 text-base leading-7 text-white/65">
-            The download button resolves the latest GitHub release asset directly. If you later publish separate
-            Apple Silicon and Intel DMGs, the same logic can choose the best file automatically based on the visitor platform.
+            Fluent App is for people who repeatedly translate and improve text across apps and want that friction gone.
+            Download the latest macOS build directly from GitHub Releases.
           </p>
         </div>
 
@@ -307,15 +313,15 @@ const defaultShortcuts = [
       </div>
     </section>
 
-    <section id="open-source" class="mt-24">
+    <section id="open-source" class="mt-32">
       <div class="max-w-3xl">
         <span class="eyebrow">Open source</span>
-        <h2 class="section-title">Public, inspectable, and ready to ship.</h2>
+        <h2 class="section-title">Public, inspectable, and ready to extend.</h2>
       </div>
 
-      <div class="mt-8 grid gap-4 lg:grid-cols-3">
+      <div class="mt-10 grid gap-5 lg:grid-cols-3">
         {openSourceCards.map((card) => (
-          <article class="surface-card p-6">
+          <article class="surface-card p-7">
             <h3 class="text-lg font-semibold tracking-[-0.03em] text-white">{card.title}</h3>
             <p class="mt-3 text-sm leading-6 text-white/65">{card.body}</p>
             <a class="mt-5 inline-flex text-sm text-white/70 transition hover:text-white" href={card.href} target="_blank" rel="noreferrer">
@@ -326,7 +332,7 @@ const defaultShortcuts = [
       </div>
     </section>
 
-    <footer class="mt-24 flex flex-col gap-6 pt-6 text-sm text-white/55 lg:flex-row lg:items-start lg:justify-between">
+    <footer class="mt-32 flex flex-col gap-6 pt-2 text-sm text-white/55 lg:flex-row lg:items-start lg:justify-between">
       <div class="max-w-lg">
         <p class="text-base font-semibold tracking-[-0.03em] text-white">Fluent App</p>
         <p class="mt-2 leading-6 text-white/55">
