@@ -6,6 +6,8 @@ const description =
   'Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Translate, rewrite, summarize, and improve selected text from any app with a keyboard shortcut.';
 const repoUrl = 'https://github.com/alfonsobries/fluent-app';
 const releasesUrl = `${repoUrl}/releases/latest`;
+const demoVideoUrl = '/fluent-demo.mp4';
+const demoPosterUrl = '/fluent-demo-poster.jpg';
 
 const featureCards = [
   {
@@ -100,7 +102,7 @@ const defaultShortcuts = [
 ---
 
 <Layout title={title} description={description}>
-  <main class="mx-auto max-w-[1180px] px-5 pb-24 pt-6 sm:px-8 sm:pb-32">
+  <main class="mx-auto max-w-[1320px] px-5 pb-24 pt-6 sm:px-8 sm:pb-32">
     <section class="surface-card bg-hero-glow p-7 shadow-halo sm:p-10">
       <header class="mb-16 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <a href="/" class="inline-flex items-center gap-3 no-underline">
@@ -118,14 +120,14 @@ const defaultShortcuts = [
         </nav>
       </header>
 
-      <div class="grid gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(320px,0.8fr)] lg:items-start">
+      <div class="grid gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.92fr)] lg:items-start">
         <div>
           <span class="eyebrow">
             <span class="h-2 w-2 rounded-full bg-white/90"></span>
             For people who translate and rewrite all day
           </span>
 
-          <h1 class="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.95] tracking-tighterest text-white sm:text-7xl xl:text-[5.5rem]">
+          <h1 class="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.95] tracking-tighterest text-white sm:text-[5.5rem] xl:text-[5rem]">
             Translate and improve text in any app without breaking your flow.
           </h1>
 
@@ -153,64 +155,57 @@ const defaultShortcuts = [
           <div class="mt-7 flex max-w-3xl flex-wrap gap-x-5 gap-y-2 text-sm text-white/45">
             <span>Works across apps</span>
             <span>Translation and writing shortcuts</span>
+            <span>Use your own API keys</span>
             <span>Open source</span>
             <span>macOS 13+</span>
           </div>
         </div>
 
         <div class="relative">
-          <div class="space-y-4">
-            <div class="surface-card p-6">
-              <p class="text-sm font-medium text-white/40">What it feels like</p>
-              <div class="mt-5 space-y-4">
-                <div class="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <p class="text-xs uppercase tracking-[0.18em] text-white/35">Before</p>
-                  <p class="mt-2 text-sm leading-6 text-white/62">
-                    Copy selected text, open another AI tab, paste it, ask for translation or cleanup, copy the answer, return, paste again.
-                  </p>
-                </div>
-                <div class="rounded-2xl border border-white/8 bg-white/[0.05] p-4">
-                  <p class="text-xs uppercase tracking-[0.18em] text-white/35">With Fluent App</p>
-                  <p class="mt-2 text-sm leading-6 text-white/78">
-                    Select text, press a shortcut, keep working.
-                  </p>
-                </div>
+          <div class="surface-card overflow-hidden p-4 sm:p-5">
+            <div class="mb-4 px-1">
+              <div>
+                <p class="text-sm font-semibold text-white">Product demo</p>
+                <p class="mt-1 text-sm text-white/45">Translate first, then improve the result in place</p>
               </div>
             </div>
 
-            <div class="surface-card p-6">
-              <div class="flex items-center justify-between gap-4">
-                <div>
-                  <p class="text-sm font-semibold text-white">Default shortcuts</p>
-                  <p class="mt-1 text-sm text-white/45">Ready on day one</p>
-                </div>
-                <div class="rounded-full border border-white/10 bg-black/70 px-3 py-2 text-xs font-medium text-white/90">
-                  Translating...
-                </div>
+            <button
+              type="button"
+              data-demo-open
+              class="group relative block w-full overflow-hidden rounded-[24px] border border-white/8 bg-black text-left outline-none ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20"
+              aria-label="Play demo video"
+            >
+              <img src={demoPosterUrl} alt="Fluent App demo in Apple Mail" class="block w-full" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent"></div>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="flex h-20 w-20 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white shadow-[0_20px_40px_rgba(0,0,0,0.28)] backdrop-blur-md transition duration-150 group-hover:scale-[1.03] group-hover:bg-white/14">
+                  <svg viewBox="0 0 24 24" class="ml-1 h-8 w-8 fill-current" aria-hidden="true">
+                    <path d="M8 6.5v11l9-5.5-9-5.5Z"></path>
+                  </svg>
+                </span>
               </div>
+              <div class="absolute inset-x-0 bottom-0 flex items-end justify-between px-5 pb-5">
+                <div>
+                  <p class="text-xs uppercase tracking-[0.18em] text-white/45">Watch demo</p>
+                  <p class="mt-2 text-sm text-white/82">See translation and rewriting happen directly inside Mail.</p>
+                </div>
+                <span class="rounded-full bg-black/55 px-3 py-1.5 text-xs text-white/78 backdrop-blur-sm">0:06</span>
+              </div>
+            </button>
 
-              <div class="mt-5 space-y-3">
-                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
-                  <div>
-                    <p class="text-sm font-semibold text-white">Translate</p>
-                    <p class="text-sm text-white/50">Cmd + Shift + O</p>
-                  </div>
-                  <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">Default</span>
-                </div>
-                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
-                  <div>
-                    <p class="text-sm font-semibold text-white">Improve Writing</p>
-                    <p class="text-sm text-white/50">Cmd + Shift + I</p>
-                  </div>
-                  <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">Default</span>
-                </div>
-                <div class="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-4 py-3">
-                  <div>
-                    <p class="text-sm font-semibold text-white">Custom actions</p>
-                    <p class="text-sm text-white/50">Summaries, tone changes, language conversion, cleanup</p>
-                  </div>
-                  <span class="rounded-full bg-white/6 px-3 py-1 text-xs text-white/80">Flexible</span>
-                </div>
+            <div class="mt-4 grid gap-3 sm:grid-cols-3">
+              <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                <p class="text-xs uppercase tracking-[0.16em] text-white/35">Select</p>
+                <p class="mt-2 text-sm leading-6 text-white/72">Highlight text directly inside Mail.</p>
+              </div>
+              <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                <p class="text-xs uppercase tracking-[0.16em] text-white/35">Translate</p>
+                <p class="mt-2 text-sm leading-6 text-white/72">Run a shortcut and replace the text instantly.</p>
+              </div>
+              <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
+                <p class="text-xs uppercase tracking-[0.16em] text-white/35">Improve</p>
+                <p class="mt-2 text-sm leading-6 text-white/72">Use another shortcut to polish the new version.</p>
               </div>
             </div>
           </div>
@@ -349,6 +344,36 @@ const defaultShortcuts = [
     </footer>
   </main>
 
+  <dialog
+    data-demo-dialog
+    class="m-auto w-[min(1180px,calc(100vw-24px))] overflow-visible border-0 bg-transparent p-0 text-white shadow-none backdrop:bg-black/72"
+  >
+    <div class="relative mx-auto">
+      <button
+        type="button"
+        data-demo-close
+        class="absolute -right-1 -top-12 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/8 text-white/75 backdrop-blur-md transition hover:bg-white/12 hover:text-white"
+        aria-label="Close demo"
+      >
+        <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
+        </svg>
+      </button>
+
+      <div class="overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_40px_140px_rgba(0,0,0,0.55)]">
+        <video
+          data-demo-video
+          class="block max-h-[82vh] w-full"
+          src={demoVideoUrl}
+          poster={demoPosterUrl}
+          controls
+          playsinline
+          preload="metadata"
+        ></video>
+      </div>
+    </div>
+  </dialog>
+
   <script is:inline>
     const buttons = Array.from(document.querySelectorAll('[data-release-api]'));
     const preferredArch = (() => {
@@ -405,5 +430,36 @@ const defaultShortcuts = [
     };
 
     hydrateDownloadButtons();
+
+    const demoDialog = document.querySelector('[data-demo-dialog]');
+    const demoOpen = document.querySelector('[data-demo-open]');
+    const demoClose = document.querySelector('[data-demo-close]');
+    const demoVideo = document.querySelector('[data-demo-video]');
+
+    const closeDemo = () => {
+      if (!demoDialog?.open) return;
+      demoDialog.close();
+      if (demoVideo instanceof HTMLVideoElement) {
+        demoVideo.pause();
+        demoVideo.currentTime = 0;
+      }
+    };
+
+    demoOpen?.addEventListener('click', () => {
+      if (!(demoDialog instanceof HTMLDialogElement)) return;
+      demoDialog.showModal();
+      if (demoVideo instanceof HTMLVideoElement) {
+        demoVideo.currentTime = 0;
+        demoVideo.play().catch(() => {});
+      }
+    });
+
+    demoClose?.addEventListener('click', closeDemo);
+
+    demoDialog?.addEventListener('click', (event) => {
+      if (event.target === demoDialog) {
+        closeDemo();
+      }
+    });
   </script>
 </Layout>
