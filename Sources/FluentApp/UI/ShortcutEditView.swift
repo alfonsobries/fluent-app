@@ -16,7 +16,7 @@ struct ShortcutEditView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
+        HStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Text("Actions")
@@ -62,23 +62,29 @@ struct ShortcutEditView: View {
                     .onDelete(perform: deleteItems)
                     .onMove(perform: settings.moveAction)
                 }
+                .frame(minWidth: 260, idealWidth: 280, maxWidth: 300)
             }
-        } detail: {
-            if let action = selectedAction {
-                editor(for: action)
-                    .id(action.id)
-            } else {
-                VStack(spacing: 12) {
-                    Image(systemName: "command")
-                        .font(.system(size: 28))
-                        .foregroundStyle(.secondary)
-                    Text("Select a shortcut")
-                        .font(.title3)
-                        .fontWeight(.semibold)
-                    Text("Choose an existing shortcut or create a new one from a template.")
-                        .foregroundStyle(.secondary)
+            .padding(.trailing, 20)
+
+            Divider()
+
+            Group {
+                if let action = selectedAction {
+                    editor(for: action)
+                        .id(action.id)
+                } else {
+                    VStack(spacing: 12) {
+                        Image(systemName: "command")
+                            .font(.system(size: 28))
+                            .foregroundStyle(.secondary)
+                        Text("Select a shortcut")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                        Text("Choose an existing shortcut or create a new one from a template.")
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
         .onAppear(perform: syncDraft)

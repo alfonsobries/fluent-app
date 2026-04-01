@@ -89,13 +89,31 @@ struct APIKeyRow: View {
             }
 
             if isEditing {
-                HStack {
-                    SecureField(provider.apiKeyPlaceholder, text: $tempKey)
-                    Button("Save") {
-                        apiKey = tempKey
-                        isEditing = false
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Paste your full API key")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    SecureField(fullPlaceholder, text: $tempKey)
+                        .textFieldStyle(.roundedBorder)
+
+                    Text("Paste the complete key exactly as provided by \(provider.displayName). Do not remove the prefix.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    HStack {
+                        Spacer()
+                        Button("Cancel") {
+                            tempKey = apiKey
+                            isEditing = false
+                        }
+
+                        Button("Save") {
+                            apiKey = tempKey
+                            isEditing = false
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
                 }
             }
         }
@@ -105,5 +123,18 @@ struct APIKeyRow: View {
     private var maskedKey: String {
         guard apiKey.count > 8 else { return "••••••••" }
         return "\(apiKey.prefix(4))••••\(apiKey.suffix(4))"
+    }
+
+    private var fullPlaceholder: String {
+        switch provider {
+        case .openai:
+            return "Paste your full key, for example sk-proj-..."
+        case .claude:
+            return "Paste your full key, for example sk-ant-..."
+        case .gemini:
+            return "Paste your full key, for example AI..."
+        case .grok:
+            return "Paste your full key, for example xai-..."
+        }
     }
 }
