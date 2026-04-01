@@ -22,7 +22,11 @@ fi
 
 echo ""
 echo "FluentCore coverage summary:"
-xcrun llvm-cov report "$BIN_PATH" --instr-profile "$PROFILE_PATH" | rg 'Sources/FluentCore'
+if command -v rg >/dev/null 2>&1; then
+  xcrun llvm-cov report "$BIN_PATH" --instr-profile "$PROFILE_PATH" | rg 'Sources/FluentCore'
+else
+  xcrun llvm-cov report "$BIN_PATH" --instr-profile "$PROFILE_PATH" | grep 'Sources/FluentCore'
+fi
 
 UNCOVERED_LINES="$(
   xcrun llvm-cov show "$BIN_PATH" --instr-profile "$PROFILE_PATH" $(find Sources/FluentCore -name '*.swift' -print) \
