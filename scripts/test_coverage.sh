@@ -7,8 +7,18 @@ cd "$ROOT_DIR"
 
 swift test --enable-code-coverage
 
-BIN_PATH=".build/arm64-apple-macosx/debug/FluentAppPackageTests.xctest/Contents/MacOS/FluentAppPackageTests"
-PROFILE_PATH=".build/arm64-apple-macosx/debug/codecov/default.profdata"
+BIN_PATH="$(find .build -path '*/debug/FluentAppPackageTests.xctest/Contents/MacOS/FluentAppPackageTests' -print -quit)"
+PROFILE_PATH="$(find .build -path '*/debug/codecov/default.profdata' -print -quit)"
+
+if [[ -z "$BIN_PATH" || ! -f "$BIN_PATH" ]]; then
+  echo "Coverage binary not found."
+  exit 127
+fi
+
+if [[ -z "$PROFILE_PATH" || ! -f "$PROFILE_PATH" ]]; then
+  echo "Coverage profile not found."
+  exit 127
+fi
 
 echo ""
 echo "FluentCore coverage summary:"

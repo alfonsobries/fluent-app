@@ -138,4 +138,23 @@ final class AppControllerTests: XCTestCase {
 
         XCTAssertTrue(controller.settings === replacement)
     }
+
+    func testPasteErrorMessageOnlyWhenAccessibilityIsGranted() {
+        let clipboard = MockClipboardService()
+        let controller = AppController(
+            settings: AppSettings(userDefaults: UserDefaults(suiteName: UUID().uuidString)!),
+            clipboardService: clipboard,
+            hotKeyManager: MockHotKeyManager()
+        )
+
+        clipboard.permissionGranted = false
+        controller.pasteErrorMessageIfPossible("Missing API key")
+        XCTAssertEqual(clipboard.promptedValues, [false])
+        XCTAssertTrue(clipboard.pastedTexts.isEmpty)
+
+        clipboard.permissionGranted = true
+        controller.pasteErrorMessageIfPossible("Missing API key")
+        XCTAssertEqual(clipboard.promptedValues, [false, false])
+        XCTAssertEqual(clipboard.pastedTexts, ["Fluent App Error: Missing API key"])
+    }
 }
