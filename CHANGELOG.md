@@ -19,7 +19,7 @@
 
 ### Features
 
-* Initial release of Fluent
+* Initial release of Fluent App
 * macOS menu bar application for AI-powered text processing
 * Support for multiple AI providers (OpenAI, Anthropic, Google, xAI)
 * Global hotkey support

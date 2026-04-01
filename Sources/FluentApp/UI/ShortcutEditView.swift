@@ -1,102 +1,173 @@
+import FluentCore
 import SwiftUI
 
 struct ShortcutEditView: View {
-    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var settings: AppSettings
+    @Binding var selectedShortcutID: ShortcutAction.ID?
 
-    @Binding var action: ShortcutAction
-    var onDelete: (() -> Void)?
-    var isNew: Bool = false
+    @State private var draft = ShortcutActionForm()
 
-    @State private var name: String = ""
-    @State private var keyCode: UInt32 = 0
-    @State private var modifiers: UInt32 = 0
-    @State private var prompt: String = ""
-    @State private var isEnabled: Bool = true
+    private var selectedAction: ShortcutAction? {
+        settings.shortcutActions.first { $0.id == selectedShortcutID }
+    }
+
+    private var validationMessages: [String] {
+        draft.validationMessages(existingActions: settings.shortcutActions, editingID: selectedAction?.id)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(isNew ? "New Shortcut Action" : "Edit Shortcut Action")
-                .font(.headline)
+        HStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("Actions")
+                        .font(.title3)
+                        .fontWeight(.semibold)
+                    Spacer()
+                    Button("Reset Defaults") {
+                        settings.resetToDefaults()
+                        selectedShortcutID = settings.shortcutActions.first?.id
+                        syncDraft()
+                    }
+                }
 
-            // Name
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Name")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                TextField("e.g., Translate, Improve Writing", text: $name)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                Menu("New Shortcut") {
+                    Button("Blank Shortcut") {
+                        let action = ShortcutAction(name: "New Shortcut", keyCode: 0, modifiers: 0, prompt: "")
+                        settings.addAction(action)
+                        selectedShortcutID = action.id
+                        syncDraft()
+                    }
+
+                    Divider()
+
+                    ForEach(ShortcutCatalog.templates) { template in
+                        Button(template.name) {
+                            let action = settings.addAction(from: template)
+                            selectedShortcutID = action.id
+                            syncDraft()
+                        }
+                    }
+                }
+
+                List(selection: $selectedShortcutID) {
+                    ForEach(settings.shortcutActions) { action in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(action.name)
+                            Text(action.shortcutDescription)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .tag(action.id)
+                    }
+                    .onDelete(perform: deleteItems)
+                    .onMove(perform: settings.moveAction)
+                }
+                .frame(minWidth: 260, idealWidth: 280, maxWidth: 300)
             }
-
-            // Shortcut
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Keyboard Shortcut")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                ShortcutRecorderView(keyCode: $keyCode, modifiers: $modifiers)
-            }
-
-            // Instructions
-            VStack(alignment: .leading, spacing: 4) {
-                Text("AI Instructions")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                TextEditor(text: $prompt)
-                    .frame(height: 120)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
-                Text("These instructions tell the AI how to process the selected text.")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-
-            // Enabled toggle
-            Toggle("Enabled", isOn: $isEnabled)
+            .padding(.trailing, 20)
 
             Divider()
 
-            // Actions
-            HStack {
-                if !isNew, let onDelete = onDelete {
-                    Button("Delete", role: .destructive) {
-                        onDelete()
-                        dismiss()
+            Group {
+                if let action = selectedAction {
+                    editor(for: action)
+                        .id(action.id)
+                } else {
+                    VStack(spacing: 12) {
+                        Image(systemName: "command")
+                            .font(.system(size: 28))
+                            .foregroundStyle(.secondary)
+                        Text("Select a shortcut")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                        Text("Choose an existing shortcut or create a new one from a template.")
+                            .foregroundStyle(.secondary)
                     }
-                    .foregroundColor(.red)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-
-                Spacer()
-
-                Button("Cancel") {
-                    dismiss()
-                }
-                .keyboardShortcut(.escape)
-
-                Button("Save") {
-                    saveAction()
-                    dismiss()
-                }
-                .keyboardShortcut(.return)
-                .disabled(name.isEmpty || prompt.isEmpty || modifiers == 0)
             }
         }
-        .padding()
-        .frame(width: 450, height: 420)
-        .onAppear {
-            name = action.name
-            keyCode = action.keyCode
-            modifiers = action.modifiers
-            prompt = action.prompt
-            isEnabled = action.isEnabled
+        .onAppear(perform: syncDraft)
+        .onChange(of: selectedShortcutID) { _ in
+            syncDraft()
         }
     }
 
-    private func saveAction() {
-        action.name = name
-        action.keyCode = keyCode
-        action.modifiers = modifiers
-        action.prompt = prompt
-        action.isEnabled = isEnabled
+    private func editor(for action: ShortcutAction) -> some View {
+        Form {
+            Section("Overview") {
+                TextField("Name", text: $draft.name)
+                Toggle("Enabled", isOn: $draft.isEnabled)
+                Text("Shortcut Preview: \(draft.shortcutPreview)")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Keyboard Shortcut") {
+                ShortcutRecorderView(keyCode: $draft.keyCode, modifiers: $draft.modifiers)
+                Text("Use a modifier combination so the shortcut does not collide with normal typing.")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("AI Instructions") {
+                TextEditor(text: $draft.prompt)
+                    .font(.body)
+                    .frame(minHeight: 220)
+                Text("The selected text will be sent with these instructions. Keep the output format explicit so replacements paste cleanly.")
+                    .foregroundStyle(.secondary)
+            }
+
+            if !validationMessages.isEmpty {
+                Section("Needs Attention") {
+                    ForEach(validationMessages, id: \.self) { message in
+                        Label(message, systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                    }
+                }
+            }
+
+            Section {
+                HStack {
+                    Button("Delete", role: .destructive) {
+                        settings.deleteAction(action)
+                        selectedShortcutID = settings.shortcutActions.first?.id
+                        syncDraft()
+                    }
+
+                    Spacer()
+
+                    Button("Discard Changes") {
+                        syncDraft()
+                    }
+
+                    Button("Save Changes") {
+                        settings.updateAction(draft.makeAction(existingID: action.id))
+                        syncDraft()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!validationMessages.isEmpty)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .padding(.leading, 8)
+    }
+
+    private func deleteItems(at offsets: IndexSet) {
+        let actions = offsets.compactMap { index in
+            settings.shortcutActions.indices.contains(index) ? settings.shortcutActions[index] : nil
+        }
+
+        actions.forEach(settings.deleteAction)
+        selectedShortcutID = settings.shortcutActions.first?.id
+        syncDraft()
+    }
+
+    private func syncDraft() {
+        guard let selectedAction else {
+            draft = ShortcutActionForm()
+            return
+        }
+
+        draft = ShortcutActionForm(action: selectedAction)
     }
 }

@@ -13,10 +13,6 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
-      version: ${{ steps.release.outputs.version }}
     steps:
       - name: Release Please
         id: release
@@ -25,52 +21,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
-
-  build-release:
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
-    runs-on: macos-14
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Swift
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "5.9"
-
-      - name: Build Release
-        run: |
-          VERSION=${{ needs.release-please.outputs.version }} ./build_dmg.sh
-
-      - name: Upload Release Assets
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ needs.release-please.outputs.tag_name }}
-          files: |
-            FluentApp-${{ needs.release-please.outputs.version }}.dmg
-            FluentApp-${{ needs.release-please.outputs.version }}.dmg.sha256
-          append_body: true
-          body: |
-
-            ---
-
-            ### Installation
-            1. Download `FluentApp-${{ needs.release-please.outputs.version }}.dmg`
-            2. Open the DMG file
-            3. Drag FluentApp to your Applications folder
-            4. Open FluentApp from Applications
-            5. Grant Accessibility permissions when prompted
-            6. Add your API key for your preferred AI provider
-
-            ### Requirements
-            - macOS 13.0 (Ventura) or later
-            - API key from OpenAI, Anthropic, Google, or xAI
-
-            ### Supported AI Providers
-            - OpenAI (GPT-4o-mini)
-            - Anthropic (Claude 3 Haiku)
-            - Google (Gemini 1.5 Flash)
-            - xAI (Grok)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

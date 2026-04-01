@@ -1,130 +1,202 @@
 import XCTest
-
-// Test AIProviderType and AIProviderError
-
-enum TestAIProviderType: String, CaseIterable, Codable {
-    case openai = "openai"
-    case claude = "claude"
-    case gemini = "gemini"
-    case grok = "grok"
-
-    var displayName: String {
-        switch self {
-        case .openai: return "OpenAI (GPT)"
-        case .claude: return "Anthropic (Claude)"
-        case .gemini: return "Google (Gemini)"
-        case .grok: return "xAI (Grok)"
-        }
-    }
-
-    var apiKeyURL: String {
-        switch self {
-        case .openai: return "https://platform.openai.com/api-keys"
-        case .claude: return "https://console.anthropic.com/api-keys"
-        case .gemini: return "https://aistudio.google.com/apikey"
-        case .grok: return "https://console.x.ai"
-        }
-    }
-
-    var apiKeyPlaceholder: String {
-        switch self {
-        case .openai: return "sk-..."
-        case .claude: return "sk-ant-..."
-        case .gemini: return "AI..."
-        case .grok: return "xai-..."
-        }
-    }
-}
-
-enum TestAIProviderError: Error, LocalizedError {
-    case invalidAPIKey
-    case networkError(Error)
-    case invalidResponse
-    case rateLimited
-    case serverError(Int)
-    case noContent
-    case unknown(String)
-
-    var errorDescription: String? {
-        switch self {
-        case .invalidAPIKey:
-            return "Invalid API key. Please check your credentials."
-        case .networkError(let error):
-            return "Network error: \(error.localizedDescription)"
-        case .invalidResponse:
-            return "Invalid response from the AI service."
-        case .rateLimited:
-            return "Rate limited. Please wait and try again."
-        case .serverError(let code):
-            return "Server error (code: \(code)). Please try again."
-        case .noContent:
-            return "No content in response."
-        case .unknown(let message):
-            return message
-        }
-    }
-}
+@testable import FluentCore
 
 final class AIProviderTests: XCTestCase {
+    func testProviderMetadataAndErrors() {
+        XCTAssertEqual(AIProviderType.allCases.map(\.displayName), [
+            "OpenAI (GPT)",
+            "Anthropic (Claude)",
+            "Google (Gemini)",
+            "xAI (Grok)"
+        ])
+        XCTAssertEqual(AIProviderType.openai.id, "openai")
+        XCTAssertTrue(AIProviderType.claude.apiKeyURL.contains("anthropic"))
+        XCTAssertEqual(AIProviderType.grok.apiKeyPlaceholder, "xai-...")
 
-    func testAllProvidersExist() {
-        XCTAssertEqual(TestAIProviderType.allCases.count, 4)
-        XCTAssertTrue(TestAIProviderType.allCases.contains(.openai))
-        XCTAssertTrue(TestAIProviderType.allCases.contains(.claude))
-        XCTAssertTrue(TestAIProviderType.allCases.contains(.gemini))
-        XCTAssertTrue(TestAIProviderType.allCases.contains(.grok))
+        XCTAssertEqual(AIProviderError.invalidAPIKey.errorDescription, "Invalid API key. Please check your credentials.")
+        XCTAssertEqual(AIProviderError(networkError: TestError.failed), .networkError("boom"))
+        XCTAssertEqual(AIProviderError.networkError("boom").errorDescription, "Network error: boom")
+        XCTAssertEqual(AIProviderError.invalidResponse.errorDescription, "Invalid response from the AI service.")
+        XCTAssertEqual(AIProviderError.rateLimited.errorDescription, "Rate limited. Please wait and try again.")
+        XCTAssertEqual(AIProviderError.serverError(500).errorDescription, "Server error (code: 500). Please try again.")
+        XCTAssertEqual(AIProviderError.noContent.errorDescription, "No content in response.")
+        XCTAssertEqual(AIProviderError.unknown("custom").errorDescription, "custom")
     }
 
-    func testProviderDisplayNames() {
-        XCTAssertEqual(TestAIProviderType.openai.displayName, "OpenAI (GPT)")
-        XCTAssertEqual(TestAIProviderType.claude.displayName, "Anthropic (Claude)")
-        XCTAssertEqual(TestAIProviderType.gemini.displayName, "Google (Gemini)")
-        XCTAssertEqual(TestAIProviderType.grok.displayName, "xAI (Grok)")
+    func testFactoryResolveRegisterAndFallback() {
+        let openAIStub = StubAIProvider()
+        let claudeStub = StubAIProvider()
+        let factory = AIProviderFactory(providers: [.openai: openAIStub])
+
+        XCTAssertTrue(factory.resolve(.claude) is StubAIProvider)
+        factory.register(.claude, provider: claudeStub)
+        XCTAssertTrue(factory.resolve(.claude) as AnyObject === claudeStub)
+        XCTAssertEqual(factory.availableProviders, AIProviderType.allCases)
     }
 
-    func testProviderAPIKeyURLs() {
-        XCTAssertTrue(TestAIProviderType.openai.apiKeyURL.contains("openai.com"))
-        XCTAssertTrue(TestAIProviderType.claude.apiKeyURL.contains("anthropic.com"))
-        XCTAssertTrue(TestAIProviderType.gemini.apiKeyURL.contains("google"))
-        XCTAssertTrue(TestAIProviderType.grok.apiKeyURL.contains("x.ai"))
+    func testOpenAIProviderRequestAndResponses() throws {
+        let client = MockHTTPClient()
+        let provider = OpenAIProvider(httpClient: client)
+
+        assert(provider.processResult(text: "hola", apiKey: "", instructions: "inst"), equals: .failure(.invalidAPIKey))
+
+        client.nextResult = .failure(TestError.failed)
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.networkError("boom")))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.noContent))
+
+        client.nextResult = .success((jsonData(["choices": []]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidResponse))
+
+        client.nextResult = .success((jsonData(["choices": [["message": ["content": " hello "]]]]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("hello"))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 401)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidAPIKey))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 429)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.rateLimited))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 503)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.serverError(503)))
+
+        let request = try XCTUnwrap(client.requests.last)
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer key")
+        XCTAssertEqual(request.httpMethod, "POST")
     }
 
-    func testProviderPlaceholders() {
-        XCTAssertTrue(TestAIProviderType.openai.apiKeyPlaceholder.starts(with: "sk-"))
-        XCTAssertTrue(TestAIProviderType.claude.apiKeyPlaceholder.starts(with: "sk-ant-"))
-        XCTAssertTrue(TestAIProviderType.gemini.apiKeyPlaceholder.starts(with: "AI"))
-        XCTAssertTrue(TestAIProviderType.grok.apiKeyPlaceholder.starts(with: "xai-"))
+    func testClaudeProviderRequestAndResponses() throws {
+        let client = MockHTTPClient()
+        let provider = ClaudeProvider(httpClient: client)
+
+        assert(provider.processResult(text: "hola", apiKey: "", instructions: "inst"), equals: .failure(.invalidAPIKey))
+
+        client.nextResult = .failure(TestError.failed)
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.networkError("boom")))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.noContent))
+
+        client.nextResult = .success((jsonData(["content": []]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidResponse))
+
+        client.nextResult = .success((jsonData(["content": [["text": " bonjour "]]]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("bonjour"))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 401)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidAPIKey))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 429)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.rateLimited))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 500)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.serverError(500)))
+
+        let request = try XCTUnwrap(client.requests.last)
+        XCTAssertEqual(request.value(forHTTPHeaderField: "x-api-key"), "key")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "anthropic-version"), "2023-06-01")
     }
 
-    func testProviderTypeCodable() throws {
-        let provider = TestAIProviderType.claude
+    func testGeminiProviderRequestAndResponses() throws {
+        let client = MockHTTPClient()
+        let provider = GeminiProvider(httpClient: client)
 
-        let encoder = JSONEncoder()
-        let data = try encoder.encode(provider)
+        assert(provider.processResult(text: "hola", apiKey: "", instructions: "inst"), equals: .failure(.invalidAPIKey))
 
-        let decoder = JSONDecoder()
-        let decoded = try decoder.decode(TestAIProviderType.self, from: data)
+        client.nextResult = .failure(TestError.failed)
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.networkError("boom")))
 
-        XCTAssertEqual(provider, decoded)
+        client.nextResult = .success((Data(), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.noContent))
+
+        client.nextResult = .success((jsonData(["candidates": []]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidResponse))
+
+        client.nextResult = .success((jsonData([
+            "candidates": [[
+                "content": [
+                    "parts": [["text": " resumen "]]
+                ]
+            ]]
+        ]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("resumen"))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 400)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidAPIKey))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 429)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.rateLimited))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 500)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.serverError(500)))
+
+        let request = try XCTUnwrap(client.requests.last)
+        XCTAssertTrue(request.url?.absoluteString.contains("models/gemini-1.5-flash:generateContent?key=key") == true)
     }
 
-    func testProviderTypeRawValue() {
-        XCTAssertEqual(TestAIProviderType.openai.rawValue, "openai")
-        XCTAssertEqual(TestAIProviderType.claude.rawValue, "claude")
-        XCTAssertEqual(TestAIProviderType.gemini.rawValue, "gemini")
-        XCTAssertEqual(TestAIProviderType.grok.rawValue, "grok")
+    func testGrokProviderRequestAndResponses() throws {
+        let client = MockHTTPClient()
+        let provider = GrokProvider(httpClient: client)
+
+        assert(provider.processResult(text: "hola", apiKey: "", instructions: "inst"), equals: .failure(.invalidAPIKey))
+
+        client.nextResult = .failure(TestError.failed)
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.networkError("boom")))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.noContent))
+
+        client.nextResult = .success((jsonData(["choices": []]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidResponse))
+
+        client.nextResult = .success((jsonData(["choices": [["message": ["content": " rewrite "]]]]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("rewrite"))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 401)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidAPIKey))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 429)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.rateLimited))
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 500)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.serverError(500)))
+
+        let request = try XCTUnwrap(client.requests.last)
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer key")
     }
 
-    func testErrorDescriptions() {
-        XCTAssertNotNil(TestAIProviderError.invalidAPIKey.errorDescription)
-        XCTAssertNotNil(TestAIProviderError.invalidResponse.errorDescription)
-        XCTAssertNotNil(TestAIProviderError.rateLimited.errorDescription)
-        XCTAssertNotNil(TestAIProviderError.noContent.errorDescription)
+    private func httpResponse(statusCode: Int) -> HTTPURLResponse {
+        HTTPURLResponse(url: URL(string: "https://example.com")!, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    }
 
-        let serverError = TestAIProviderError.serverError(500)
-        XCTAssertTrue(serverError.errorDescription?.contains("500") ?? false)
+    private func jsonData(_ object: [String: Any]) -> Data {
+        try! JSONSerialization.data(withJSONObject: object)
+    }
 
-        let unknownError = TestAIProviderError.unknown("Custom error")
-        XCTAssertEqual(unknownError.errorDescription, "Custom error")
+    private func assert(_ result: Result<String, AIProviderError>, equals expected: Result<String, AIProviderError>, file: StaticString = #file, line: UInt = #line) {
+        switch (result, expected) {
+        case (.success(let lhs), .success(let rhs)):
+            XCTAssertEqual(lhs, rhs, file: file, line: line)
+        case (.failure(let lhs), .failure(let rhs)):
+            XCTAssertEqual(lhs, rhs, file: file, line: line)
+        default:
+            XCTFail("Results did not match", file: file, line: line)
+        }
+    }
+}
+
+private extension AIProvider {
+    func processResult(text: String, apiKey: String, instructions: String) -> Result<String, AIProviderError> {
+        let expectation = XCTestExpectation(description: "provider")
+        var captured: Result<String, AIProviderError>!
+
+        processText(text: text, apiKey: apiKey, instructions: instructions) { result in
+            captured = result
+            expectation.fulfill()
+        }
+
+        XCTWaiter().wait(for: [expectation], timeout: 1)
+        return captured
     }
 }

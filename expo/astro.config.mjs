@@ -1,6 +1,8 @@
 import { defineConfig } from 'astro/config';
+import tailwind from '@astrojs/tailwind';
 
 export default defineConfig({
-  site: 'https://translatetool.app',
+  integrations: [tailwind()],
+  site: 'https://fluentapp.vercel.app',
   base: '/',
 });

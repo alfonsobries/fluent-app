@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    @apply bg-canvas font-sans text-ink antialiased;
+  }
+
+  body {
+    @apply min-h-screen bg-page-fade;
+  }
+
+  ::selection {
+    background: rgba(255, 255, 255, 0.92);
+    color: #000;
+  }
+}
+
+@layer components {
+  .surface-card {
+    @apply rounded-[28px] border border-white/10 bg-white/[0.03];
+  }
+
+  .section-title {
+    @apply mt-3 text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl;
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-[0.78rem] uppercase tracking-[0.16em] text-white/60;
+  }
+
+  .pill-button {
+    @apply inline-flex min-h-12 items-center justify-center rounded-full border px-5 text-sm font-semibold tracking-[-0.02em] transition duration-150 hover:-translate-y-0.5;
+  }
+}

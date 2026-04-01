@@ -1,240 +1,153 @@
-# Fluent
+# Fluent App
 
-A lightweight macOS menu bar app that processes selected text using AI. Translate, improve writing, fix grammar, and more with customizable keyboard shortcuts.
+Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Select text anywhere, trigger a global shortcut, and Fluent App rewrites, translates, summarizes, or transforms the text and pastes the result back.
 
-![CI](https://github.com/alfonsobries/fluent-app/actions/workflows/ci.yml/badge.svg)
-![macOS](https://img.shields.io/badge/macOS-13.0+-blue)
-![Swift](https://img.shields.io/badge/Swift-5.9-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
+## What Changed
 
-## Features
+- Dedicated settings window instead of editing inside the menu bar popover.
+- Shortcut management rebuilt around reusable templates and a persistent editor.
+- Core logic moved into a testable `FluentCore` module.
+- Build, release, signing, notarization, and coverage commands standardized.
+- GitHub Actions prepared for CI, releases, and Apple-signed distribution.
 
-- **Multiple AI Providers**: Choose between OpenAI, Claude, Gemini, or Grok
-- **Multiple Actions**: Define unlimited shortcuts with custom AI instructions
-- **Global Shortcuts**: Trigger actions from any application
-- **Custom Instructions**: Tailor AI behavior for each shortcut
-- **Shortcut Recorder**: Capture keyboard shortcuts visually
-- **Privacy First**: API keys stored locally, no data collection
-- **Native Performance**: Built with Swift, minimal resource usage
+## Product Goals
 
-## Supported AI Providers
+- Fast global shortcuts for text workflows.
+- Simple path to add more actions later.
+- Public open source release quality, not a one-off personal utility.
+- Clean release artifacts for GitHub and Apple distribution.
 
-| Provider | Model | Get API Key |
-|----------|-------|-------------|
-| **OpenAI** | GPT-4o-mini | [platform.openai.com](https://platform.openai.com/api-keys) |
-| **Anthropic** | Claude 3 Haiku | [console.anthropic.com](https://console.anthropic.com/api-keys) |
-| **Google** | Gemini 1.5 Flash | [aistudio.google.com](https://aistudio.google.com/apikey) |
-| **xAI** | Grok | [console.x.ai](https://console.x.ai) |
+## Current Shortcut Templates
 
-## Default Shortcuts
+- `Cmd+Shift+O`: Translate
+- `Cmd+Shift+I`: Improve Writing
+- `Cmd+Shift+G`: Fix Grammar
+- `Cmd+Shift+S`: Summarize
+- `Cmd+Shift+P`: Make Professional
 
-| Shortcut | Action | Description |
-|----------|--------|-------------|
-| `Cmd+Shift+O` | Translate | Detect language and translate |
-| `Cmd+Shift+I` | Improve Writing | Enhance grammar, clarity, style |
-| `Cmd+Shift+G` | Fix Grammar | Correct spelling and grammar (disabled by default) |
+You can add blank shortcuts or start from templates in the Shortcuts tab.
 
-All shortcuts are fully customizable in the app settings.
+## Supported Providers
 
-## Installation
+- OpenAI
+- Anthropic
+- Google Gemini
+- xAI Grok
 
-### Download (Recommended)
-
-1. Download the latest release from [GitHub Releases](https://github.com/alfonsobries/fluent-app/releases)
-2. Open the DMG file
-3. Drag FluentApp to your Applications folder
-4. Open FluentApp from Applications
-5. Grant Accessibility permissions when prompted
-
-### Build from Source
-
-**Requirements:**
-- macOS 13.0 or later
-- Xcode Command Line Tools (`xcode-select --install`)
+## Local Commands
 
 ```bash
-# Clone the repository
-git clone https://github.com/alfonsobries/fluent-app.git
-cd fluent-app
-
-# Run in development mode
-swift run
-
-# Run tests
-swift test
-
-# Build a release DMG
-./build_dmg.sh
+make build
+make test
+make coverage
+make dmg
+make release VERSION=1.2.0
 ```
 
-## Setup
+Equivalent scripts:
 
-1. **Grant Permissions**
-   - On first launch, macOS will ask for Accessibility permissions
-   - Go to System Settings > Privacy & Security > Accessibility
-   - Enable FluentApp
-
-2. **Select AI Provider**
-   - Click the globe icon in your menu bar
-   - Choose your preferred AI provider from the dropdown
-
-3. **Add API Key**
-   - Click "Add" or "Edit" next to your chosen provider
-   - Enter your API key
-   - Keys are stored securely on your device
-
-4. **Configure Shortcuts** (Optional)
-   - Click the + button to add new shortcuts
-   - Click the pencil icon to edit existing ones
-   - Record custom keyboard combinations
-   - Write your own AI instructions
-
-## Creating Custom Actions
-
-Each action consists of:
-
-- **Name**: Descriptive name shown in the menu
-- **Shortcut**: Keyboard combination to trigger the action
-- **Instructions**: AI prompt that defines the behavior
-
-### Example: Summarize Text
-
-```
-Name: Summarize
-Shortcut: Cmd+Shift+S
-Instructions: Summarize the following text in 2-3 concise bullet points. Keep the same language as the original.
+```bash
+./scripts/test_coverage.sh
+VERSION=1.2.0 ./build_dmg.sh
+./scripts/release.sh 1.2.0
 ```
 
-### Example: Make Formal
+## Development Setup
 
+Requirements:
+
+- macOS 13 or newer
+- Xcode Command Line Tools
+- Optional for icon generation: `brew install librsvg`
+
+Run locally:
+
+```bash
+swift run FluentApp
 ```
-Name: Make Formal
-Shortcut: Cmd+Shift+F
-Instructions: Rewrite the following text in a formal, professional tone. Maintain the original meaning and language.
+
+## Installation Flow
+
+1. Download the latest DMG from GitHub Releases.
+2. Drag `Fluent App.app` to `/Applications`.
+3. Launch Fluent App.
+4. Grant Accessibility access in System Settings.
+5. Add an API key for your preferred provider.
+6. Configure or add shortcuts in the Settings window.
+
+## Release Flow
+
+Local maintainer flow:
+
+```bash
+make coverage
+VERSION=1.2.0 ./build_dmg.sh
+./scripts/release.sh 1.2.0
 ```
+
+GitHub flow:
+
+- `release-please.yml` manages changelog and version PRs.
+- `release.yml` builds a DMG when a `v*` tag is pushed or when run manually.
+- `ci.yml` validates build, tests, coverage, and website build.
+
+## Apple Signing And Notarization
+
+The repo is ready for signing and notarization, but you still need to provide the Apple credentials and certificates yourself.
+
+Local environment variables:
+
+```bash
+export DEVELOPER_ID_APPLICATION="Developer ID Application: Your Name (TEAMID)"
+export APPLE_ID="you@example.com"
+export APPLE_APP_SPECIFIC_PASSWORD="app-specific-password"
+export APPLE_TEAM_ID="TEAMID"
+export NOTARIZE=1
+```
+
+GitHub secrets expected by `release.yml`:
+
+- `APPLE_DEVELOPER_ID_P12_BASE64`
+- `APPLE_DEVELOPER_ID_P12_PASSWORD`
+- `KEYCHAIN_PASSWORD`
+- `DEVELOPER_ID_APPLICATION`
+- `APPLE_ID`
+- `APPLE_APP_SPECIFIC_PASSWORD`
+- `APPLE_TEAM_ID`
+
+What you still need to do manually outside this repo:
+
+- Create/export the Developer ID Application certificate as `.p12`.
+- Generate an app-specific password for notarization.
+- Confirm the final bundle identifier you want to ship.
+- Validate the release on a clean Mac before public launch.
 
 ## Architecture
 
-Fluent uses a **Contract/Provider pattern** (similar to Laravel's Service Container) for AI services:
+The package is split intentionally:
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  AIProvider Protocol                │
-│  (Contract defining processText interface)          │
-└─────────────────────────────────────────────────────┘
-                         │
-         ┌───────────────┼───────────────┐
-         │               │               │
-         ▼               ▼               ▼
-┌─────────────┐  ┌─────────────┐  ┌─────────────┐
-│ OpenAI      │  │ Claude      │  │ Gemini      │ ...
-│ Provider    │  │ Provider    │  │ Provider    │
-└─────────────┘  └─────────────┘  └─────────────┘
-         │               │               │
-         └───────────────┼───────────────┘
-                         ▼
-              ┌─────────────────────┐
-              │ AIProviderFactory   │
-              │ (Dependency Resolver)│
-              └─────────────────────┘
-```
+- `FluentCore`: models, providers, settings logic, controller logic, testable contracts.
+- `FluentMacSupport`: live macOS integrations for clipboard, hotkeys, launch at login.
+- `FluentApp`: SwiftUI shell and settings UI.
 
-This makes it easy to add new AI providers by implementing the `AIProvider` protocol.
-
-## Project Structure
-
-```
-fluent-app/
-├── Sources/FluentApp/
-│   ├── FluentApp.swift            # App entry point
-│   ├── Contracts/
-│   │   ├── AIProvider.swift        # Provider protocol
-│   │   └── AIProviderFactory.swift # Dependency resolver
-│   ├── Providers/
-│   │   ├── OpenAIProvider.swift    # OpenAI implementation
-│   │   ├── ClaudeProvider.swift    # Claude implementation
-│   │   ├── GeminiProvider.swift    # Gemini implementation
-│   │   └── GrokProvider.swift      # Grok implementation
-│   ├── Model/
-│   │   ├── AppSettings.swift       # Settings persistence
-│   │   └── ShortcutAction.swift    # Action model
-│   ├── Services/
-│   │   ├── AppController.swift     # Main controller
-│   │   ├── HotKeyManager.swift     # Global shortcuts
-│   │   └── ClipboardService.swift  # Text manipulation
-│   └── UI/
-│       ├── SettingsView.swift           # Main settings UI
-│       ├── AIProviderSettingsView.swift # Provider config
-│       ├── ShortcutEditView.swift       # Action editor
-│       └── ShortcutRecorderView.swift   # Shortcut capture
-├── Tests/FluentAppTests/           # Unit tests
-├── Resources/
-│   ├── AppIcon.svg                 # App icon source
-│   └── generate_icon.sh            # Icon generator
-├── expo/                           # Project website (Astro)
-├── .github/workflows/              # CI/CD pipelines
-├── scripts/
-│   └── release.sh                  # Release automation
-├── build_dmg.sh                    # Build script
-└── Package.swift                   # Swift package config
-```
-
-## Creating Releases
-
-For maintainers:
-
-```bash
-# Create a new release manually
-VERSION=1.0.0 ./build_dmg.sh
-
-# Or push a tag to trigger automated release
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-GitHub Actions will automatically build and publish the release.
-
-## Website
-
-The project website is in the `expo/` directory, built with Astro.
-
-```bash
-cd expo
-npm install
-npm run dev      # Development server
-npm run build    # Build for production
-```
-
-## Requirements
-
-- **macOS**: 13.0 (Ventura) or later
-- **API Key**: From any supported AI provider
+This makes new shortcuts easy to add without touching the live platform adapters.
 
 ## Privacy
 
-Fluent respects your privacy:
+- API keys stay local on your Mac.
+- Text goes directly from Fluent App to the provider you selected.
+- No analytics, telemetry, or remote app backend is included.
 
-- All API keys are stored only on your device
-- Text is sent directly to your chosen AI provider's API
-- No analytics or tracking
-- No data collection
-- Fully open source
+## Website
 
-## Contributing
+The landing site lives in `expo/`.
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-### Adding a New AI Provider
-
-1. Create a new file in `Sources/FluentApp/Providers/`
-2. Implement the `AIProvider` protocol
-3. Add the provider type to `AIProviderType` enum
-4. Register in `AIProviderFactory`
+```bash
+cd expo
+npm ci
+npm run build
+```
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-Made by [Alfonso Bribiesca](https://github.com/alfonsobries)
+MIT. See [LICENSE](LICENSE).

@@ -1,17 +1,13 @@
-name: Manual Release
-
-# This workflow is for manual releases only.
-# Automatic releases are handled by release-please.yml
-#
-# To create a manual release:
-# 1. Go to Actions > Manual Release > Run workflow
-# 2. Enter the version number (e.g., 1.2.3)
+name: Release
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (e.g., 1.2.3)'
+        description: "Version to release (for example 1.2.3)"
         required: true
         type: string
 
@@ -19,7 +15,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  release:
     name: Build & Release
     runs-on: macos-14
 
@@ -27,50 +23,57 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Swift
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "5.9"
+      - name: Resolve version
+        id: version
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+            echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Create and push tag
+      - name: Create tag for manual run
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ inputs.version }}" -m "Release ${{ inputs.version }}"
-          git push origin "v${{ inputs.version }}"
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.value }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Import signing certificate
+        if: ${{ secrets.APPLE_DEVELOPER_ID_P12_BASE64 != '' }}
+        env:
+          APPLE_DEVELOPER_ID_P12_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_P12_BASE64 }}
+          APPLE_DEVELOPER_ID_P12_PASSWORD: ${{ secrets.APPLE_DEVELOPER_ID_P12_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo "$APPLE_DEVELOPER_ID_P12_BASE64" | base64 --decode > certificate.p12
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security import certificate.p12 -k build.keychain -P "$APPLE_DEVELOPER_ID_P12_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
 
       - name: Build Release
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+          DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          NOTARIZE: ${{ secrets.APPLE_ID != '' && secrets.APPLE_APP_SPECIFIC_PASSWORD != '' && secrets.APPLE_TEAM_ID != '' && '1' || '0' }}
         run: |
-          VERSION=${{ inputs.version }} ./build_dmg.sh
+          ./build_dmg.sh
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ inputs.version }}
+          tag_name: ${{ steps.version.outputs.tag }}
           files: |
-            FluentApp-${{ inputs.version }}.dmg
-            FluentApp-${{ inputs.version }}.dmg.sha256
-          body: |
-            ## FluentApp ${{ inputs.version }}
-
-            ### Installation
-            1. Download `FluentApp-${{ inputs.version }}.dmg`
-            2. Open the DMG file
-            3. Drag FluentApp to your Applications folder
-            4. Open FluentApp from Applications
-            5. Grant Accessibility permissions when prompted
-            6. Add your API key for your preferred AI provider
-
-            ### Requirements
-            - macOS 13.0 (Ventura) or later
-            - API key from OpenAI, Anthropic, Google, or xAI
-
-            ### Supported AI Providers
-            - OpenAI (GPT-4o-mini)
-            - Anthropic (Claude 3 Haiku)
-            - Google (Gemini 1.5 Flash)
-            - xAI (Grok)
-          draft: false
-          prerelease: false
+            Fluent-App-${{ steps.version.outputs.value }}.dmg
+            Fluent-App-${{ steps.version.outputs.value }}.dmg.sha256
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

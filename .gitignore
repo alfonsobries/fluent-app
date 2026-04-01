@@ -4,7 +4,6 @@
 *.xcodeproj
 *.dmg
 *.app
+*.sha256
 .swiftpm
-.build/
 xcuserdata/
-FluentApp.app

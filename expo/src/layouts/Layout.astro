@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 interface Props {
   title: string;
   description?: string;
@@ -7,11 +9,11 @@ interface Props {
 
 const {
   title,
-  description = "Fluent is a free, open-source macOS menu bar app for AI-powered text translation and writing improvement. Works with OpenAI, Claude, Gemini, and Grok.",
+  description = "Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Translate, rewrite, summarize, and improve selected text from any app.",
   image = "/og-image.png"
 } = Astro.props;
 
-const siteName = "Fluent";
+const siteName = "Fluent App";
 const siteUrl = "https://fluentapp.vercel.app";
 const twitterHandle = "@alfonsobries";
 ---
@@ -26,14 +28,14 @@ const twitterHandle = "@alfonsobries";
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="keywords" content="translate text mac, AI translation app, macOS translator, text improver, grammar checker mac, OpenAI mac app, Claude mac app, writing assistant macOS, keyboard shortcut translator, menu bar translation app" />
+    <meta name="keywords" content="macOS ai app, menu bar ai shortcuts, translate text mac, rewrite selected text, summarize text mac, grammar shortcut app, OpenAI mac app, Claude mac app, Gemini mac app, Grok mac app" />
     <meta name="author" content="Alfonso Bribiesca" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={siteUrl} />
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -57,7 +59,7 @@ const twitterHandle = "@alfonsobries";
       {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "Fluent",
+        "name": "Fluent App",
         "operatingSystem": "macOS",
         "applicationCategory": "UtilitiesApplication",
         "offers": {
@@ -65,9 +67,9 @@ const twitterHandle = "@alfonsobries";
           "price": "0",
           "priceCurrency": "USD"
         },
-        "description": "Fluent is a free, open-source macOS app for AI-powered text translation and writing improvement",
-        "downloadUrl": "https://github.com/alfonsobries/translate-tool/releases/latest",
-        "softwareVersion": "1.0.0",
+        "description": "Fluent App is a native macOS menu bar app for AI-powered text shortcuts",
+        "downloadUrl": "https://github.com/alfonsobries/fluent-app/releases/latest",
+        "softwareVersion": "1.2.0",
         "author": {
           "@type": "Person",
           "name": "Alfonso Bribiesca",
@@ -81,68 +83,9 @@ const twitterHandle = "@alfonsobries";
       }
     </script>
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
     <meta name="generator" content={Astro.generator} />
   </head>
   <body>
     <slot />
   </body>
 </html>
-
-<style is:global>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  html {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #fff;
-    color: #000;
-    font-size: 16px;
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  body {
-    min-height: 100vh;
-  }
-
-  ::selection {
-    background: #000;
-    color: #fff;
-  }
-
-  a {
-    color: inherit;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  a:hover {
-    text-decoration-thickness: 2px;
-  }
-
-  code {
-    font-family: 'SF Mono', Menlo, monospace;
-    font-size: 0.875em;
-    background: #f0f0f0;
-    padding: 0.15em 0.4em;
-    border-radius: 3px;
-  }
-
-  kbd {
-    font-family: 'SF Mono', Menlo, monospace;
-    font-size: 0.75em;
-    background: #000;
-    color: #fff;
-    padding: 0.2em 0.5em;
-    border-radius: 3px;
-    font-weight: 500;
-  }
-</style>
