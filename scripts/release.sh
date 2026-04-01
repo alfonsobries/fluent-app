@@ -9,7 +9,7 @@ fi
 
 VERSION="$1"
 TAG="v$VERSION"
-DMG_NAME="FluentApp-${VERSION}.dmg"
+DMG_NAME="Fluent-App-${VERSION}.dmg"
 
 ./scripts/test_coverage.sh
 VERSION="$VERSION" ./build_dmg.sh
@@ -24,7 +24,7 @@ git push origin "$TAG"
 
 if command -v gh >/dev/null 2>&1; then
   gh release create "$TAG" "$DMG_NAME" "$DMG_NAME.sha256" \
-    --title "FluentApp $VERSION" \
+    --title "Fluent App $VERSION" \
     --generate-notes
 else
   echo "Tag pushed. Create the GitHub release manually and upload:"

@@ -31,7 +31,7 @@ struct SettingsView: View {
     private var header: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Fluent")
+                Text("Fluent App")
                     .font(.largeTitle)
                     .fontWeight(.semibold)
                 Text("AI shortcuts for translation, rewriting, summaries, and any custom text workflow.")
@@ -55,7 +55,7 @@ struct SettingsView: View {
 
                 Divider()
 
-                Button("Quit Fluent") {
+                Button("Quit Fluent App") {
                     NSApplication.shared.terminate(nil)
                 }
             } label: {
@@ -73,7 +73,7 @@ struct SettingsView: View {
                     get: { controller.settings.launchAtStartup },
                     set: { controller.settings.launchAtStartup = $0 }
                 ))
-                Text("Fluent lives in the menu bar, captures selected text with a shortcut, sends it to your chosen model, and pastes the result back.")
+                Text("Fluent App lives in the menu bar, captures selected text with a shortcut, sends it to your chosen model, and pastes the result back.")
                     .foregroundStyle(.secondary)
             }
 
@@ -106,7 +106,7 @@ struct PermissionsStatusView: View {
     var body: some View {
         HStack {
             Image(systemName: "figure.wave")
-            Text("Accessibility access is required so Fluent can copy the selected text and paste the transformed result.")
+            Text("Accessibility access is required so Fluent App can copy the selected text and paste the transformed result.")
             Spacer()
             Button("Open Accessibility Settings") {
                 if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {

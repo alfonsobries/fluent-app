@@ -1,6 +1,6 @@
-# Fluent
+# Fluent App
 
-Fluent is a native macOS menu bar app for AI-powered text shortcuts. Select text anywhere, trigger a global shortcut, and Fluent rewrites, translates, summarizes, or transforms the text and pastes the result back.
+Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Select text anywhere, trigger a global shortcut, and Fluent App rewrites, translates, summarizes, or transforms the text and pastes the result back.
 
 ## What Changed
 
@@ -69,8 +69,8 @@ swift run FluentApp
 ## Installation Flow
 
 1. Download the latest DMG from GitHub Releases.
-2. Drag `FluentApp.app` to `/Applications`.
-3. Launch Fluent.
+2. Drag `Fluent App.app` to `/Applications`.
+3. Launch Fluent App.
 4. Grant Accessibility access in System Settings.
 5. Add an API key for your preferred provider.
 6. Configure or add shortcuts in the Settings window.
@@ -135,7 +135,7 @@ This makes new shortcuts easy to add without touching the live platform adapters
 ## Privacy
 
 - API keys stay local on your Mac.
-- Text goes directly from Fluent to the provider you selected.
+- Text goes directly from Fluent App to the provider you selected.
 - No analytics, telemetry, or remote app backend is included.
 
 ## Website

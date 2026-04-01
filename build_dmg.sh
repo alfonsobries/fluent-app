@@ -2,14 +2,16 @@
 
 set -euo pipefail
 
-APP_NAME="${APP_NAME:-FluentApp}"
-DISPLAY_NAME="${DISPLAY_NAME:-Fluent}"
+EXECUTABLE_NAME="${EXECUTABLE_NAME:-FluentApp}"
+APP_BUNDLE_NAME="${APP_BUNDLE_NAME:-Fluent App}"
+DISPLAY_NAME="${DISPLAY_NAME:-Fluent App}"
+ARTIFACT_STEM="${ARTIFACT_STEM:-Fluent-App}"
 APP_IDENTIFIER="${APP_IDENTIFIER:-com.alfonsobries.fluent}"
 VERSION="${VERSION:-$(cat version.txt 2>/dev/null || echo 1.2.0)}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
 BUILD_DIR=".build/release"
-APP_BUNDLE="$APP_NAME.app"
-DMG_NAME="${APP_NAME}-${VERSION}.dmg"
+APP_BUNDLE="$APP_BUNDLE_NAME.app"
+DMG_NAME="${ARTIFACT_STEM}-${VERSION}.dmg"
 RESOURCES_DIR="Resources"
 ICON_FILE=""
 if [[ -n "${DEVELOPER_ID_APPLICATION:-}" ]]; then
@@ -19,7 +21,7 @@ else
   SIGNING_IDENTITY="${SIGNING_IDENTITY:--}"
 fi
 
-echo "Building $APP_NAME $VERSION ($BUILD_NUMBER)"
+echo "Building $DISPLAY_NAME $VERSION ($BUILD_NUMBER)"
 
 if [[ -f "$RESOURCES_DIR/generate_icon.sh" && ! -f "$RESOURCES_DIR/AppIcon.icns" ]]; then
   echo "Generating icon assets..."
@@ -35,7 +37,7 @@ swift build -c release
 echo "Creating app bundle..."
 rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
-cp "$BUILD_DIR/$APP_NAME" "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
+cp "$BUILD_DIR/$EXECUTABLE_NAME" "$APP_BUNDLE/Contents/MacOS/$EXECUTABLE_NAME"
 
 if [[ -f "$RESOURCES_DIR/AppIcon.icns" ]]; then
   cp "$RESOURCES_DIR/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
@@ -52,13 +54,13 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
   <key>CFBundleDisplayName</key>
   <string>$DISPLAY_NAME</string>
   <key>CFBundleExecutable</key>
-  <string>$APP_NAME</string>
+  <string>$EXECUTABLE_NAME</string>
   <key>CFBundleIdentifier</key>
   <string>$APP_IDENTIFIER</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>$APP_NAME</string>
+  <string>$DISPLAY_NAME</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

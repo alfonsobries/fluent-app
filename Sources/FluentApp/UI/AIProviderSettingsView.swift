@@ -15,7 +15,7 @@ struct AIProviderSettingsView: View {
                         Text(provider.displayName).tag(provider)
                     }
                 }
-                Text("Fluent will use this provider when any shortcut is triggered.")
+                Text("Fluent App will use this provider when any shortcut is triggered.")
                     .foregroundStyle(.secondary)
             }
 

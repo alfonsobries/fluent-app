@@ -29,6 +29,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private var menu: NSMenu?
     private var settingsWindow: NSWindow?
+    private var statusSpinner: NSProgressIndicator?
+    private let hudController = ProcessingHUDController()
     private var cancellables: Set<AnyCancellable> = []
     private var lastNotifiedState: AppController.State?
 
@@ -57,6 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.button?.imagePosition = .imageOnly
         statusItem.menu = menu
         self.statusItem = statusItem
+        installStatusSpinnerIfNeeded()
         rebuildMenu()
     }
 
@@ -69,6 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 self?.updateStatusItem(for: controller.state)
                 self?.rebuildMenu()
                 self?.refreshSettingsWindow()
+                self?.updateHUD(for: controller.state)
                 self?.notifyIfNeeded(for: controller.state)
             }
             .store(in: &cancellables)
@@ -78,11 +82,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func updateStatusItem(for state: AppController.State) {
         guard let button = statusItem?.button else { return }
-        button.image = makeStatusBarImage(for: state)
+
+        switch state {
+        case .processing:
+            installStatusSpinnerIfNeeded()
+            statusSpinner?.isHidden = false
+            statusSpinner?.startAnimation(nil)
+            button.image = nil
+        default:
+            statusSpinner?.stopAnimation(nil)
+            statusSpinner?.isHidden = true
+            button.image = makeStatusBarImage(for: state)
+        }
+
         button.isHidden = false
         button.title = ""
         button.toolTip = tooltip(for: state)
-        log("status item updated: \(button.toolTip ?? "Fluent")")
+        log("status item updated: \(button.toolTip ?? "Fluent App")")
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
@@ -119,7 +135,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
 
         menu.addItem(.separator())
-        let quitItem = NSMenuItem(title: "Quit Fluent", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Quit Fluent App", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
     }
@@ -149,7 +165,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if settingsWindow == nil {
             let hostingController = NSHostingController(rootView: SettingsView(controller: controller))
             let window = NSWindow(contentViewController: hostingController)
-            window.title = "Fluent Settings"
+            window.title = "Fluent App Settings"
             window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
             window.setContentSize(NSSize(width: 920, height: 680))
             window.isReleasedWhenClosed = false
@@ -173,20 +189,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         switch state {
         case .failed(let message):
             notifyOrFallback(
-                title: "Fluent Error",
+                title: "Fluent App Error",
                 body: message,
                 fallbackMessage: message,
                 sound: true
             )
-        case .completed(let actionName):
-            notifyOrFallback(
-                title: "Fluent",
-                body: "\(actionName) completed.",
-                fallbackMessage: nil,
-                sound: false
-            )
         default:
             return
+        }
+    }
+
+    private func updateHUD(for state: AppController.State) {
+        switch state {
+        case .processing(let actionName):
+            hudController.show(message: processingMessage(for: actionName))
+        default:
+            hudController.hide()
         }
     }
 
@@ -221,14 +239,52 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func tooltip(for state: AppController.State) -> String {
         switch state {
         case .idle:
-            return "Fluent"
+            return "Fluent App"
         case .processing(let actionName):
-            return "Fluent: \(actionName)"
+            return "Fluent App: \(actionName)"
         case .completed(let actionName):
-            return "Fluent: \(actionName) completed"
+            return "Fluent App: \(actionName) completed"
         case .failed(let message):
-            return "Fluent error: \(message)"
+            return "Fluent App error: \(message)"
         }
+    }
+
+    private func processingMessage(for actionName: String) -> String {
+        let normalized = actionName.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+
+        switch normalized {
+        case "translate":
+            return "Translating"
+        case "improve writing":
+            return "Improving"
+        case "fix grammar":
+            return "Fixing grammar"
+        case "summarize":
+            return "Summarizing"
+        case "make professional":
+            return "Rewriting"
+        default:
+            return "Processing"
+        }
+    }
+
+    private func installStatusSpinnerIfNeeded() {
+        guard statusSpinner == nil, let button = statusItem?.button else { return }
+
+        let spinner = NSProgressIndicator(frame: NSRect(x: 0, y: 0, width: 14, height: 14))
+        spinner.style = .spinning
+        spinner.controlSize = .small
+        spinner.isDisplayedWhenStopped = false
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        spinner.isHidden = true
+        button.addSubview(spinner)
+
+        NSLayoutConstraint.activate([
+            spinner.centerXAnchor.constraint(equalTo: button.centerXAnchor),
+            spinner.centerYAnchor.constraint(equalTo: button.centerYAnchor)
+        ])
+
+        statusSpinner = spinner
     }
 
     private func makeStatusBarImage(for state: AppController.State) -> NSImage {
@@ -240,37 +296,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         color.setStroke()
         color.setFill()
 
-        let topLine = NSBezierPath()
-        topLine.lineWidth = 1.8
-        topLine.lineCapStyle = .round
-        topLine.move(to: NSPoint(x: 3, y: 12.5))
-        topLine.line(to: NSPoint(x: 13.5, y: 12.5))
-        topLine.stroke()
-
-        let topArrow = NSBezierPath()
-        topArrow.lineWidth = 1.8
-        topArrow.lineCapStyle = .round
-        topArrow.lineJoinStyle = .round
-        topArrow.move(to: NSPoint(x: 11, y: 15))
-        topArrow.line(to: NSPoint(x: 14.8, y: 12.5))
-        topArrow.line(to: NSPoint(x: 11, y: 10))
-        topArrow.stroke()
-
-        let bottomLine = NSBezierPath()
-        bottomLine.lineWidth = 1.8
-        bottomLine.lineCapStyle = .round
-        bottomLine.move(to: NSPoint(x: 15, y: 5.5))
-        bottomLine.line(to: NSPoint(x: 4.5, y: 5.5))
-        bottomLine.stroke()
-
-        let bottomArrow = NSBezierPath()
-        bottomArrow.lineWidth = 1.8
-        bottomArrow.lineCapStyle = .round
-        bottomArrow.lineJoinStyle = .round
-        bottomArrow.move(to: NSPoint(x: 7, y: 8))
-        bottomArrow.line(to: NSPoint(x: 3.2, y: 5.5))
-        bottomArrow.line(to: NSPoint(x: 7, y: 3))
-        bottomArrow.stroke()
+        let bubble = NSBezierPath()
+        bubble.lineWidth = 1.8
+        bubble.lineJoinStyle = .round
+        bubble.lineCapStyle = .round
+        bubble.move(to: NSPoint(x: 2.6, y: 10.3))
+        bubble.curve(to: NSPoint(x: 3.8, y: 14.2), controlPoint1: NSPoint(x: 2.5, y: 11.9), controlPoint2: NSPoint(x: 2.8, y: 13.2))
+        bubble.curve(to: NSPoint(x: 8.7, y: 15.8), controlPoint1: NSPoint(x: 5.0, y: 15.4), controlPoint2: NSPoint(x: 6.8, y: 15.9))
+        bubble.curve(to: NSPoint(x: 14.4, y: 14.3), controlPoint1: NSPoint(x: 10.7, y: 15.8), controlPoint2: NSPoint(x: 12.8, y: 15.3))
+        bubble.curve(to: NSPoint(x: 16.1, y: 9.4), controlPoint1: NSPoint(x: 15.6, y: 13.2), controlPoint2: NSPoint(x: 16.2, y: 11.5))
+        bubble.curve(to: NSPoint(x: 13.2, y: 5.6), controlPoint1: NSPoint(x: 16.0, y: 7.6), controlPoint2: NSPoint(x: 15.0, y: 6.3))
+        bubble.curve(to: NSPoint(x: 8.1, y: 4.8), controlPoint1: NSPoint(x: 11.8, y: 5.1), controlPoint2: NSPoint(x: 9.8, y: 4.8))
+        bubble.curve(to: NSPoint(x: 4.9, y: 3.4), controlPoint1: NSPoint(x: 6.8, y: 4.8), controlPoint2: NSPoint(x: 5.7, y: 4.4))
+        bubble.curve(to: NSPoint(x: 4.6, y: 1.9), controlPoint1: NSPoint(x: 4.5, y: 2.9), controlPoint2: NSPoint(x: 4.4, y: 2.3))
+        bubble.curve(to: NSPoint(x: 5.7, y: 3.3), controlPoint1: NSPoint(x: 5.1, y: 2.2), controlPoint2: NSPoint(x: 5.4, y: 2.7))
+        bubble.curve(to: NSPoint(x: 2.6, y: 10.3), controlPoint1: NSPoint(x: 3.6, y: 4.0), controlPoint2: NSPoint(x: 2.4, y: 6.8))
+        bubble.close()
+        bubble.stroke()
 
         switch state {
         case .processing:
@@ -294,13 +336,96 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if let data = line.data(using: .utf8) {
             if FileManager.default.fileExists(atPath: url.path) {
                 if let handle = try? FileHandle(forWritingTo: url) {
-                    try? handle.seekToEnd()
+                    _ = try? handle.seekToEnd()
                     try? handle.write(contentsOf: data)
                     try? handle.close()
                 }
             } else {
                 try? data.write(to: url)
             }
+        }
+    }
+}
+
+private final class ProcessingHUDController {
+    private let model = ProcessingHUDModel()
+    private lazy var panel: NSPanel = {
+        let hostingController = NSHostingController(rootView: ProcessingHUDView(model: model))
+        let panel = NSPanel(
+            contentRect: NSRect(x: 0, y: 0, width: 170, height: 38),
+            styleMask: [.borderless, .nonactivatingPanel],
+            backing: .buffered,
+            defer: false
+        )
+        panel.contentViewController = hostingController
+        panel.isFloatingPanel = true
+        panel.level = .statusBar
+        panel.backgroundColor = .clear
+        panel.isOpaque = false
+        panel.hasShadow = false
+        panel.hidesOnDeactivate = false
+        panel.ignoresMouseEvents = true
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+        return panel
+    }()
+
+    func show(message: String) {
+        model.message = message
+        positionPanel()
+        panel.orderFrontRegardless()
+    }
+
+    func hide() {
+        panel.orderOut(nil)
+    }
+
+    private func positionPanel() {
+        guard let screen = NSScreen.main ?? NSScreen.screens.first else { return }
+        let frame = screen.visibleFrame
+        let topInset = max(20.0, screen.frame.maxY - frame.maxY)
+        let origin = NSPoint(
+            x: frame.midX - panel.frame.width / 2,
+            y: frame.maxY - panel.frame.height - topInset - 6
+        )
+        panel.setFrameOrigin(origin)
+    }
+}
+
+private final class ProcessingHUDModel: ObservableObject {
+    @Published var message = "Working"
+}
+
+private struct ProcessingHUDView: View {
+    @ObservedObject var model: ProcessingHUDModel
+    @State private var isAnimating = false
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Circle()
+                .trim(from: 0.12, to: 0.82)
+                .stroke(Color.white, style: StrokeStyle(lineWidth: 1.8, lineCap: .round))
+                .frame(width: 12, height: 12)
+                .rotationEffect(.degrees(isAnimating ? 360 : 0))
+                .animation(.linear(duration: 0.85).repeatForever(autoreverses: false), value: isAnimating)
+
+            Text(verbatim: "\(model.message)…")
+                .font(.system(size: 12, weight: .medium))
+                .lineLimit(1)
+                .foregroundStyle(.white)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 7)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.black.opacity(0.72))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(Color.white.opacity(0.10), lineWidth: 0.8)
+        )
+        .frame(width: 170, height: 38, alignment: .leading)
+        .onAppear {
+            isAnimating = true
         }
     }
 }

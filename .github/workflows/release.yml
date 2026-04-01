@@ -72,8 +72,8 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           files: |
-            FluentApp-${{ steps.version.outputs.value }}.dmg
-            FluentApp-${{ steps.version.outputs.value }}.dmg.sha256
+            Fluent-App-${{ steps.version.outputs.value }}.dmg
+            Fluent-App-${{ steps.version.outputs.value }}.dmg.sha256
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
