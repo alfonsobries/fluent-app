@@ -401,12 +401,17 @@ private struct ProcessingHUDView: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            Circle()
-                .trim(from: 0.12, to: 0.82)
-                .stroke(Color.white, style: StrokeStyle(lineWidth: 1.8, lineCap: .round))
-                .frame(width: 12, height: 12)
-                .rotationEffect(.degrees(isAnimating ? 360 : 0))
-                .animation(.linear(duration: 0.85).repeatForever(autoreverses: false), value: isAnimating)
+            ZStack {
+                Circle()
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1.8)
+
+                Circle()
+                    .trim(from: 0.0, to: 0.34)
+                    .stroke(Color.white, style: StrokeStyle(lineWidth: 1.8, lineCap: .round))
+                    .rotationEffect(.degrees(isAnimating ? 360 : 0))
+                    .animation(.linear(duration: 0.8).repeatForever(autoreverses: false), value: isAnimating)
+            }
+            .frame(width: 12, height: 12)
 
             Text(verbatim: "\(model.message)…")
                 .font(.system(size: 12, weight: .medium))
