@@ -1,231 +1,118 @@
+import FluentCore
 import SwiftUI
 
 struct SettingsView: View {
-    @ObservedObject var settings: AppSettings
-    @State private var selectedAction: ShortcutAction?
-    @State private var showingAddSheet = false
-    @State private var newAction = ShortcutAction(
-        name: "",
-        keyCode: 0,
-        modifiers: 768,
-        prompt: ""
-    )
+    @ObservedObject var controller: AppController
+    @State private var selectedShortcutID: ShortcutAction.ID?
+    @Environment(\.openWindow) private var openWindow
+
+    private var settings: AppSettings { controller.settings }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            // Header
-            HStack {
+        VStack(spacing: 0) {
+            header
+
+            TabView {
+                generalTab
+                    .tabItem { Label("General", systemImage: "gearshape") }
+                AIProviderSettingsView(settings: settings)
+                    .tabItem { Label("Providers", systemImage: "network") }
+                ShortcutEditView(settings: settings, selectedShortcutID: $selectedShortcutID)
+                    .tabItem { Label("Shortcuts", systemImage: "command") }
+            }
+            .padding(20)
+        }
+        .frame(minWidth: 820, idealWidth: 920, minHeight: 620, idealHeight: 680)
+        .onAppear {
+            selectedShortcutID = selectedShortcutID ?? settings.shortcutActions.first?.id
+        }
+    }
+
+    private var header: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 4) {
                 Text("Fluent")
-                    .font(.title2)
+                    .font(.largeTitle)
                     .fontWeight(.semibold)
-                Spacer()
-                Button("Quit") {
-                    NSApplication.shared.terminate(nil)
-                }
-            }
-
-            Divider()
-
-            // General Settings
-            VStack(alignment: .leading, spacing: 8) {
-                Text("General")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                Toggle("Launch at startup", isOn: $settings.launchAtStartup)
-                    .toggleStyle(.checkbox)
-            }
-
-            Divider()
-
-            // AI Provider Settings
-            AIProviderSettingsView(settings: settings)
-
-            Divider()
-
-            // Shortcuts List
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Shortcut Actions")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    Spacer()
-                    Button(action: { settings.resetToDefaults() }) {
-                        Image(systemName: "arrow.counterclockwise")
-                    }
-                    .buttonStyle(.plain)
-                    .help("Reset to defaults")
-                    Button(action: { addNewAction() }) {
-                        Image(systemName: "plus")
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if settings.shortcutActions.isEmpty {
-                    Text("No shortcuts configured. Click + to add one.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.vertical, 20)
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 8) {
-                            ForEach(settings.shortcutActions) { action in
-                                ShortcutRowView(
-                                    action: action,
-                                    onToggle: { toggleAction(action) },
-                                    onEdit: { selectedAction = action }
-                                )
-                            }
-                        }
-                    }
-                    .frame(maxHeight: 160)
-                }
-            }
-
-            Divider()
-
-            // Permissions Status
-            PermissionsStatusView()
-
-            // Version
-            HStack {
-                Spacer()
-                Text("v1.0.0")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-        }
-        .padding()
-        .frame(width: 420)
-        .sheet(item: $selectedAction) { action in
-            ShortcutEditSheet(
-                action: action,
-                settings: settings
-            )
-        }
-        .sheet(isPresented: $showingAddSheet) {
-            ShortcutEditView(
-                action: $newAction,
-                isNew: true
-            )
-            .onDisappear {
-                if !newAction.name.isEmpty && !newAction.prompt.isEmpty {
-                    settings.addAction(newAction)
-                }
-                // Reset for next time
-                newAction = ShortcutAction(
-                    name: "",
-                    keyCode: 0,
-                    modifiers: 768,
-                    prompt: ""
-                )
-            }
-        }
-    }
-
-    private func addNewAction() {
-        showingAddSheet = true
-    }
-
-    private func toggleAction(_ action: ShortcutAction) {
-        var updated = action
-        updated.isEnabled.toggle()
-        settings.updateAction(updated)
-    }
-}
-
-// MARK: - Shortcut Row
-
-struct ShortcutRowView: View {
-    let action: ShortcutAction
-    let onToggle: () -> Void
-    let onEdit: () -> Void
-
-    var body: some View {
-        HStack {
-            Toggle("", isOn: Binding(
-                get: { action.isEnabled },
-                set: { _ in onToggle() }
-            ))
-            .toggleStyle(.checkbox)
-            .labelsHidden()
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(action.name)
-                    .font(.body)
-                    .foregroundColor(action.isEnabled ? .primary : .secondary)
-                Text(action.shortcutDescription)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text("AI shortcuts for translation, rewriting, summaries, and any custom text workflow.")
+                    .foregroundStyle(.secondary)
             }
 
             Spacer()
 
-            Button(action: onEdit) {
-                Image(systemName: "pencil")
-            }
-            .buttonStyle(.plain)
-            .foregroundColor(.secondary)
-        }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 6)
-        .background(Color.gray.opacity(0.05))
-        .cornerRadius(6)
-    }
-}
+            Menu {
+                Button("Open Settings Window") {
+                    openWindow(id: "settings")
+                }
 
-// MARK: - Edit Sheet Wrapper
+                Divider()
 
-struct ShortcutEditSheet: View {
-    let action: ShortcutAction
-    let settings: AppSettings
+                ForEach(settings.enabledActions) { action in
+                    Button("\(action.name) (\(action.shortcutDescription))") {
+                        controller.processSelection(with: action)
+                    }
+                }
 
-    @State private var editableAction: ShortcutAction
+                Divider()
 
-    init(action: ShortcutAction, settings: AppSettings) {
-        self.action = action
-        self.settings = settings
-        self._editableAction = State(initialValue: action)
-    }
-
-    var body: some View {
-        ShortcutEditView(
-            action: $editableAction,
-            onDelete: {
-                settings.deleteAction(action)
-            }
-        )
-        .onDisappear {
-            if editableAction != action {
-                settings.updateAction(editableAction)
+                Button("Quit Fluent") {
+                    NSApplication.shared.terminate(nil)
+                }
+            } label: {
+                Label("Quick Actions", systemImage: "sparkles")
             }
         }
+        .padding(20)
+        .background(.bar)
+    }
+
+    private var generalTab: some View {
+        Form {
+            Section("Behavior") {
+                Toggle("Launch at login", isOn: Binding(
+                    get: { controller.settings.launchAtStartup },
+                    set: { controller.settings.launchAtStartup = $0 }
+                ))
+                Text("Fluent lives in the menu bar, captures selected text with a shortcut, sends it to your chosen model, and pastes the result back.")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section("Status") {
+                switch controller.state {
+                case .idle:
+                    Label("Ready", systemImage: "checkmark.circle")
+                case .processing(let action):
+                    Label("Processing \(action)…", systemImage: "hourglass")
+                case .completed(let action):
+                    Label("Completed \(action)", systemImage: "checkmark.circle.fill")
+                case .failed(let message):
+                    Label(message, systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                }
+
+                PermissionsStatusView()
+            }
+
+            Section("Templates") {
+                Text("Use the Shortcuts tab to start from templates for translation, writing improvement, grammar fixes, summaries, or your own prompts.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
     }
 }
-
-// MARK: - Permissions Status
 
 struct PermissionsStatusView: View {
     var body: some View {
         HStack {
-            if ClipboardService.shared.checkAccessibilityPermissions() {
-                Image(systemName: "checkmark.circle.fill")
-                    .foregroundColor(.green)
-                Text("Accessibility Permissions Granted")
-            } else {
-                Image(systemName: "exclamationmark.triangle.fill")
-                    .foregroundColor(.yellow)
-                Text("Accessibility Permissions Needed")
-                Spacer()
-                Button("Open Settings") {
-                    if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
-                        NSWorkspace.shared.open(url)
-                    }
+            Image(systemName: "figure.wave")
+            Text("Accessibility access is required so Fluent can copy the selected text and paste the transformed result.")
+            Spacer()
+            Button("Open Accessibility Settings") {
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                    NSWorkspace.shared.open(url)
                 }
-                .controlSize(.small)
             }
         }
-        .font(.caption)
     }
 }

@@ -7,24 +7,22 @@ on:
     branches: [main, master]
 
 jobs:
-  build:
-    name: Build & Test
+  swift:
+    name: Swift Build, Test, Coverage
     runs-on: macos-14
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Swift
-        uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "5.9"
-
       - name: Build
         run: swift build -c release
 
       - name: Run Tests
         run: swift test
+
+      - name: Verify Coverage
+        run: ./scripts/test_coverage.sh
 
   build-website:
     name: Build Website

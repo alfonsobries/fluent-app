@@ -29,7 +29,7 @@ SIZES=(
     "icon_512x512@2x 1024"
 )
 
-# Try rsvg-convert first (better quality), fall back to ImageMagick
+# Try rsvg-convert first (better quality), then ImageMagick, then Quick Look
 if command -v rsvg-convert &> /dev/null; then
     echo "Using rsvg-convert..."
     for entry in "${SIZES[@]}"; do
@@ -46,8 +46,20 @@ elif command -v convert &> /dev/null; then
         echo "  Generating ${name}.png (${size}x${size})"
         convert -background none -resize ${size}x${size} "$SVG_FILE" "$ICONSET_DIR/${name}.png"
     done
+elif command -v qlmanage &> /dev/null && command -v sips &> /dev/null; then
+    echo "Using Quick Look + sips..."
+    TEMP_DIR="$(mktemp -d)"
+    qlmanage -t -s 1024 -o "$TEMP_DIR" "$SVG_FILE" >/dev/null 2>&1
+    BASE_PNG="$TEMP_DIR/$(basename "$SVG_FILE").png"
+    for entry in "${SIZES[@]}"; do
+        name=$(echo $entry | cut -d' ' -f1)
+        size=$(echo $entry | cut -d' ' -f2)
+        echo "  Generating ${name}.png (${size}x${size})"
+        sips -z $size $size "$BASE_PNG" --out "$ICONSET_DIR/${name}.png" >/dev/null
+    done
+    rm -rf "$TEMP_DIR"
 else
-    echo "Error: Neither rsvg-convert nor ImageMagick found."
+    echo "Error: No SVG rasterizer found."
     echo "Install with: brew install librsvg OR brew install imagemagick"
     exit 1
 fi
