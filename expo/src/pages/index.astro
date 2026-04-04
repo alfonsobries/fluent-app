@@ -420,12 +420,24 @@ const defaultShortcuts = [
       if (!buttons.length) return;
 
       try {
-        const response = await fetch(buttons[0].dataset.releaseApi, {
-          headers: { Accept: 'application/vnd.github+json' }
-        });
+        const apiBase = buttons[0].dataset.releaseApi;
+        const releasesApi = apiBase.replace(/\/latest$/, '');
+        const headers = { Accept: 'application/vnd.github+json' };
+
+        // Try latest first, then fall back to recent releases
+        const response = await fetch(apiBase, { headers });
         if (!response.ok) throw new Error('Failed to fetch latest release');
 
-        const release = await response.json();
+        let release = await response.json();
+        const hasDmg = (release.assets || []).some((a) => a.name?.endsWith('.dmg'));
+
+        if (!hasDmg) {
+          const listResp = await fetch(`${releasesApi}?per_page=5`, { headers });
+          if (listResp.ok) {
+            const releases = await listResp.json();
+            release = releases.find((r) => (r.assets || []).some((a) => a.name?.endsWith('.dmg'))) || release;
+          }
+        }
 
         buttons.forEach((button) => {
           const asset = pickAsset(release.assets || [], button.dataset.releaseArch || '');

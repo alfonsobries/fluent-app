@@ -21,3 +21,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Trigger release build
+        if: ${{ steps.release.outputs.release_created }}
+        run: |
+          gh workflow run release.yml \
+            -f version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

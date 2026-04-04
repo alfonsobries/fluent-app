@@ -1,9 +1,6 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
     inputs:
       version:
@@ -29,21 +26,21 @@ jobs:
       - name: Resolve version
         id: version
         run: |
-          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            echo "value=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
-          else
-            echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-            echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
-          fi
+          echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${{ inputs.version }}" >> "$GITHUB_OUTPUT"
 
-      - name: Create tag for manual run
+      - name: Ensure tag exists for manual run
         if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.value }}"
-          git push origin "${{ steps.version.outputs.tag }}"
+          TAG="${{ steps.version.outputs.tag }}"
+          if git ls-remote --tags origin "$TAG" | grep -q "$TAG"; then
+            echo "Tag $TAG already exists, skipping creation."
+          else
+            git tag -a "$TAG" -m "Release ${{ steps.version.outputs.value }}"
+            git push origin "$TAG"
+          fi
 
   build:
     name: Build ${{ matrix.label }}
