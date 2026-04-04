@@ -91,7 +91,7 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
   <key>SUFeedURL</key>
   <string>https://raw.githubusercontent.com/alfonsobries/fluent-app/main/appcast.xml</string>
   <key>SUPublicEDKey</key>
-  <string>${SPARKLE_ED_PUBLIC_KEY:-}</string>
+  <string>MReBi9b1GiSQoQk+jrnd0K2KtJ55ptF/XeOw1jjh/Uo=</string>
 </dict>
 </plist>
 EOF
