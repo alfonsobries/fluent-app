@@ -373,7 +373,7 @@ private struct ProcessingHUDView: View {
                 Circle()
                     .trim(from: 0.0, to: 0.34)
                     .stroke(Color.white, style: StrokeStyle(lineWidth: 1.8, lineCap: .round))
-                    .rotationEffect(.degrees(isAnimating ? 360 : 0))
+                    .rotationEffect(Angle.degrees(isAnimating ? 360 : 0), anchor: .center)
                     .animation(.linear(duration: 0.8).repeatForever(autoreverses: false), value: isAnimating)
             }
             .frame(width: 12, height: 12)
@@ -395,7 +395,9 @@ private struct ProcessingHUDView: View {
         )
         .frame(width: 170, height: 38, alignment: .leading)
         .onAppear {
-            isAnimating = true
+            DispatchQueue.main.async {
+                isAnimating = true
+            }
         }
     }
 }
