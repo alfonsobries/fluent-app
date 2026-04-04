@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   release-please:
@@ -26,6 +27,7 @@ jobs:
         if: ${{ steps.release.outputs.release_created }}
         run: |
           gh workflow run release.yml \
+            --repo "${{ github.repository }}" \
             -f version=${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
