@@ -55,7 +55,7 @@ jobs:
             build_arch: arm64
             artifact_suffix: -apple-silicon
           - label: Intel
-            runner: macos-13
+            runner: macos-14
             build_arch: x86_64
             artifact_suffix: -intel
 

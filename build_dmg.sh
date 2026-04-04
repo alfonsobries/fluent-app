@@ -35,8 +35,13 @@ if [[ -f "$RESOURCES_DIR/generate_icon.sh" && ! -f "$RESOURCES_DIR/AppIcon.icns"
   (cd "$RESOURCES_DIR" && ./generate_icon.sh) || echo "Icon generation skipped."
 fi
 
-echo "Running release tests..."
-swift test "${SWIFT_TEST_ARGS[@]}"
+NATIVE_ARCH="$(uname -m)"
+if [[ -z "$BUILD_ARCH" || "$BUILD_ARCH" == "$NATIVE_ARCH" ]]; then
+  echo "Running release tests..."
+  swift test "${SWIFT_TEST_ARGS[@]}"
+else
+  echo "Skipping tests for cross-compilation ($BUILD_ARCH on $NATIVE_ARCH)..."
+fi
 
 echo "Building release binary..."
 swift build "${SWIFT_BUILD_ARGS[@]}"
