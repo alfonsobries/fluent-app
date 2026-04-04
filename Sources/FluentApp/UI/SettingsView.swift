@@ -1,8 +1,10 @@
 import FluentCore
+import Sparkle
 import SwiftUI
 
 struct SettingsView: View {
     @ObservedObject var controller: AppController
+    let updater: SPUUpdater
     @State private var selectedShortcutID: ShortcutAction.ID?
 
     private var settings: AppSettings { controller.settings }
@@ -84,6 +86,19 @@ struct SettingsView: View {
                 }
 
                 PermissionsStatusView()
+            }
+
+            Section("Updates") {
+                HStack {
+                    Button("Check for Updates…") {
+                        updater.checkForUpdates()
+                    }
+
+                    Toggle("Check automatically", isOn: Binding(
+                        get: { updater.automaticallyChecksForUpdates },
+                        set: { updater.automaticallyChecksForUpdates = $0 }
+                    ))
+                }
             }
 
             Section("Templates") {

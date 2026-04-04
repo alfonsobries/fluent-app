@@ -112,6 +112,9 @@ jobs:
     runs-on: macos-14
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Download Release Artifacts
         uses: actions/download-artifact@v4
         with:
@@ -129,3 +132,35 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate appcast
+        env:
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_EDDSA_PRIVATE_KEY }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          # Install Sparkle CLI tools
+          brew install --cask sparkle
+
+          # Collect DMGs into a single directory
+          mkdir -p appcast_dmgs
+          cp dist/release-arm64/*.dmg appcast_dmgs/ 2>/dev/null || true
+          cp dist/release-x86_64/*.dmg appcast_dmgs/ 2>/dev/null || true
+
+          # Generate appcast from DMGs
+          if [[ -n "$SPARKLE_PRIVATE_KEY" ]]; then
+            generate_appcast appcast_dmgs \
+              --ed-key-file <(echo "$SPARKLE_PRIVATE_KEY") \
+              --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/"
+          else
+            generate_appcast appcast_dmgs \
+              --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/"
+          fi
+
+          cp appcast_dmgs/appcast.xml appcast.xml
+
+          # Commit appcast back to repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add appcast.xml
+          git diff --cached --quiet || git commit -m "chore: update appcast for v${VERSION}"
+          git push origin HEAD:main

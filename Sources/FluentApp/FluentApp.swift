@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import FluentCore
 import FluentMacSupport
+import Sparkle
 import SwiftUI
 import UserNotifications
 
@@ -18,7 +19,7 @@ struct FluentApp: App {
 
     var body: some Scene {
         Settings {
-            SettingsView(controller: controller)
+            SettingsView(controller: controller, updater: appDelegate.updater)
         }
     }
 }
@@ -32,6 +33,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let hudController = ProcessingHUDController()
     private var cancellables: Set<AnyCancellable> = []
     private var lastNotifiedState: AppController.State?
+    let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    var updater: SPUUpdater { updaterController.updater }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard let controller = Self.sharedController else { return }
@@ -107,6 +110,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         openItem.target = self
         menu.addItem(openItem)
 
+        let updateItem = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
+        updateItem.target = self
+        menu.addItem(updateItem)
+
         if case .failed(let message) = controller.state {
             let errorItem = NSMenuItem(title: message, action: nil, keyEquivalent: "")
             errorItem.isEnabled = false
@@ -141,6 +148,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc private func runActionFromMenu(_ sender: NSMenuItem) {
         guard let action = sender.representedObject as? ShortcutAction else { return }
         Self.sharedController.processSelection(with: action)
+    }
+
+    @objc private func checkForUpdates() {
+        updater.checkForUpdates()
     }
 
     @objc private func quit() {
