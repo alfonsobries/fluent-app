@@ -32,9 +32,16 @@ struct SettingsView: View {
     private var header: some View {
         HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Fluent App")
-                    .font(.largeTitle)
-                    .fontWeight(.semibold)
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text("Fluent App")
+                        .font(.largeTitle)
+                        .fontWeight(.semibold)
+                    if let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
+                        Text("v\(version)")
+                            .font(.callout)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
                 Text("AI shortcuts for translation, rewriting, summaries, and any custom text workflow.")
                     .foregroundStyle(.secondary)
             }

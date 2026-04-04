@@ -46,6 +46,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         setupStatusItem()
         bind(to: controller)
         try? updater.start()
+
+        // Close any windows SwiftUI opened at launch (Settings)
+        DispatchQueue.main.async {
+            for window in NSApp.windows where window.isVisible {
+                window.close()
+            }
+        }
     }
 
     private func setupStatusItem() {
