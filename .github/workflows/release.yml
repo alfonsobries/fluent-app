@@ -139,7 +139,10 @@ jobs:
           VERSION: ${{ needs.prepare.outputs.version }}
         run: |
           # Install Sparkle CLI tools
-          brew install --cask sparkle
+          SPARKLE_VERSION="2.6.4"
+          curl -sL "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz" -o /tmp/sparkle.tar.xz
+          mkdir -p /tmp/sparkle && tar xf /tmp/sparkle.tar.xz -C /tmp/sparkle
+          SPARKLE_BIN="/tmp/sparkle/bin"
 
           # Collect DMGs into a single directory
           mkdir -p appcast_dmgs
@@ -148,11 +151,11 @@ jobs:
 
           # Generate appcast from DMGs
           if [[ -n "$SPARKLE_PRIVATE_KEY" ]]; then
-            generate_appcast appcast_dmgs \
+            "$SPARKLE_BIN/generate_appcast" appcast_dmgs \
               --ed-key-file <(echo "$SPARKLE_PRIVATE_KEY") \
               --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/"
           else
-            generate_appcast appcast_dmgs \
+            "$SPARKLE_BIN/generate_appcast" appcast_dmgs \
               --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/"
           fi
 
