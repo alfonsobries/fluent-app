@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.2](https://github.com/alfonsobries/fluent-app/compare/v1.3.1...v1.3.2) (2026-04-04)
+
+
+### Bug Fixes
+
+* add --repo flag and actions permission to release-please trigger ([aeb24d6](https://github.com/alfonsobries/fluent-app/commit/aeb24d608d68343e0e012e95617bbdfb3f4f4c6c))
+* build both architectures on macos-14 ARM runner ([0cb346a](https://github.com/alfonsobries/fluent-app/commit/0cb346a8d5d0b84bbbcb1a9867a72e1b52415f4a))
+* spinner rotation on its own center axis ([f158dbf](https://github.com/alfonsobries/fluent-app/commit/f158dbf68820f4eb658bff8fc5159199b6a77648))
+
 ## [1.3.1](https://github.com/alfonsobries/fluent-app/compare/v1.3.0...v1.3.1) (2026-04-04)
 
 
