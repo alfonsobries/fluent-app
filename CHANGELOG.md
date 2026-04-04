@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/alfonsobries/fluent-app/compare/v1.3.2...v1.4.0) (2026-04-04)
+
+
+### Features
+
+* add Sparkle auto-update support ([5a7d087](https://github.com/alfonsobries/fluent-app/commit/5a7d087d064f04ce31444239505a00d717651b1c))
+* add Sparkle auto-update support ([d0529fd](https://github.com/alfonsobries/fluent-app/commit/d0529fdda993722d07e6d000b346169ec38ea465))
+
 ## [1.3.2](https://github.com/alfonsobries/fluent-app/compare/v1.3.1...v1.3.2) (2026-04-04)
 
 
