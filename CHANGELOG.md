@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.0](https://github.com/alfonsobries/fluent-app/compare/v1.4.1...v1.5.0) (2026-04-04)
+
+
+### Features
+
+* drop Intel support, simplify to Apple Silicon only ([6650b2c](https://github.com/alfonsobries/fluent-app/commit/6650b2cf670d3c84cf640a7e8d8c3dd2c39b2046))
+
+
+### Bug Fixes
+
+* use only Apple Silicon DMG for appcast generation ([03a5455](https://github.com/alfonsobries/fluent-app/commit/03a545521eaa12f5f1c3e487f59ac2d98979f97b))
+* use printf instead of echo for Sparkle key file ([f95a98f](https://github.com/alfonsobries/fluent-app/commit/f95a98fbd6336a564eaf96f53e59b34e437417f3))
+
 ## [1.4.1](https://github.com/alfonsobries/fluent-app/compare/v1.4.0...v1.4.1) (2026-04-04)
 
 
