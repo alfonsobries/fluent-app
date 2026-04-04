@@ -3,12 +3,12 @@
     <channel>
         <title>Fluent App</title>
         <item>
-            <title>1.4.1</title>
-            <pubDate>Sat, 04 Apr 2026 14:09:34 +0000</pubDate>
+            <title>1.5.0</title>
+            <pubDate>Sat, 04 Apr 2026 14:13:38 +0000</pubDate>
             <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
+            <sparkle:shortVersionString>1.5.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/alfonsobries/fluent-app/releases/download/v1.4.1/Fluent-App-1.4.1-apple-silicon.dmg" length="1927309" type="application/octet-stream" sparkle:edSignature="z4pVbNMgDd55yX7wsHHhY3ygvyFVyNBdQeRyamZSJQyUssbH/u1uo0C653q0DkxjgqQoq+6e2TzshNRhszZlDw=="/>
+            <enclosure url="https://github.com/alfonsobries/fluent-app/releases/download/v1.5.0/Fluent-App-1.5.0.dmg" length="1927973" type="application/octet-stream" sparkle:edSignature="oHuyJOJjdtYjtV3/Mz3NEMY8zA4sTjc4IqaptTFOwFZw6nFdcshLnaEzEMmbzlFnBWAj8G7k943bhcyHqfQ6CQ=="/>
         </item>
     </channel>
 </rss>
