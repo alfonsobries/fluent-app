@@ -153,7 +153,7 @@ jobs:
           APPCAST_ARGS=(appcast_dmgs --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/")
           if [[ -n "$SPARKLE_PRIVATE_KEY" ]]; then
             KEY_FILE="$(mktemp)"
-            echo "$SPARKLE_PRIVATE_KEY" > "$KEY_FILE"
+            printf '%s' "$SPARKLE_PRIVATE_KEY" > "$KEY_FILE"
             APPCAST_ARGS+=(--ed-key-file "$KEY_FILE")
           fi
           "$SPARKLE_BIN/generate_appcast" "${APPCAST_ARGS[@]}"
