@@ -18,7 +18,7 @@ struct FluentApp: App {
 
     var body: some Scene {
         Settings {
-            EmptyView()
+            SettingsView(controller: controller)
         }
     }
 }
@@ -28,7 +28,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private var statusItem: NSStatusItem?
     private var menu: NSMenu?
-    private var settingsWindow: NSWindow?
     private var statusSpinner: NSProgressIndicator?
     private let hudController = ProcessingHUDController()
     private var cancellables: Set<AnyCancellable> = []
@@ -41,11 +40,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.setActivationPolicy(.accessory)
         setupStatusItem()
         bind(to: controller)
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            self.log("opening settings window after launch")
-            self.openSettingsWindow()
-        }
     }
 
     private func setupStatusItem() {
@@ -71,7 +65,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             .sink { [weak self] in
                 self?.updateStatusItem(for: controller.state)
                 self?.rebuildMenu()
-                self?.refreshSettingsWindow()
                 self?.updateHUD(for: controller.state)
                 self?.notifyIfNeeded(for: controller.state)
             }
@@ -140,13 +133,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(quitItem)
     }
 
-    private func refreshSettingsWindow() {
-        guard let settingsWindow, let controller = Self.sharedController else { return }
-        settingsWindow.contentViewController = NSHostingController(rootView: SettingsView(controller: controller))
-    }
-
     @objc private func openSettingsFromMenu() {
-        openSettingsWindow()
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     @objc private func runActionFromMenu(_ sender: NSMenuItem) {
@@ -156,30 +145,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func quit() {
         NSApp.terminate(nil)
-    }
-
-    private func openSettingsWindow() {
-        guard let controller = Self.sharedController else { return }
-        log("openSettingsWindow begin")
-
-        if settingsWindow == nil {
-            let hostingController = NSHostingController(rootView: SettingsView(controller: controller))
-            let window = NSWindow(contentViewController: hostingController)
-            window.title = "Fluent App Settings"
-            window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
-            window.setContentSize(NSSize(width: 920, height: 680))
-            window.isReleasedWhenClosed = false
-            window.center()
-            settingsWindow = window
-            log("created settings window")
-        }
-
-        refreshSettingsWindow()
-        settingsWindow?.orderFrontRegardless()
-        settingsWindow?.makeKeyAndOrderFront(nil)
-        NSRunningApplication.current.activate(options: [.activateIgnoringOtherApps])
-        NSApp.activate(ignoringOtherApps: true)
-        log("openSettingsWindow end")
     }
 
     private func notifyIfNeeded(for state: AppController.State) {

@@ -64,6 +64,7 @@ final class MockLaunchAtLoginController: LaunchAtLoginControlling {
         if let error {
             throw error
         }
+        isEnabled = enabled
     }
 }
 

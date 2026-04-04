@@ -9,11 +9,18 @@ ARTIFACT_STEM="${ARTIFACT_STEM:-Fluent-App}"
 APP_IDENTIFIER="${APP_IDENTIFIER:-com.alfonsobries.fluent}"
 VERSION="${VERSION:-$(cat version.txt 2>/dev/null || echo 1.2.0)}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
-BUILD_DIR=".build/release"
 APP_BUNDLE="$APP_BUNDLE_NAME.app"
-DMG_NAME="${ARTIFACT_STEM}-${VERSION}.dmg"
+BUILD_ARCH="${BUILD_ARCH:-}"
+ARTIFACT_SUFFIX="${ARTIFACT_SUFFIX:-}"
+DMG_NAME="${ARTIFACT_STEM}-${VERSION}${ARTIFACT_SUFFIX}.dmg"
 RESOURCES_DIR="Resources"
 ICON_FILE=""
+SWIFT_BUILD_ARGS=(-c release)
+SWIFT_TEST_ARGS=()
+if [[ -n "$BUILD_ARCH" ]]; then
+  SWIFT_BUILD_ARGS+=(--arch "$BUILD_ARCH")
+  SWIFT_TEST_ARGS+=(--arch "$BUILD_ARCH")
+fi
 if [[ -n "${DEVELOPER_ID_APPLICATION:-}" ]]; then
   SIGNING_IDENTITY="$DEVELOPER_ID_APPLICATION"
 else
@@ -29,10 +36,11 @@ if [[ -f "$RESOURCES_DIR/generate_icon.sh" && ! -f "$RESOURCES_DIR/AppIcon.icns"
 fi
 
 echo "Running release tests..."
-swift test
+swift test "${SWIFT_TEST_ARGS[@]}"
 
 echo "Building release binary..."
-swift build -c release
+swift build "${SWIFT_BUILD_ARGS[@]}"
+BUILD_DIR="$(swift build "${SWIFT_BUILD_ARGS[@]}" --show-bin-path)"
 
 echo "Creating app bundle..."
 rm -rf "$APP_BUNDLE"

@@ -15,9 +15,12 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    name: Build & Release
+  prepare:
+    name: Prepare Release
     runs-on: macos-14
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+      tag: ${{ steps.version.outputs.tag }}
 
     steps:
       - name: Checkout
@@ -42,6 +45,27 @@ jobs:
           git tag -a "${{ steps.version.outputs.tag }}" -m "Release ${{ steps.version.outputs.value }}"
           git push origin "${{ steps.version.outputs.tag }}"
 
+  build:
+    name: Build ${{ matrix.label }}
+    needs: prepare
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Apple Silicon
+            runner: macos-14
+            build_arch: arm64
+            artifact_suffix: -apple-silicon
+          - label: Intel
+            runner: macos-13
+            build_arch: x86_64
+            artifact_suffix: -intel
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Import signing certificate
         env:
           APPLE_DEVELOPER_ID_P12_BASE64: ${{ secrets.APPLE_DEVELOPER_ID_P12_BASE64 }}
@@ -62,7 +86,9 @@ jobs:
 
       - name: Build Release
         env:
-          VERSION: ${{ steps.version.outputs.value }}
+          VERSION: ${{ needs.prepare.outputs.version }}
+          BUILD_ARCH: ${{ matrix.build_arch }}
+          ARTIFACT_SUFFIX: ${{ matrix.artifact_suffix }}
           DEVELOPER_ID_APPLICATION: ${{ secrets.DEVELOPER_ID_APPLICATION }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -75,13 +101,34 @@ jobs:
           fi
           ./build_dmg.sh
 
+      - name: Upload Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.build_arch }}
+          path: |
+            Fluent-App-${{ needs.prepare.outputs.version }}${{ matrix.artifact_suffix }}.dmg
+            Fluent-App-${{ needs.prepare.outputs.version }}${{ matrix.artifact_suffix }}.dmg.sha256
+
+  release:
+    name: Publish Release
+    needs: [prepare, build]
+    runs-on: macos-14
+
+    steps:
+      - name: Download Release Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.version.outputs.tag }}
+          tag_name: ${{ needs.prepare.outputs.tag }}
           files: |
-            Fluent-App-${{ steps.version.outputs.value }}.dmg
-            Fluent-App-${{ steps.version.outputs.value }}.dmg.sha256
+            dist/release-arm64/Fluent-App-${{ needs.prepare.outputs.version }}-apple-silicon.dmg
+            dist/release-arm64/Fluent-App-${{ needs.prepare.outputs.version }}-apple-silicon.dmg.sha256
+            dist/release-x86_64/Fluent-App-${{ needs.prepare.outputs.version }}-intel.dmg
+            dist/release-x86_64/Fluent-App-${{ needs.prepare.outputs.version }}-intel.dmg.sha256
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

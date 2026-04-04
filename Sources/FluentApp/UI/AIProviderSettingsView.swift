@@ -50,8 +50,8 @@ struct APIKeyRow: View {
     @State private var isEditing = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 16) {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack {
                         Text(provider.displayName)
@@ -73,39 +73,46 @@ struct APIKeyRow: View {
 
                 Spacer()
 
-                if let url = URL(string: provider.apiKeyURL) {
-                    Link("Get Key", destination: url)
-                }
+                HStack(spacing: 10) {
+                    if let url = URL(string: provider.apiKeyURL) {
+                        Link("Get Key", destination: url)
+                    }
 
-                Button(isEditing ? "Cancel" : (apiKey.isEmpty ? "Add" : "Edit")) {
-                    if isEditing {
-                        tempKey = apiKey
-                        isEditing = false
-                    } else {
-                        tempKey = apiKey
-                        isEditing = true
+                    Button(isEditing ? "Cancel" : (apiKey.isEmpty ? "Add Key" : "Edit Key")) {
+                        if isEditing {
+                            discardDraft()
+                        } else {
+                            tempKey = apiKey
+                            isEditing = true
+                        }
                     }
                 }
             }
 
             if isEditing {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("Paste your full API key")
-                        .font(.caption)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("API Key")
+                        .font(.headline)
+
+                    Text("Paste the complete key exactly as provided by \(provider.displayName). Do not remove the prefix.")
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
 
                     SecureField(fullPlaceholder, text: $tempKey)
                         .textFieldStyle(.roundedBorder)
-
-                    Text("Paste the complete key exactly as provided by \(provider.displayName). Do not remove the prefix.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
 
                     HStack {
+                        if hasChanges {
+                            Label("Unsaved changes", systemImage: "exclamationmark.circle")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+
                         Spacer()
+
                         Button("Cancel") {
-                            tempKey = apiKey
-                            isEditing = false
+                            discardDraft()
                         }
 
                         Button("Save") {
@@ -113,11 +120,19 @@ struct APIKeyRow: View {
                             isEditing = false
                         }
                         .buttonStyle(.borderedProminent)
+                        .disabled(!hasChanges)
                     }
                 }
+                .padding(14)
+                .background(Color(nsColor: .controlBackgroundColor))
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
         }
         .padding(.vertical, 6)
+    }
+
+    private var hasChanges: Bool {
+        tempKey != apiKey
     }
 
     private var maskedKey: String {
@@ -136,5 +151,10 @@ struct APIKeyRow: View {
         case .grok:
             return "Paste your full key, for example xai-..."
         }
+    }
+
+    private func discardDraft() {
+        tempKey = apiKey
+        isEditing = false
     }
 }

@@ -9,13 +9,15 @@ fi
 
 VERSION="$1"
 TAG="v$VERSION"
-DMG_NAME="Fluent-App-${VERSION}.dmg"
+APPLE_SILICON_DMG="Fluent-App-${VERSION}-apple-silicon.dmg"
+INTEL_DMG="Fluent-App-${VERSION}-intel.dmg"
 
 ./scripts/test_coverage.sh
-VERSION="$VERSION" ./build_dmg.sh
+VERSION="$VERSION" BUILD_ARCH=arm64 ARTIFACT_SUFFIX=-apple-silicon ./build_dmg.sh
+VERSION="$VERSION" BUILD_ARCH=x86_64 ARTIFACT_SUFFIX=-intel ./build_dmg.sh
 
-if [[ ! -f "$DMG_NAME" ]]; then
-  echo "Missing artifact: $DMG_NAME"
+if [[ ! -f "$APPLE_SILICON_DMG" || ! -f "$INTEL_DMG" ]]; then
+  echo "Missing release artifacts."
   exit 1
 fi
 
@@ -23,11 +25,15 @@ git tag -a "$TAG" -m "Release $VERSION"
 git push origin "$TAG"
 
 if command -v gh >/dev/null 2>&1; then
-  gh release create "$TAG" "$DMG_NAME" "$DMG_NAME.sha256" \
+  gh release create "$TAG" \
+    "$APPLE_SILICON_DMG" "$APPLE_SILICON_DMG.sha256" \
+    "$INTEL_DMG" "$INTEL_DMG.sha256" \
     --title "Fluent App $VERSION" \
     --generate-notes
 else
   echo "Tag pushed. Create the GitHub release manually and upload:"
-  echo "  $DMG_NAME"
-  echo "  $DMG_NAME.sha256"
+  echo "  $APPLE_SILICON_DMG"
+  echo "  $APPLE_SILICON_DMG.sha256"
+  echo "  $INTEL_DMG"
+  echo "  $INTEL_DMG.sha256"
 fi

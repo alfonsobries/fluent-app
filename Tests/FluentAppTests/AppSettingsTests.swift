@@ -68,6 +68,16 @@ final class AppSettingsTests: XCTestCase {
         XCTAssertEqual(failingSettings.launchAtStartupError, "boom")
     }
 
+    func testLaunchAtStartupDefaultSynchronizesOnFirstLaunch() {
+        let controller = MockLaunchAtLoginController(isEnabled: false)
+
+        let settings = AppSettings(userDefaults: userDefaults, launchAtLoginController: controller)
+
+        XCTAssertTrue(settings.launchAtStartup)
+        XCTAssertEqual(controller.receivedValues, [true])
+        XCTAssertTrue(controller.isEnabled)
+    }
+
     func testActionCrudAndLookup() {
         let provider = StubAIProvider()
         let factory = AIProviderFactory(providers: [.openai: provider])

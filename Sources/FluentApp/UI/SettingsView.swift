@@ -4,7 +4,6 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var controller: AppController
     @State private var selectedShortcutID: ShortcutAction.ID?
-    @Environment(\.openWindow) private var openWindow
 
     private var settings: AppSettings { controller.settings }
 
@@ -41,12 +40,6 @@ struct SettingsView: View {
             Spacer()
 
             Menu {
-                Button("Open Settings Window") {
-                    openWindow(id: "settings")
-                }
-
-                Divider()
-
                 ForEach(settings.enabledActions) { action in
                     Button("\(action.name) (\(action.shortcutDescription))") {
                         controller.processSelection(with: action)

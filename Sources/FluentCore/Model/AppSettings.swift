@@ -89,6 +89,7 @@ public final class AppSettings: ObservableObject {
         }
 
         migrateLegacyValues()
+        synchronizeLaunchAtStartupPreference()
     }
 
     public var currentAPIKey: String {
@@ -213,6 +214,17 @@ public final class AppSettings: ObservableObject {
             userDefaults.removeObject(forKey: Keys.legacyShortcutModifiers)
             userDefaults.removeObject(forKey: Keys.legacyPrompt)
             saveShortcutActions()
+        }
+    }
+
+    private func synchronizeLaunchAtStartupPreference() {
+        guard launchAtLoginController.isEnabled != launchAtStartup else { return }
+
+        do {
+            try launchAtLoginController.setEnabled(launchAtStartup)
+            launchAtStartupError = nil
+        } catch {
+            launchAtStartupError = error.localizedDescription
         }
     }
 }
