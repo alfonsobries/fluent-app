@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/alfonsobries/fluent-app/compare/v1.5.0...v1.5.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* resolve Sparkle framework loading crash ([13e8ae9](https://github.com/alfonsobries/fluent-app/commit/13e8ae91066c3f9141d9183c7382e4ee0a9f0037))
+
 ## [1.5.0](https://github.com/alfonsobries/fluent-app/compare/v1.4.1...v1.5.0) (2026-04-04)
 
 
