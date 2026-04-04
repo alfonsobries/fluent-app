@@ -12,6 +12,9 @@ let package = Package(
         .library(name: "FluentCore", targets: ["FluentCore"]),
         .executable(name: "FluentApp", targets: ["FluentApp"])
     ],
+    dependencies: [
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0")
+    ],
     targets: [
         .target(
             name: "FluentCore",
@@ -29,7 +32,11 @@ let package = Package(
         ),
         .executableTarget(
             name: "FluentApp",
-            dependencies: ["FluentCore", "FluentMacSupport"],
+            dependencies: [
+                "FluentCore",
+                "FluentMacSupport",
+                .product(name: "Sparkle", package: "Sparkle")
+            ],
             path: "Sources/FluentApp",
             exclude: [
                 "Contracts",

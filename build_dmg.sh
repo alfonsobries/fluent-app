@@ -88,6 +88,10 @@ cat > "$APP_BUNDLE/Contents/Info.plist" <<EOF
   <true/>
   <key>NSHighResolutionCapable</key>
   <true/>
+  <key>SUFeedURL</key>
+  <string>https://raw.githubusercontent.com/alfonsobries/fluent-app/main/appcast.xml</string>
+  <key>SUPublicEDKey</key>
+  <string>${SPARKLE_ED_PUBLIC_KEY:-}</string>
 </dict>
 </plist>
 EOF
@@ -97,6 +101,16 @@ if [[ -n "$ICON_FILE" ]]; then
 fi
 
 echo "APPL????" > "$APP_BUNDLE/Contents/PkgInfo"
+
+echo "Embedding Sparkle framework..."
+mkdir -p "$APP_BUNDLE/Contents/Frameworks"
+SPARKLE_FRAMEWORK="$(find "$(swift build "${SWIFT_BUILD_ARGS[@]}" --show-bin-path)/../.." -path "*/Sparkle.framework" -type d -maxdepth 5 | head -1)"
+if [[ -n "$SPARKLE_FRAMEWORK" ]]; then
+  cp -R "$SPARKLE_FRAMEWORK" "$APP_BUNDLE/Contents/Frameworks/"
+  echo "  Embedded $SPARKLE_FRAMEWORK"
+else
+  echo "  WARNING: Sparkle.framework not found, auto-updates will not work"
+fi
 
 echo "Code signing with identity: $SIGNING_IDENTITY"
 codesign --force --deep --options runtime --sign "$SIGNING_IDENTITY" "$APP_BUNDLE"
