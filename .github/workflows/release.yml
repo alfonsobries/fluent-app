@@ -144,10 +144,9 @@ jobs:
           mkdir -p /tmp/sparkle && tar xf /tmp/sparkle.tar.xz -C /tmp/sparkle
           SPARKLE_BIN="/tmp/sparkle/bin"
 
-          # Collect DMGs into a single directory
+          # Use Apple Silicon DMG for appcast (Sparkle doesn't support duplicate versions)
           mkdir -p appcast_dmgs
           cp dist/release-arm64/*.dmg appcast_dmgs/ 2>/dev/null || true
-          cp dist/release-x86_64/*.dmg appcast_dmgs/ 2>/dev/null || true
 
           # Generate appcast from DMGs
           APPCAST_ARGS=(appcast_dmgs --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/")
