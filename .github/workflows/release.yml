@@ -150,14 +150,14 @@ jobs:
           cp dist/release-x86_64/*.dmg appcast_dmgs/ 2>/dev/null || true
 
           # Generate appcast from DMGs
+          APPCAST_ARGS=(appcast_dmgs --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/")
           if [[ -n "$SPARKLE_PRIVATE_KEY" ]]; then
-            "$SPARKLE_BIN/generate_appcast" appcast_dmgs \
-              --ed-key-file <(echo "$SPARKLE_PRIVATE_KEY") \
-              --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/"
-          else
-            "$SPARKLE_BIN/generate_appcast" appcast_dmgs \
-              --download-url-prefix "https://github.com/alfonsobries/fluent-app/releases/download/v${VERSION}/"
+            KEY_FILE="$(mktemp)"
+            echo "$SPARKLE_PRIVATE_KEY" > "$KEY_FILE"
+            APPCAST_ARGS+=(--ed-key-file "$KEY_FILE")
           fi
+          "$SPARKLE_BIN/generate_appcast" "${APPCAST_ARGS[@]}"
+          rm -f "$KEY_FILE" 2>/dev/null || true
 
           cp appcast_dmgs/appcast.xml appcast.xml
 
