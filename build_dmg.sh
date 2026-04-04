@@ -10,17 +10,10 @@ APP_IDENTIFIER="${APP_IDENTIFIER:-com.alfonsobries.fluent}"
 VERSION="${VERSION:-$(cat version.txt 2>/dev/null || echo 1.2.0)}"
 BUILD_NUMBER="${BUILD_NUMBER:-1}"
 APP_BUNDLE="$APP_BUNDLE_NAME.app"
-BUILD_ARCH="${BUILD_ARCH:-}"
-ARTIFACT_SUFFIX="${ARTIFACT_SUFFIX:-}"
-DMG_NAME="${ARTIFACT_STEM}-${VERSION}${ARTIFACT_SUFFIX}.dmg"
+DMG_NAME="${ARTIFACT_STEM}-${VERSION}.dmg"
 RESOURCES_DIR="Resources"
 ICON_FILE=""
 SWIFT_BUILD_ARGS=(-c release)
-SWIFT_TEST_ARGS=()
-if [[ -n "$BUILD_ARCH" ]]; then
-  SWIFT_BUILD_ARGS+=(--arch "$BUILD_ARCH")
-  SWIFT_TEST_ARGS+=(--arch "$BUILD_ARCH")
-fi
 if [[ -n "${DEVELOPER_ID_APPLICATION:-}" ]]; then
   SIGNING_IDENTITY="$DEVELOPER_ID_APPLICATION"
 else
@@ -35,13 +28,8 @@ if [[ -f "$RESOURCES_DIR/generate_icon.sh" && ! -f "$RESOURCES_DIR/AppIcon.icns"
   (cd "$RESOURCES_DIR" && ./generate_icon.sh) || echo "Icon generation skipped."
 fi
 
-NATIVE_ARCH="$(uname -m)"
-if [[ -z "$BUILD_ARCH" || "$BUILD_ARCH" == "$NATIVE_ARCH" ]]; then
-  echo "Running release tests..."
-  swift test "${SWIFT_TEST_ARGS[@]}"
-else
-  echo "Skipping tests for cross-compilation ($BUILD_ARCH on $NATIVE_ARCH)..."
-fi
+echo "Running release tests..."
+swift test
 
 echo "Building release binary..."
 swift build "${SWIFT_BUILD_ARGS[@]}"

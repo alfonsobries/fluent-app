@@ -140,23 +140,12 @@ const defaultShortcuts = [
           <div class="mt-8 flex flex-wrap items-center gap-3">
             <a
               class="pill-button border-white bg-white text-black"
-              id="download-apple-silicon"
+              id="download-dmg"
               href={releasesUrl}
               data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
               data-release-fallback={releasesUrl}
-              data-release-arch="apple-silicon"
             >
-              Download for Apple Silicon
-            </a>
-            <a
-              class="pill-button border-white/10 bg-white/5 text-white"
-              id="download-intel"
-              href={releasesUrl}
-              data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
-              data-release-fallback={releasesUrl}
-              data-release-arch="intel"
-            >
-              Download for Intel Mac
+              Download for macOS
             </a>
             <a class="pill-button border-white/10 bg-white/5 text-white" href={repoUrl} target="_blank" rel="noreferrer">
               View on GitHub
@@ -305,23 +294,12 @@ const defaultShortcuts = [
         <div class="flex flex-wrap gap-3">
           <a
             class="pill-button border-white bg-white text-black"
-            id="download-release-apple-silicon"
+            id="download-release-dmg"
             href={releasesUrl}
             data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
             data-release-fallback={releasesUrl}
-            data-release-arch="apple-silicon"
           >
-            Apple Silicon DMG
-          </a>
-          <a
-            class="pill-button border-white/10 bg-white/5 text-white"
-            id="download-release-intel"
-            href={releasesUrl}
-            data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
-            data-release-fallback={releasesUrl}
-            data-release-arch="intel"
-          >
-            Intel DMG
+            Download DMG
           </a>
           <a class="pill-button border-white/10 bg-white/5 text-white" href={`${repoUrl}/releases`} target="_blank" rel="noreferrer">
             All Releases
@@ -399,23 +377,6 @@ const defaultShortcuts = [
   <script is:inline>
     const buttons = Array.from(document.querySelectorAll('[data-release-api]'));
 
-    const pickAsset = (assets, targetArch) => {
-      const dmgAssets = assets.filter((asset) => asset.name?.endsWith('.dmg'));
-      if (!dmgAssets.length) return null;
-
-      const archHintMap = {
-        'apple-silicon': ['apple-silicon', 'arm64', 'aarch64'],
-        intel: ['intel', 'x64', 'x86_64']
-      };
-
-      const hints = archHintMap[targetArch] || [];
-      const exactMatch = dmgAssets.find((asset) =>
-        hints.some((hint) => asset.name.toLowerCase().includes(hint))
-      );
-
-      return exactMatch ?? null;
-    };
-
     const hydrateDownloadButtons = async () => {
       if (!buttons.length) return;
 
@@ -424,27 +385,26 @@ const defaultShortcuts = [
         const releasesApi = apiBase.replace(/\/latest$/, '');
         const headers = { Accept: 'application/vnd.github+json' };
 
-        // Try latest first, then fall back to recent releases
         const response = await fetch(apiBase, { headers });
         if (!response.ok) throw new Error('Failed to fetch latest release');
 
         let release = await response.json();
-        const hasDmg = (release.assets || []).some((a) => a.name?.endsWith('.dmg'));
+        let dmg = (release.assets || []).find((a) => a.name?.endsWith('.dmg'));
 
-        if (!hasDmg) {
+        if (!dmg) {
           const listResp = await fetch(`${releasesApi}?per_page=5`, { headers });
           if (listResp.ok) {
             const releases = await listResp.json();
-            release = releases.find((r) => (r.assets || []).some((a) => a.name?.endsWith('.dmg'))) || release;
+            for (const r of releases) {
+              dmg = (r.assets || []).find((a) => a.name?.endsWith('.dmg'));
+              if (dmg) break;
+            }
           }
         }
 
-        buttons.forEach((button) => {
-          const asset = pickAsset(release.assets || [], button.dataset.releaseArch || '');
-          if (asset?.browser_download_url) {
-            button.href = asset.browser_download_url;
-          }
-        });
+        if (dmg?.browser_download_url) {
+          buttons.forEach((button) => { button.href = dmg.browser_download_url; });
+        }
       } catch {
         buttons.forEach((button) => {
           button.href = button.dataset.releaseFallback || button.href;
