@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/alfonsobries/fluent-app/compare/v1.4.0...v1.4.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* use temp file for Sparkle private key in CI ([56a22ff](https://github.com/alfonsobries/fluent-app/commit/56a22ff1fc338269b5322e631cf214161dc35a64))
+
 ## [1.4.0](https://github.com/alfonsobries/fluent-app/compare/v1.3.2...v1.4.0) (2026-04-04)
 
 
