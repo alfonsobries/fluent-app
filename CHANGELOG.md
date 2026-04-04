@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/alfonsobries/fluent-app/compare/v1.5.1...v1.6.0) (2026-04-04)
+
+
+### Features
+
+* close settings window on launch, show version in header ([f05d122](https://github.com/alfonsobries/fluent-app/commit/f05d1220340529bfdec80ee99d0d9e3f06178f15))
+
 ## [1.5.1](https://github.com/alfonsobries/fluent-app/compare/v1.5.0...v1.5.1) (2026-04-04)
 
 
