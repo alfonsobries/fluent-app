@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1](https://github.com/alfonsobries/fluent-app/compare/v1.3.0...v1.3.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* streamline release flow so site links directly to DMGs ([a0fe057](https://github.com/alfonsobries/fluent-app/commit/a0fe05705776eba2ed8183af1c81fd53d7492994))
+
 ## [1.3.0](https://github.com/alfonsobries/fluent-app/compare/v1.2.0...v1.3.0) (2026-04-04)
 
 
