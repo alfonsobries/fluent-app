@@ -52,7 +52,8 @@ let package = Package(
                 "UI/AIProviderSettingsView.swift"
             ],
             linkerSettings: [
-                .linkedFramework("AppKit")
+                .linkedFramework("AppKit"),
+                .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"])
             ]
         ),
         .testTarget(

@@ -33,7 +33,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let hudController = ProcessingHUDController()
     private var cancellables: Set<AnyCancellable> = []
     private var lastNotifiedState: AppController.State?
-    let updaterController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+    private(set) lazy var updaterController: SPUStandardUpdaterController = {
+        SPUStandardUpdaterController(startingUpdater: false, updaterDelegate: nil, userDriverDelegate: nil)
+    }()
     var updater: SPUUpdater { updaterController.updater }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -43,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         NSApp.setActivationPolicy(.accessory)
         setupStatusItem()
         bind(to: controller)
+        try? updater.start()
     }
 
     private func setupStatusItem() {
