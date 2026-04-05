@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/alfonsobries/fluent-app/compare/v1.6.1...v1.6.2) (2026-04-05)
+
+
+### Bug Fixes
+
+* bring Sparkle update dialog to front in menu bar app ([3b69197](https://github.com/alfonsobries/fluent-app/commit/3b6919744101b54f4b1abb44019c85b6fb37b679))
+
 ## [1.6.1](https://github.com/alfonsobries/fluent-app/compare/v1.6.0...v1.6.1) (2026-04-05)
 
 
