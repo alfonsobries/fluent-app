@@ -34,7 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var cancellables: Set<AnyCancellable> = []
     private var lastNotifiedState: AppController.State?
     private(set) lazy var updaterController: SPUStandardUpdaterController = {
-        SPUStandardUpdaterController(startingUpdater: false, updaterDelegate: nil, userDriverDelegate: nil)
+        SPUStandardUpdaterController(startingUpdater: false, updaterDelegate: nil, userDriverDelegate: self)
     }()
     var updater: SPUUpdater { updaterController.updater }
 
@@ -330,6 +330,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
                 try? data.write(to: url)
             }
         }
+    }
+}
+
+extension AppDelegate: SPUStandardUserDriverDelegate {
+    var supportsGentleScheduledUpdateReminders: Bool { true }
+
+    func standardUserDriverWillHandleShowingUpdate(_ handleShowingUpdate: Bool, forUpdate update: SUAppcastItem, state: SPUUserUpdateState) {
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func standardUserDriverDidReceiveUserAttention(forUpdate update: SUAppcastItem) {}
+
+    func standardUserDriverWillFinishUpdateSession() {
+        NSApp.setActivationPolicy(.accessory)
     }
 }
 
