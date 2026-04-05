@@ -3,12 +3,12 @@
     <channel>
         <title>Fluent App</title>
         <item>
-            <title>1.6.0</title>
-            <pubDate>Sat, 04 Apr 2026 18:50:16 +0000</pubDate>
-            <sparkle:version>1</sparkle:version>
-            <sparkle:shortVersionString>1.6.0</sparkle:shortVersionString>
+            <title>1.6.1</title>
+            <pubDate>Sun, 05 Apr 2026 13:54:40 +0000</pubDate>
+            <sparkle:version>10601</sparkle:version>
+            <sparkle:shortVersionString>1.6.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/alfonsobries/fluent-app/releases/download/v1.6.0/Fluent-App-1.6.0.dmg" length="1931641" type="application/octet-stream" sparkle:edSignature="PYengT4re8rDv5AUb7cDthMo0cdQptnSQjfd2pBSNt/WkInvLN3F0IA/kV7hGUMPbyskSuF47jCpF+Iv/uVyCA=="/>
+            <enclosure url="https://github.com/alfonsobries/fluent-app/releases/download/v1.6.1/Fluent-App-1.6.1.dmg" length="1931415" type="application/octet-stream" sparkle:edSignature="vma/Mb9aPTORetTH0ncV0UoTNR0Y7Lyf0+BtxKYpW4iOLANQK1J/7/+/OOoQPHOMhRaAlwe7v8sno4EdURM+BA=="/>
         </item>
     </channel>
 </rss>
