@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/alfonsobries/fluent-app/compare/v1.6.0...v1.6.1) (2026-04-05)
+
+
+### Bug Fixes
+
+* derive CFBundleVersion from version for Sparkle updates ([4be69b2](https://github.com/alfonsobries/fluent-app/commit/4be69b270c4ac6899bce4e20b6586ca876878acc))
+
 ## [1.6.0](https://github.com/alfonsobries/fluent-app/compare/v1.5.1...v1.6.0) (2026-04-04)
 
 
