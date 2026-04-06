@@ -1,366 +1,257 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const title = 'Fluent App for macOS';
+const title = 'Fluent App — AI text shortcuts for macOS';
 const description =
-  'Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Translate, rewrite, summarize, and improve selected text from any app with a keyboard shortcut.';
+  'Translate, rewrite, and improve selected text from any macOS app with a keyboard shortcut. Open source, uses your own API keys.';
 const repoUrl = 'https://github.com/alfonsobries/fluent-app';
 const releasesUrl = `${repoUrl}/releases/latest`;
 const demoVideoUrl = '/fluent-demo.mp4';
 const demoPosterUrl = '/fluent-demo-poster.jpg';
 
-const featureCards = [
+const features = [
   {
-    title: 'Translate without switching apps',
-    body: 'Select text in Mail, Slack, Notes, Docs, Figma, Safari, or your editor and translate it right there instead of bouncing to ChatGPT or DeepL.'
+    title: 'Works in any app',
+    body: 'Select text in Mail, Slack, Notes, Figma, Safari, or your editor. The result replaces the selection in place.'
   },
   {
-    title: 'Improve writing in one shortcut',
-    body: 'Fix grammar, make text clearer, change tone, or rewrite something to sound more polished while keeping your flow.'
+    title: 'Translate instantly',
+    body: 'Detect the language and translate without leaving the app you are working in.'
   },
   {
-    title: 'Works inside the apps you already use',
-    body: 'The point is convenience. Fluent App works on top of the app you are already in, so you do not have to copy, open another tool, paste, and come back.'
+    title: 'Improve your writing',
+    body: 'Fix grammar, adjust tone, or rewrite for clarity with a single shortcut.'
   },
   {
-    title: 'Expandable beyond translation',
-    body: 'Create shortcuts for summaries, professional rewrites, language changes, cleanup, or any repeated text task you want to automate.'
-  }
-];
-
-const problemCards = [
-  {
-    title: 'You keep rewriting the same text by hand',
-    body: 'Messages, emails, docs, comments, tickets, product copy, support responses. The work repeats, but the apps keep changing.'
-  },
-  {
-    title: 'You lose time copy-pasting into AI tools',
-    body: 'Select text, copy, open another window, paste, ask, copy again, come back, paste again. It breaks concentration every time.'
-  },
-  {
-    title: 'You want the result where you are already working',
-    body: 'The useful part is not just AI. It is getting translation or improved writing directly inside the current app with one shortcut.'
+    title: 'Custom shortcuts',
+    body: 'Create your own actions — summaries, rewrites, language changes, or any repeated text task.'
   }
 ];
 
 const steps = [
-  {
-    index: '01',
-    title: 'Select any text',
-    body: 'Highlight text in whatever app you are using at the moment.'
-  },
-  {
-    index: '02',
-    title: 'Trigger a shortcut',
-    body: 'Use a built-in action like Translate or Improve Writing, or create your own.'
-  },
-  {
-    index: '03',
-    title: 'Get the new text in place',
-    body: 'Fluent App sends the text to your chosen model and pastes the result back into the same spot.'
-  }
+  { index: '1', title: 'Select text', body: 'Highlight text in any app.' },
+  { index: '2', title: 'Press a shortcut', body: 'Use a built-in action or one you created.' },
+  { index: '3', title: 'Done', body: 'The result replaces the selection automatically.' }
 ];
 
-const openSourceCards = [
-  {
-    title: 'Open repository',
-    body: 'The complete app, release scripts, and website are public on GitHub and easy to inspect or fork.',
-    href: repoUrl,
-    label: 'View repository'
-  },
-  {
-    title: 'Automated releases',
-    body: 'GitHub Actions build the app, generate release artifacts, and support signing plus notarization for public distribution.',
-    href: `${repoUrl}/actions`,
-    label: 'View workflows'
-  },
-  {
-    title: 'MIT licensed',
-    body: 'Use Fluent App as-is, adapt it for your own team, or ship your own variant without hidden platform lock-in.',
-    href: `${repoUrl}/blob/main/LICENSE`,
-    label: 'Read license'
-  }
-];
-
-const defaultShortcuts = [
-  {
-    keys: ['Cmd', 'Shift', 'O'],
-    title: 'Translate',
-    body: 'Detect the language and translate the selection cleanly.'
-  },
-  {
-    keys: ['Cmd', 'Shift', 'I'],
-    title: 'Improve Writing',
-    body: 'Rewrite for clarity, grammar, and tone while keeping the same language.'
-  },
-  {
-    keys: ['Cmd', 'Shift', 'S'],
-    title: 'Summarize',
-    body: 'Condense selected text into concise output using your own prompt style.'
-  }
+const shortcuts = [
+  { keys: ['⌘', '⇧', 'O'], title: 'Translate', body: 'Detect language and translate the selection.' },
+  { keys: ['⌘', '⇧', 'I'], title: 'Improve Writing', body: 'Rewrite for clarity, grammar, and tone.' },
+  { keys: ['⌘', '⇧', 'S'], title: 'Summarize', body: 'Condense selected text into a short summary.' }
 ];
 ---
 
 <Layout title={title} description={description}>
-  <main class="mx-auto max-w-[1320px] px-5 pb-24 pt-6 sm:px-8 sm:pb-32">
-    <section class="surface-card bg-hero-glow p-7 shadow-halo sm:p-10">
-      <header class="mb-16 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-        <a href="/" class="inline-flex items-center gap-3 no-underline">
-          <span class="inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-            <img src="/favicon.svg" alt="" class="h-full w-full object-cover" />
-          </span>
-          <span class="text-base font-semibold tracking-[-0.03em] text-white">Fluent App</span>
+  <main class="mx-auto max-w-3xl px-6 pb-32 pt-16 sm:pt-24">
+
+    <!-- Nav -->
+    <header class="flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5 no-underline">
+        <img src="/favicon.svg" alt="" class="h-7 w-7 rounded-lg" />
+        <span class="text-sm font-semibold text-gray-900 dark:text-white">Fluent App</span>
+      </a>
+      <nav class="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400" aria-label="Primary">
+        <a href="#features" class="transition hover:text-gray-900 dark:hover:text-white">Features</a>
+        <a href="#how-it-works" class="transition hover:text-gray-900 dark:hover:text-white">How it works</a>
+        <a href={repoUrl} class="transition hover:text-gray-900 dark:hover:text-white" target="_blank" rel="noreferrer">GitHub</a>
+        <button
+          type="button"
+          data-theme-toggle
+          class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-white"
+          aria-label="Toggle theme"
+        >
+          <svg class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+          <svg class="block h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Hero -->
+    <section class="mt-24 sm:mt-32">
+      <h1 class="text-4xl font-semibold leading-[1.1] tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+        AI text shortcuts<br />for macOS.
+      </h1>
+      <p class="mt-5 max-w-xl text-base leading-7 text-gray-500 dark:text-gray-400 sm:text-lg sm:leading-8">
+        Select text in any app, press a shortcut, get a translation, rewrite, or summary back in place. No copy-pasting, no switching windows.
+      </p>
+
+      <div class="mt-8 flex flex-wrap items-center gap-3">
+        <a
+          class="inline-flex h-10 items-center rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          id="download-dmg"
+          href={releasesUrl}
+          data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
+          data-release-fallback={releasesUrl}
+        >
+          Download for macOS
         </a>
+        <a
+          class="inline-flex h-10 items-center rounded-md border border-gray-200 px-4 text-sm font-medium text-gray-600 transition hover:border-gray-400 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-white"
+          href={repoUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub
+        </a>
+      </div>
 
-        <nav class="flex flex-wrap items-center gap-5 text-sm text-white/65" aria-label="Primary">
-          <a href="#features" class="transition hover:text-white">Features</a>
-          <a href="#how-it-works" class="transition hover:text-white">How it works</a>
-          <a href="#open-source" class="transition hover:text-white">Open source</a>
-          <a href={repoUrl} class="transition hover:text-white" target="_blank" rel="noreferrer">GitHub</a>
-        </nav>
-      </header>
+      <div class="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 dark:text-gray-500">
+        <span>Open source</span>
+        <span>·</span>
+        <span>Your own API keys</span>
+        <span>·</span>
+        <span>macOS 13+</span>
+      </div>
+    </section>
 
-      <div class="grid gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(420px,0.92fr)] lg:items-start">
-        <div>
-          <span class="eyebrow">
-            <span class="h-2 w-2 rounded-full bg-white/90"></span>
-            For people who translate and rewrite all day
+    <!-- Demo -->
+    <section class="mt-20">
+      <button
+        type="button"
+        data-demo-open
+        class="group relative block w-full overflow-hidden rounded-xl border border-gray-200 shadow-lg text-left outline-none dark:border-white/15 dark:shadow-none"
+        aria-label="Play demo video"
+      >
+        <img src={demoPosterUrl} alt="Fluent App demo" class="block w-full" />
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="flex h-14 w-14 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm transition group-hover:bg-black/50">
+            <svg viewBox="0 0 24 24" class="ml-0.5 h-6 w-6 fill-current" aria-hidden="true">
+              <path d="M8 6.5v11l9-5.5-9-5.5Z"></path>
+            </svg>
           </span>
-
-          <h1 class="mt-5 max-w-[12ch] text-5xl font-semibold leading-[0.95] tracking-tighterest text-white sm:text-[5.5rem] xl:text-[5rem]">
-            Translate and improve text in any app without breaking your flow.
-          </h1>
-
-          <p class="mt-7 max-w-2xl text-[1.05rem] leading-8 text-white/68 sm:text-[1.15rem]">
-            Fluent App is built for the annoying part of modern writing work: translating messages, fixing grammar,
-            improving tone, rewriting copy, and summarizing text across different apps all day long. Instead of leaving
-            the app you are in, you select text, press a shortcut, and get the result right there.
-          </p>
-
-          <div class="mt-8 flex flex-wrap items-center gap-3">
-            <a
-              class="pill-button border-white bg-white text-black"
-              id="download-dmg"
-              href={releasesUrl}
-              data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
-              data-release-fallback={releasesUrl}
-            >
-              Download for macOS
-            </a>
-            <a class="pill-button border-white/10 bg-white/5 text-white" href={repoUrl} target="_blank" rel="noreferrer">
-              View on GitHub
-            </a>
-          </div>
-
-          <div class="mt-7 flex max-w-3xl flex-wrap gap-x-5 gap-y-2 text-sm text-white/45">
-            <span>Works across apps</span>
-            <span>Translation and writing shortcuts</span>
-            <span>Use your own API keys</span>
-            <span>Open source</span>
-            <span>macOS 13+</span>
-          </div>
         </div>
-
-        <div class="relative">
-          <div class="surface-card overflow-hidden p-4 sm:p-5">
-            <div class="mb-4 px-1">
-              <div>
-                <p class="text-sm font-semibold text-white">Product demo</p>
-                <p class="mt-1 text-sm text-white/45">Translate first, then improve the result in place</p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              data-demo-open
-              class="group relative block w-full overflow-hidden rounded-[24px] border border-white/8 bg-black text-left outline-none ring-0 focus:outline-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/20"
-              aria-label="Play demo video"
-            >
-              <img src={demoPosterUrl} alt="Fluent App demo in Apple Mail" class="block w-full" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent"></div>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="flex h-20 w-20 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white shadow-[0_20px_40px_rgba(0,0,0,0.28)] backdrop-blur-md transition duration-150 group-hover:scale-[1.03] group-hover:bg-white/14">
-                  <svg viewBox="0 0 24 24" class="ml-1 h-8 w-8 fill-current" aria-hidden="true">
-                    <path d="M8 6.5v11l9-5.5-9-5.5Z"></path>
-                  </svg>
-                </span>
-              </div>
-              <div class="absolute inset-x-0 bottom-0 flex items-end justify-between px-5 pb-5">
-                <div>
-                  <p class="text-xs uppercase tracking-[0.18em] text-white/45">Watch demo</p>
-                  <p class="mt-2 text-sm text-white/82">See translation and rewriting happen directly inside Mail.</p>
-                </div>
-                <span class="rounded-full bg-black/55 px-3 py-1.5 text-xs text-white/78 backdrop-blur-sm">0:06</span>
-              </div>
-            </button>
-
-            <div class="mt-4 grid gap-3 sm:grid-cols-3">
-              <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                <p class="text-xs uppercase tracking-[0.16em] text-white/35">Select</p>
-                <p class="mt-2 text-sm leading-6 text-white/72">Highlight text directly inside Mail.</p>
-              </div>
-              <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                <p class="text-xs uppercase tracking-[0.16em] text-white/35">Translate</p>
-                <p class="mt-2 text-sm leading-6 text-white/72">Run a shortcut and replace the text instantly.</p>
-              </div>
-              <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
-                <p class="text-xs uppercase tracking-[0.16em] text-white/35">Improve</p>
-                <p class="mt-2 text-sm leading-6 text-white/72">Use another shortcut to polish the new version.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </button>
     </section>
 
-    <section class="mt-8 grid gap-4 lg:grid-cols-3">
-      {problemCards.map((card) => (
-        <article class="surface-card p-6">
-          <h2 class="text-lg font-semibold tracking-[-0.03em] text-white">{card.title}</h2>
-          <p class="mt-3 text-sm leading-6 text-white/65">{card.body}</p>
-        </article>
-      ))}
-    </section>
+    <!-- Features -->
+    <section id="features" class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Features</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Everything happens where you already work.</h2>
 
-    <section id="features" class="mt-32">
-      <div class="max-w-3xl">
-        <span class="eyebrow">Why it is useful</span>
-        <h2 class="section-title">Made for real text work, not just AI demos.</h2>
-      </div>
-
-      <div class="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        {featureCards.map((feature) => (
-          <article class="surface-card p-7">
-            <h3 class="text-lg font-semibold tracking-[-0.03em] text-white">{feature.title}</h3>
-            <p class="mt-3 text-sm leading-6 text-white/65">{feature.body}</p>
-          </article>
+      <div class="mt-10 grid gap-8 sm:grid-cols-2">
+        {features.map((f) => (
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{f.title}</h3>
+            <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{f.body}</p>
+          </div>
         ))}
       </div>
     </section>
 
-    <section id="how-it-works" class="mt-32">
-      <div class="max-w-3xl">
-        <span class="eyebrow">How it works</span>
-        <h2 class="section-title">Three steps, inside the app you are already using.</h2>
-      </div>
+    <!-- How it works -->
+    <section id="how-it-works" class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">How it works</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Three steps. No context switching.</h2>
 
-      <div class="mt-10 grid gap-5 lg:grid-cols-3">
+      <div class="mt-10 grid gap-px overflow-hidden rounded-lg border border-gray-200 dark:border-white/15 sm:grid-cols-3">
         {steps.map((step) => (
-          <article class="surface-card p-7">
-            <p class="text-xs uppercase tracking-[0.18em] text-white/40">{step.index}</p>
-            <h3 class="mt-6 text-lg font-semibold tracking-[-0.03em] text-white">{step.title}</h3>
-            <p class="mt-3 text-sm leading-6 text-white/65">{step.body}</p>
-          </article>
+          <div class="bg-gray-50 px-5 py-5 dark:bg-white/[0.03]">
+            <p class="text-xs font-medium text-gray-400 dark:text-gray-500">{step.index}</p>
+            <h3 class="mt-3 text-sm font-semibold text-gray-900 dark:text-white">{step.title}</h3>
+            <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{step.body}</p>
+          </div>
         ))}
       </div>
     </section>
 
-    <section class="mt-32">
-      <div class="max-w-3xl">
-        <span class="eyebrow">Shortcuts</span>
-        <h2 class="section-title">Start with translation and writing help, then expand from there.</h2>
-      </div>
+    <!-- Shortcuts -->
+    <section class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Default shortcuts</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Ready to use out of the box.</h2>
 
-      <div class="surface-card mt-10 overflow-hidden">
-        {defaultShortcuts.map((shortcut) => (
-          <div class="grid gap-4 border-b border-white/5 px-7 py-7 last:border-b-0 md:grid-cols-[240px_1fr] md:items-center">
-            <div class="flex flex-wrap items-center gap-2">
-              {shortcut.keys.map((key) => (
-                <kbd class="rounded-lg border border-white/10 bg-white/8 px-2.5 py-1 font-mono text-xs text-white">
+      <div class="mt-10 divide-y divide-gray-100 dark:divide-white/10">
+        {shortcuts.map((s) => (
+          <div class="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:gap-6">
+            <div class="flex shrink-0 items-center gap-1.5">
+              {s.keys.map((key) => (
+                <kbd class="inline-flex h-7 min-w-[28px] items-center justify-center rounded border border-gray-200 bg-gray-50 px-1.5 font-mono text-xs text-gray-600 dark:border-white/15 dark:bg-white/[0.06] dark:text-gray-300">
                   {key}
                 </kbd>
               ))}
             </div>
             <div>
-              <p class="text-base font-semibold tracking-[-0.03em] text-white">{shortcut.title}</p>
-              <p class="mt-2 text-sm leading-6 text-white/65">{shortcut.body}</p>
+              <p class="text-sm font-medium text-gray-900 dark:text-white">{s.title}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{s.body}</p>
             </div>
           </div>
         ))}
       </div>
     </section>
 
-    <section class="mt-32">
-      <div class="surface-card grid gap-8 p-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-        <div class="max-w-3xl">
-          <span class="eyebrow">Download</span>
-          <h2 class="section-title">Install it and use it where you already work.</h2>
-          <p class="mt-4 text-base leading-7 text-white/65">
-            Fluent App is for people who repeatedly translate and improve text across apps and want that friction gone.
-            Download the latest macOS build directly from GitHub Releases.
-          </p>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-          <a
-            class="pill-button border-white bg-white text-black"
-            id="download-release-dmg"
-            href={releasesUrl}
-            data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
-            data-release-fallback={releasesUrl}
-          >
-            Download DMG
-          </a>
-          <a class="pill-button border-white/10 bg-white/5 text-white" href={`${repoUrl}/releases`} target="_blank" rel="noreferrer">
-            All Releases
-          </a>
-        </div>
+    <!-- Open source -->
+    <section class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Open source</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Fully open. MIT licensed.</h2>
+      <p class="mt-4 text-sm leading-6 text-gray-500 dark:text-gray-400">
+        The complete source code, build scripts, and release pipeline are public on GitHub.
+        Inspect it, fork it, or ship your own version.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-4 text-sm">
+        <a class="text-gray-900 underline underline-offset-4 decoration-gray-300 transition hover:decoration-gray-500 dark:text-white dark:decoration-gray-600 dark:hover:decoration-gray-400" href={repoUrl} target="_blank" rel="noreferrer">Repository</a>
+        <a class="text-gray-900 underline underline-offset-4 decoration-gray-300 transition hover:decoration-gray-500 dark:text-white dark:decoration-gray-600 dark:hover:decoration-gray-400" href={`${repoUrl}/actions`} target="_blank" rel="noreferrer">CI / Releases</a>
+        <a class="text-gray-900 underline underline-offset-4 decoration-gray-300 transition hover:decoration-gray-500 dark:text-white dark:decoration-gray-600 dark:hover:decoration-gray-400" href={`${repoUrl}/blob/main/LICENSE`} target="_blank" rel="noreferrer">MIT License</a>
       </div>
     </section>
 
-    <section id="open-source" class="mt-32">
-      <div class="max-w-3xl">
-        <span class="eyebrow">Open source</span>
-        <h2 class="section-title">Public, inspectable, and ready to extend.</h2>
-      </div>
-
-      <div class="mt-10 grid gap-5 lg:grid-cols-3">
-        {openSourceCards.map((card) => (
-          <article class="surface-card p-7">
-            <h3 class="text-lg font-semibold tracking-[-0.03em] text-white">{card.title}</h3>
-            <p class="mt-3 text-sm leading-6 text-white/65">{card.body}</p>
-            <a class="mt-5 inline-flex text-sm text-white/70 transition hover:text-white" href={card.href} target="_blank" rel="noreferrer">
-              {card.label}
-            </a>
-          </article>
-        ))}
+    <!-- Download CTA -->
+    <section class="mt-28 rounded-lg border border-gray-200 bg-gray-50 px-6 py-8 dark:border-white/15 dark:bg-white/[0.03] sm:px-8">
+      <h2 class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Get Fluent App</h2>
+      <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
+        Download the latest build from GitHub Releases. Free and open source.
+      </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a
+          class="inline-flex h-10 items-center rounded-md bg-gray-900 px-4 text-sm font-medium text-white transition hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+          id="download-release-dmg"
+          href={releasesUrl}
+          data-release-api="https://api.github.com/repos/alfonsobries/fluent-app/releases/latest"
+          data-release-fallback={releasesUrl}
+        >
+          Download DMG
+        </a>
+        <a
+          class="inline-flex h-10 items-center rounded-md border border-gray-200 px-4 text-sm font-medium text-gray-600 transition hover:border-gray-400 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-500 dark:hover:text-white"
+          href={`${repoUrl}/releases`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          All Releases
+        </a>
       </div>
     </section>
 
-    <footer class="mt-32 flex flex-col gap-6 pt-2 text-sm text-white/55 lg:flex-row lg:items-start lg:justify-between">
-      <div class="max-w-lg">
-        <p class="text-base font-semibold tracking-[-0.03em] text-white">Fluent App</p>
-        <p class="mt-2 leading-6 text-white/55">
-          Open-source macOS AI shortcuts for translation, rewriting, summaries, and custom text automation.
-        </p>
-      </div>
-
-      <nav class="flex flex-wrap gap-4" aria-label="Footer">
-        <a class="transition hover:text-white" href={repoUrl}>GitHub</a>
-        <a class="transition hover:text-white" href={`${repoUrl}/releases`}>Releases</a>
-        <a class="transition hover:text-white" href={`${repoUrl}/issues`}>Issues</a>
-        <a class="transition hover:text-white" href={`${repoUrl}/blob/main/README.md`}>Docs</a>
+    <!-- Footer -->
+    <footer class="mt-28 flex flex-col gap-4 border-t border-gray-100 pt-8 text-sm text-gray-500 dark:border-white/10 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+      <p>Fluent App — open-source AI text shortcuts for macOS.</p>
+      <nav class="flex gap-4" aria-label="Footer">
+        <a class="transition hover:text-gray-900 dark:hover:text-white" href={repoUrl}>GitHub</a>
+        <a class="transition hover:text-gray-900 dark:hover:text-white" href={`${repoUrl}/releases`}>Releases</a>
+        <a class="transition hover:text-gray-900 dark:hover:text-white" href={`${repoUrl}/issues`}>Issues</a>
       </nav>
     </footer>
   </main>
 
+  <!-- Video dialog -->
   <dialog
     data-demo-dialog
-    class="m-auto w-[min(1180px,calc(100vw-24px))] overflow-visible border-0 bg-transparent p-0 text-white shadow-none backdrop:bg-black/60 backdrop:backdrop-blur-md"
+    class="m-auto w-[min(960px,calc(100vw-32px))] border-0 bg-transparent p-0 shadow-none backdrop:bg-black/70 backdrop:backdrop-blur-sm"
   >
-    <div class="relative mx-auto">
+    <div class="relative">
       <button
         type="button"
         data-demo-close
-        class="absolute -right-1 -top-12 z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/8 text-white/75 backdrop-blur-md transition hover:bg-white/12 hover:text-white"
+        class="absolute -right-1 -top-10 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full text-white/60 transition hover:text-white"
         aria-label="Close demo"
       >
         <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current" aria-hidden="true">
           <path d="M6 6l12 12M18 6 6 18" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"></path>
         </svg>
       </button>
-
-      <div class="overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_40px_140px_rgba(0,0,0,0.55)]">
+      <div class="overflow-hidden rounded-lg border border-gray-200 bg-black dark:border-white/10">
         <video
           data-demo-video
           class="block max-h-[82vh] w-full"
@@ -375,74 +266,44 @@ const defaultShortcuts = [
   </dialog>
 
   <script is:inline>
-    const buttons = Array.from(document.querySelectorAll('[data-release-api]'));
+    document.addEventListener('DOMContentLoaded', function () {
+      // Theme toggle
+      document.querySelector('[data-theme-toggle]').addEventListener('click', function () {
+        var isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      });
 
-    const hydrateDownloadButtons = async () => {
-      if (!buttons.length) return;
-
-      try {
-        const apiBase = buttons[0].dataset.releaseApi;
-        const releasesApi = apiBase.replace(/\/latest$/, '');
-        const headers = { Accept: 'application/vnd.github+json' };
-
-        const response = await fetch(apiBase, { headers });
-        if (!response.ok) throw new Error('Failed to fetch latest release');
-
-        let release = await response.json();
-        let dmg = (release.assets || []).find((a) => a.name?.endsWith('.dmg'));
-
-        if (!dmg) {
-          const listResp = await fetch(`${releasesApi}?per_page=5`, { headers });
-          if (listResp.ok) {
-            const releases = await listResp.json();
-            for (const r of releases) {
-              dmg = (r.assets || []).find((a) => a.name?.endsWith('.dmg'));
-              if (dmg) break;
+      // Download buttons
+      var buttons = Array.from(document.querySelectorAll('[data-release-api]'));
+      if (buttons.length) {
+        fetch(buttons[0].dataset.releaseApi, { headers: { Accept: 'application/vnd.github+json' } })
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function (release) {
+            var dmg = (release.assets || []).find(function (a) { return a.name && a.name.endsWith('.dmg'); });
+            if (dmg && dmg.browser_download_url) {
+              buttons.forEach(function (b) { b.href = dmg.browser_download_url; });
             }
-          }
-        }
-
-        if (dmg?.browser_download_url) {
-          buttons.forEach((button) => { button.href = dmg.browser_download_url; });
-        }
-      } catch {
-        buttons.forEach((button) => {
-          button.href = button.dataset.releaseFallback || button.href;
-        });
+          })
+          .catch(function () {});
       }
-    };
 
-    hydrateDownloadButtons();
+      // Demo video dialog
+      var dialog = document.querySelector('[data-demo-dialog]');
+      var video = document.querySelector('[data-demo-video]');
 
-    const demoDialog = document.querySelector('[data-demo-dialog]');
-    const demoOpen = document.querySelector('[data-demo-open]');
-    const demoClose = document.querySelector('[data-demo-close]');
-    const demoVideo = document.querySelector('[data-demo-video]');
-
-    const closeDemo = () => {
-      if (!demoDialog?.open) return;
-      demoDialog.close();
-      if (demoVideo instanceof HTMLVideoElement) {
-        demoVideo.pause();
-        demoVideo.currentTime = 0;
+      function closeDemo() {
+        if (!dialog || !dialog.open) return;
+        dialog.close();
+        if (video instanceof HTMLVideoElement) { video.pause(); video.currentTime = 0; }
       }
-    };
 
-    demoOpen?.addEventListener('click', () => {
-      if (!(demoDialog instanceof HTMLDialogElement)) return;
-      demoDialog.showModal();
-      if (demoVideo instanceof HTMLVideoElement) {
-        demoVideo.currentTime = 0;
-        demoVideo.play().catch(() => {});
-      }
-    });
+      document.querySelector('[data-demo-open]').addEventListener('click', function () {
+        dialog.showModal();
+        if (video instanceof HTMLVideoElement) { video.currentTime = 0; video.play().catch(function () {}); }
+      });
 
-    demoClose?.addEventListener('click', closeDemo);
-
-    demoDialog?.addEventListener('click', (event) => {
-      if (event.target === demoDialog) {
-        closeDemo();
-      }
+      document.querySelector('[data-demo-close]').addEventListener('click', closeDemo);
+      dialog.addEventListener('click', function (e) { if (e.target === dialog) closeDemo(); });
     });
   </script>
 </Layout>

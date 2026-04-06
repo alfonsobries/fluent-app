@@ -19,12 +19,19 @@ const twitterHandle = "@alfonsobries";
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="antialiased">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary Meta Tags -->
+    <script is:inline>
+      (function () {
+        var s = localStorage.getItem('theme');
+        var d = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (s === 'dark' || (!s && d)) document.documentElement.classList.add('dark');
+      })();
+    </script>
+
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
@@ -33,11 +40,9 @@ const twitterHandle = "@alfonsobries";
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href={siteUrl} />
 
-    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={siteUrl} />
     <meta property="og:title" content={title} />
@@ -46,7 +51,6 @@ const twitterHandle = "@alfonsobries";
     <meta property="og:site_name" content={siteName} />
     <meta property="og:locale" content="en_US" />
 
-    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content={siteUrl} />
     <meta name="twitter:title" content={title} />
@@ -54,7 +58,6 @@ const twitterHandle = "@alfonsobries";
     <meta name="twitter:image" content={`${siteUrl}${image}`} />
     <meta name="twitter:creator" content={twitterHandle} />
 
-    <!-- Schema.org structured data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -85,7 +88,7 @@ const twitterHandle = "@alfonsobries";
 
     <meta name="generator" content={Astro.generator} />
   </head>
-  <body>
+  <body class="min-h-screen bg-white text-gray-900 dark:bg-black dark:text-gray-100">
     <slot />
   </body>
 </html>
