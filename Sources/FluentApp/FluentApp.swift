@@ -18,8 +18,9 @@ struct FluentApp: App {
     }
 
     var body: some Scene {
+        // Empty WindowGroup that is never shown; the settings window is managed by AppDelegate
         Settings {
-            SettingsView(controller: controller, updater: appDelegate.updater)
+            EmptyView()
         }
     }
 }
@@ -30,6 +31,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem?
     private var menu: NSMenu?
     private var statusSpinner: NSProgressIndicator?
+    private var settingsWindow: NSWindow?
     private let hudController = ProcessingHUDController()
     private var cancellables: Set<AnyCancellable> = []
     private var lastNotifiedState: AppController.State?
@@ -41,22 +43,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         guard let controller = Self.sharedController else { return }
 
-        log("applicationDidFinishLaunching")
         NSApp.setActivationPolicy(.accessory)
         setupStatusItem()
         bind(to: controller)
         try? updater.start()
-
-        // Close any windows SwiftUI opened at launch (Settings)
-        DispatchQueue.main.async {
-            for window in NSApp.windows where window.isVisible {
-                window.close()
-            }
-        }
     }
 
     private func setupStatusItem() {
-        log("setupStatusItem")
         let menu = NSMenu()
         menu.delegate = self
         self.menu = menu
@@ -104,7 +97,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         button.isHidden = false
         button.title = ""
         button.toolTip = tooltip(for: state)
-        log("status item updated: \(button.toolTip ?? "Fluent App")")
     }
 
     func menuNeedsUpdate(_ menu: NSMenu) {
@@ -151,8 +143,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     @objc private func openSettingsFromMenu() {
+        showSettingsWindow()
+    }
+
+    private func showSettingsWindow() {
+        if let existing = settingsWindow {
+            existing.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        guard let controller = Self.sharedController else { return }
+        let settingsView = SettingsView(controller: controller)
+        let hostingController = NSHostingController(rootView: settingsView)
+
+        let window = NSWindow(contentViewController: hostingController)
+        window.title = "Fluent App Settings"
+        window.styleMask = [.titled, .closable, .miniaturizable, .resizable]
+        window.setContentSize(NSSize(width: 920, height: 680))
+        window.center()
+        window.isReleasedWhenClosed = false
+        self.settingsWindow = window
+
+        window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
-        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     @objc private func runActionFromMenu(_ sender: NSMenuItem) {
@@ -160,7 +174,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         Self.sharedController.processSelection(with: action)
     }
 
-    @objc private func checkForUpdates() {
+    @objc func checkForUpdates() {
         updater.checkForUpdates()
     }
 
@@ -316,21 +330,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         return image
     }
 
-    private func log(_ message: String) {
-        let line = "[\(Date())] \(message)\n"
-        let url = URL(fileURLWithPath: "/tmp/fluent-launch.log")
-        if let data = line.data(using: .utf8) {
-            if FileManager.default.fileExists(atPath: url.path) {
-                if let handle = try? FileHandle(forWritingTo: url) {
-                    _ = try? handle.seekToEnd()
-                    try? handle.write(contentsOf: data)
-                    try? handle.close()
-                }
-            } else {
-                try? data.write(to: url)
-            }
-        }
-    }
 }
 
 extension AppDelegate: SPUStandardUserDriverDelegate {
