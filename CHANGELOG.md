@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/alfonsobries/fluent-app/compare/v1.7.0...v1.8.0) (2026-04-10)
+
+
+### Features
+
+* **expo:** expand landing content and strengthen SEO ([3b9481a](https://github.com/alfonsobries/fluent-app/commit/3b9481a37dff465fa497c7066e50eaa7bdb99193))
+
 ## [1.7.0](https://github.com/alfonsobries/fluent-app/compare/v1.6.2...v1.7.0) (2026-04-06)
 
 
