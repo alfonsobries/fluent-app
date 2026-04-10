@@ -9,13 +9,14 @@ interface Props {
 
 const {
   title,
-  description = "Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Translate, rewrite, summarize, and improve selected text from any app.",
-  image = "/og-image.png"
+  description = "Fluent App is a free, open-source macOS menu bar app for AI-powered text shortcuts. Select text in any app and translate, rewrite, summarize, fix grammar, or change tone with a single keyboard shortcut. Works with OpenAI, Claude, Gemini, and Grok using your own API keys.",
+  image = "/fluent-demo-poster.jpg"
 } = Astro.props;
 
 const siteName = "Fluent App";
 const siteUrl = "https://fluentapp.vercel.app";
 const twitterHandle = "@alfonsobries";
+const appVersion = "1.7.0";
 ---
 
 <!doctype html>
@@ -23,6 +24,8 @@ const twitterHandle = "@alfonsobries";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
 
     <script is:inline>
       (function () {
@@ -35,9 +38,10 @@ const twitterHandle = "@alfonsobries";
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="keywords" content="macOS ai app, menu bar ai shortcuts, translate text mac, rewrite selected text, summarize text mac, grammar shortcut app, OpenAI mac app, Claude mac app, Gemini mac app, Grok mac app" />
+    <meta name="keywords" content="macOS AI app, menu bar AI shortcuts, translate text Mac, rewrite selected text, summarize text Mac, fix grammar Mac, improve writing Mac, OpenAI Mac app, Claude Mac app, Gemini Mac app, Grok Mac app, open source Mac app, bring your own API key, privacy-first AI, native macOS app" />
     <meta name="author" content="Alfonso Bribiesca" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
     <link rel="canonical" href={siteUrl} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -48,6 +52,7 @@ const twitterHandle = "@alfonsobries";
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={`${siteUrl}${image}`} />
+    <meta property="og:image:alt" content="Fluent App — AI text shortcuts for macOS" />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:locale" content="en_US" />
 
@@ -58,33 +63,54 @@ const twitterHandle = "@alfonsobries";
     <meta name="twitter:image" content={`${siteUrl}${image}`} />
     <meta name="twitter:creator" content={twitterHandle} />
 
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Fluent App",
-        "operatingSystem": "macOS",
-        "applicationCategory": "UtilitiesApplication",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "description": "Fluent App is a native macOS menu bar app for AI-powered text shortcuts",
-        "downloadUrl": "https://github.com/alfonsobries/fluent-app/releases/latest",
-        "softwareVersion": "1.2.0",
-        "author": {
-          "@type": "Person",
-          "name": "Alfonso Bribiesca",
-          "url": "https://github.com/alfonsobries"
-        },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "5",
-          "ratingCount": "1"
-        }
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Fluent App",
+      "operatingSystem": "macOS 13 or later",
+      "applicationCategory": "ProductivityApplication",
+      "applicationSubCategory": "Utilities",
+      "url": siteUrl,
+      "downloadUrl": "https://github.com/alfonsobries/fluent-app/releases/latest",
+      "softwareVersion": appVersion,
+      "license": "https://github.com/alfonsobries/fluent-app/blob/main/LICENSE",
+      "isAccessibleForFree": true,
+      "description": "Fluent App is a free and open-source macOS menu bar app that brings AI-powered text shortcuts to every application. Select text anywhere — Mail, Slack, Notes, Figma, Safari, or any editor — press a keyboard shortcut, and Fluent translates, rewrites, summarizes, fixes grammar, or changes the tone of your selection and pastes the result back in place. You bring your own API key from OpenAI, Anthropic (Claude), Google Gemini, or xAI Grok, so your text and keys never pass through a third-party server.",
+      "featureList": [
+        "Global keyboard shortcuts for any text in any macOS app",
+        "Translate text between languages with automatic language detection",
+        "Improve writing: grammar, clarity, and tone",
+        "Summarize long selections in place",
+        "Fix grammar without changing your voice",
+        "Make text sound more professional",
+        "Create custom shortcuts with your own prompts",
+        "Bring your own API keys for OpenAI, Anthropic Claude, Google Gemini, and xAI Grok",
+        "No telemetry, no analytics, no accounts — 100% local settings",
+        "Open source under the MIT license"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Alfonso Bribiesca",
+        "url": "https://github.com/alfonsobries"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Alfonso Bribiesca",
+        "url": "https://github.com/alfonsobries"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
       }
-    </script>
+    })} />
+
+    <slot name="head" />
 
     <meta name="generator" content={Astro.generator} />
   </head>

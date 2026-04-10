@@ -1,77 +1,169 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
-const title = 'Fluent App — AI text shortcuts for macOS';
+const title = 'Fluent App — Free & open-source AI text shortcuts for macOS';
 const description =
-  'Translate, rewrite, and improve selected text from any macOS app with a keyboard shortcut. Open source, uses your own API keys.';
+  'Select text in any macOS app, press a shortcut, and translate, rewrite, summarize, or fix grammar in place. Free, open source, native, and privacy-first — uses your own OpenAI, Claude, Gemini, or Grok API key.';
 const repoUrl = 'https://github.com/alfonsobries/fluent-app';
 const releasesUrl = `${repoUrl}/releases/latest`;
 const demoVideoUrl = '/fluent-demo.mp4';
 const demoPosterUrl = '/fluent-demo-poster.jpg';
 
+const navLinks = [
+  { href: '#features', label: 'Features' },
+  { href: '#why', label: 'Why Fluent' },
+  { href: '#faq', label: 'FAQ' },
+  { href: repoUrl, label: 'GitHub', external: true }
+];
+
 const features = [
   {
-    title: 'Works in any app',
-    body: 'Select text in Mail, Slack, Notes, Figma, Safari, or your editor. The result replaces the selection in place.'
+    title: 'Works in every app',
+    body: 'Mail, Slack, Notes, Figma, Safari, VS Code, Xcode — if you can select text, Fluent App can transform it. The result replaces the selection in place.'
   },
   {
     title: 'Translate instantly',
-    body: 'Detect the language and translate without leaving the app you are working in.'
+    body: 'Automatic language detection and one-shortcut translation, without leaving the window you are in.'
   },
   {
     title: 'Improve your writing',
-    body: 'Fix grammar, adjust tone, or rewrite for clarity with a single shortcut.'
+    body: 'Fix grammar, clean up phrasing, adjust the tone, or make text sound more professional — one keystroke at a time.'
+  },
+  {
+    title: 'Summarize long text',
+    body: 'Condense articles, emails, threads, or meeting notes into a short summary right where you selected them.'
   },
   {
     title: 'Custom shortcuts',
-    body: 'Create your own actions — summaries, rewrites, language changes, or any repeated text task.'
+    body: 'Create your own actions with your own prompts — personal rewrites, tone presets, language conversions, or any repeated text task.'
+  },
+  {
+    title: 'Native and fast',
+    body: 'Built with SwiftUI as a lightweight menu bar app. No Electron, no background bloat, no dashboards to open.'
+  }
+];
+
+const benefits = [
+  {
+    title: 'Privacy-first',
+    body: 'Your API keys are stored on your Mac. Fluent App has no backend, no analytics, no telemetry, and no account. Text goes directly from your Mac to the AI provider you chose — nothing passes through us.'
+  },
+  {
+    title: 'Bring your own key',
+    body: 'Plug in your own OpenAI, Anthropic Claude, Google Gemini, or xAI Grok key. Pay only for what you actually use — no subscription, no markup, no vendor lock-in.'
+  },
+  {
+    title: 'Free and open source',
+    body: 'Fluent App is MIT licensed. The full source, build scripts, and release pipeline are public. Audit it, fork it, or ship your own version.'
+  },
+  {
+    title: 'Stay in flow',
+    body: 'No more copy, switch app, paste, prompt, copy, switch back, paste. Select → shortcut → done. Your hands never leave the keyboard.'
   }
 ];
 
 const steps = [
-  { index: '1', title: 'Select text', body: 'Highlight text in any app.' },
-  { index: '2', title: 'Press a shortcut', body: 'Use a built-in action or one you created.' },
+  { index: '1', title: 'Select text', body: 'Highlight text in any macOS app.' },
+  { index: '2', title: 'Press a shortcut', body: 'Use a built-in action or one you created yourself.' },
   { index: '3', title: 'Done', body: 'The result replaces the selection automatically.' }
 ];
 
 const shortcuts = [
-  { keys: ['⌘', '⇧', 'O'], title: 'Translate', body: 'Detect language and translate the selection.' },
+  { keys: ['⌘', '⇧', 'O'], title: 'Translate', body: 'Detect the language and translate the selection.' },
   { keys: ['⌘', '⇧', 'I'], title: 'Improve Writing', body: 'Rewrite for clarity, grammar, and tone.' },
-  { keys: ['⌘', '⇧', 'S'], title: 'Summarize', body: 'Condense selected text into a short summary.' }
+  { keys: ['⌘', '⇧', 'G'], title: 'Fix Grammar', body: 'Correct grammar and typos without changing your voice.' },
+  { keys: ['⌘', '⇧', 'S'], title: 'Summarize', body: 'Condense selected text into a short summary.' },
+  { keys: ['⌘', '⇧', 'P'], title: 'Make Professional', body: 'Rewrite casual text in a professional tone.' }
 ];
+
+const providers = [
+  { name: 'OpenAI', body: 'GPT models via your OpenAI API key.' },
+  { name: 'Anthropic', body: 'Claude models via your Anthropic API key.' },
+  { name: 'Google Gemini', body: 'Gemini models via your Google AI key.' },
+  { name: 'xAI Grok', body: 'Grok models via your xAI API key.' }
+];
+
+const faqs = [
+  {
+    q: 'Is Fluent App really free?',
+    a: 'Yes. The app is free and open source under the MIT license. You only pay for the AI usage you make on your own API key with your chosen provider.'
+  },
+  {
+    q: 'Do you see my text or my API keys?',
+    a: 'No. Fluent App has no backend. Your API keys live on your Mac and your selected text is sent directly from your Mac to the AI provider you pick. There is no analytics, telemetry, account, or remote service.'
+  },
+  {
+    q: 'Which macOS versions are supported?',
+    a: 'macOS 13 Ventura or later. Fluent App is a native SwiftUI menu bar app, so it is small and fast.'
+  },
+  {
+    q: 'Which AI providers can I use?',
+    a: 'OpenAI, Anthropic (Claude), Google Gemini, and xAI Grok. You add your own API key for whichever provider you prefer and can switch at any time.'
+  },
+  {
+    q: 'Can I create my own shortcuts?',
+    a: 'Yes. Fluent App ships with templates for translate, improve writing, fix grammar, summarize, and make professional — and you can add fully custom shortcuts with your own prompts in the Settings window.'
+  },
+  {
+    q: 'Does it work in apps like Slack, Mail, Figma, or VS Code?',
+    a: 'Yes. If you can select text in an app, Fluent App can transform it. After granting Accessibility access once, the result replaces the selection in place.'
+  },
+  {
+    q: 'Where is the source code?',
+    a: 'On GitHub at github.com/alfonsobries/fluent-app. You can read the code, file issues, open pull requests, or fork it and ship your own build.'
+  }
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a }
+  }))
+};
 ---
 
 <Layout title={title} description={description}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
   <main class="mx-auto max-w-3xl px-6 pb-32 pt-16 sm:pt-24">
 
     <!-- Nav -->
     <header class="flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2.5 no-underline">
-        <img src="/favicon.svg" alt="" class="h-7 w-7 rounded-lg" />
+      <a href="/" class="flex items-center gap-2.5 no-underline" aria-label="Fluent App home">
+        <img src="/favicon.svg" alt="" class="h-7 w-7 rounded-lg" width="28" height="28" />
         <span class="text-sm font-semibold text-gray-900 dark:text-white">Fluent App</span>
       </a>
 
       <!-- Desktop nav -->
       <nav class="hidden items-center gap-6 text-sm text-gray-500 dark:text-gray-400 sm:flex" aria-label="Primary">
-        <a href="#features" class="transition hover:text-gray-900 dark:hover:text-white">Features</a>
-        <a href="#how-it-works" class="transition hover:text-gray-900 dark:hover:text-white">How it works</a>
-        <a href={repoUrl} class="transition hover:text-gray-900 dark:hover:text-white" target="_blank" rel="noreferrer">GitHub</a>
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class="transition hover:text-gray-900 dark:hover:text-white"
+            {...(link.external ? { target: '_blank', rel: 'noreferrer' } : {})}
+          >
+            {link.label}
+          </a>
+        ))}
         <button
           type="button"
           data-theme-toggle
           class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-white"
           aria-label="Toggle theme"
         >
-          <svg class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
           </svg>
-          <svg class="block h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="block h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
           </svg>
         </button>
       </nav>
 
-      <!-- Mobile menu button -->
+      <!-- Mobile controls -->
       <div class="flex items-center gap-3 sm:hidden">
         <button
           type="button"
@@ -79,10 +171,10 @@ const shortcuts = [
           class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-white"
           aria-label="Toggle theme"
         >
-          <svg class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="hidden h-4 w-4 dark:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
           </svg>
-          <svg class="block h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="block h-4 w-4 dark:hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
           </svg>
         </button>
@@ -92,12 +184,10 @@ const shortcuts = [
           class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-500 transition hover:border-gray-300 hover:text-gray-900 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-white"
           aria-label="Open menu"
         >
-          <!-- Hamburger icon -->
-          <svg data-menu-icon-open class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg data-menu-icon-open class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
           </svg>
-          <!-- Close icon -->
-          <svg data-menu-icon-close class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg data-menu-icon-close class="hidden h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
           </svg>
         </button>
@@ -106,18 +196,25 @@ const shortcuts = [
 
     <!-- Mobile nav menu -->
     <nav data-mobile-menu class="hidden flex-col gap-4 border-b border-gray-200 pb-6 pt-4 text-sm text-gray-500 dark:border-gray-700 dark:text-gray-400 sm:!hidden" aria-label="Mobile">
-      <a href="#features" class="transition hover:text-gray-900 dark:hover:text-white">Features</a>
-      <a href="#how-it-works" class="transition hover:text-gray-900 dark:hover:text-white">How it works</a>
-      <a href={repoUrl} class="transition hover:text-gray-900 dark:hover:text-white" target="_blank" rel="noreferrer">GitHub</a>
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="transition hover:text-gray-900 dark:hover:text-white"
+          {...(link.external ? { target: '_blank', rel: 'noreferrer' } : {})}
+        >
+          {link.label}
+        </a>
+      ))}
     </nav>
 
     <!-- Hero -->
     <section class="mt-24 sm:mt-32">
-      <h1 class="text-4xl font-semibold leading-[1.1] tracking-tight text-gray-900 dark:text-white sm:text-5xl">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Free · Open source · Native macOS</p>
+      <h1 class="mt-4 text-4xl font-semibold leading-[1.1] tracking-tight text-gray-900 dark:text-white sm:text-5xl">
         AI text shortcuts<br />for macOS.
       </h1>
       <p class="mt-5 max-w-xl text-base leading-7 text-gray-500 dark:text-gray-400 sm:text-lg sm:leading-8">
-        Select text in any app, press a shortcut, get a translation, rewrite, or summary back in place. No copy-pasting, no switching windows.
+        Select text in any app, press a shortcut, and translate, rewrite, summarize, or fix grammar in place — without copy-pasting or switching windows. Bring your own OpenAI, Claude, Gemini, or Grok key.
       </p>
 
       <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -136,28 +233,30 @@ const shortcuts = [
           target="_blank"
           rel="noreferrer"
         >
-          GitHub
+          View on GitHub
         </a>
       </div>
 
       <div class="mt-5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 dark:text-gray-500">
-        <span>Open source</span>
+        <span>MIT licensed</span>
         <span>·</span>
         <span>Your own API keys</span>
+        <span>·</span>
+        <span>No telemetry</span>
         <span>·</span>
         <span>macOS 13+</span>
       </div>
     </section>
 
     <!-- Demo -->
-    <section class="mt-20">
+    <section class="mt-20" aria-label="Product demo">
       <button
         type="button"
         data-demo-open
         class="group relative block w-full overflow-hidden rounded-xl border border-gray-200 shadow-lg text-left outline-none dark:border-white/15 dark:shadow-none"
-        aria-label="Play demo video"
+        aria-label="Play Fluent App demo video"
       >
-        <img src={demoPosterUrl} alt="Fluent App demo" class="block w-full" />
+        <img src={demoPosterUrl} alt="Fluent App in action: selecting text and transforming it with a keyboard shortcut" class="block w-full" loading="eager" />
         <div class="absolute inset-0 flex items-center justify-center">
           <span class="flex h-14 w-14 items-center justify-center rounded-full bg-black/30 text-white backdrop-blur-sm transition group-hover:bg-black/50">
             <svg viewBox="0 0 24 24" class="ml-0.5 h-6 w-6 fill-current" aria-hidden="true">
@@ -172,6 +271,9 @@ const shortcuts = [
     <section id="features" class="mt-28">
       <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Features</p>
       <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Everything happens where you already work.</h2>
+      <p class="mt-4 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+        Fluent App lives in your menu bar and listens for the keystroke. No new window, no floating panel, no second app to learn.
+      </p>
 
       <div class="mt-10 grid gap-8 sm:grid-cols-2">
         {features.map((f) => (
@@ -183,26 +285,47 @@ const shortcuts = [
       </div>
     </section>
 
-    <!-- How it works -->
-    <section id="how-it-works" class="mt-28">
-      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">How it works</p>
-      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Three steps. No context switching.</h2>
+    <!-- Why / benefits -->
+    <section id="why" class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Why Fluent App</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Built for people who don't want another AI dashboard.</h2>
+      <p class="mt-4 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+        Most AI writing tools ask you to leave what you're doing, open a new window, and paste text around. Fluent App is the opposite — quiet, native, and out of the way.
+      </p>
 
-      <div class="mt-10 grid gap-px overflow-hidden rounded-lg border border-gray-200 dark:border-white/15 sm:grid-cols-3">
-        {steps.map((step) => (
-          <div class="bg-gray-50 px-5 py-5 dark:bg-white/[0.03]">
-            <p class="text-xs font-medium text-gray-400 dark:text-gray-500">{step.index}</p>
-            <h3 class="mt-3 text-sm font-semibold text-gray-900 dark:text-white">{step.title}</h3>
-            <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{step.body}</p>
+      <div class="mt-10 grid gap-8 sm:grid-cols-2">
+        {benefits.map((b) => (
+          <div>
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{b.title}</h3>
+            <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{b.body}</p>
           </div>
         ))}
       </div>
     </section>
 
+    <!-- How it works -->
+    <section id="how-it-works" class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">How it works</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Three steps. No context switching.</h2>
+
+      <ol class="mt-10 grid gap-px overflow-hidden rounded-lg border border-gray-200 dark:border-white/15 sm:grid-cols-3">
+        {steps.map((step) => (
+          <li class="bg-gray-50 px-5 py-5 dark:bg-white/[0.03]">
+            <p class="text-xs font-medium text-gray-400 dark:text-gray-500">{step.index}</p>
+            <h3 class="mt-3 text-sm font-semibold text-gray-900 dark:text-white">{step.title}</h3>
+            <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{step.body}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
     <!-- Shortcuts -->
-    <section class="mt-28">
+    <section id="shortcuts" class="mt-28">
       <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Default shortcuts</p>
       <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Ready to use out of the box.</h2>
+      <p class="mt-4 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+        Five built-in actions, all remappable. Add your own templates in the Settings window anytime.
+      </p>
 
       <div class="mt-10 divide-y divide-gray-100 dark:divide-white/10">
         {shortcuts.map((s) => (
@@ -223,26 +346,60 @@ const shortcuts = [
       </div>
     </section>
 
+    <!-- Providers -->
+    <section id="providers" class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Bring your own key</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Works with the AI provider you already pay for.</h2>
+      <p class="mt-4 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+        No subscription, no markup. Fluent App talks directly to the provider you choose using your own API key — so your bill is just your usage, and nothing in between.
+      </p>
+
+      <div class="mt-10 grid gap-px overflow-hidden rounded-lg border border-gray-200 dark:border-white/15 sm:grid-cols-2">
+        {providers.map((p) => (
+          <div class="bg-gray-50 px-5 py-5 dark:bg-white/[0.03]">
+            <h3 class="text-sm font-semibold text-gray-900 dark:text-white">{p.name}</h3>
+            <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{p.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
     <!-- Open source -->
-    <section class="mt-28">
+    <section id="open-source" class="mt-28">
       <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Open source</p>
       <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Fully open. MIT licensed.</h2>
-      <p class="mt-4 text-sm leading-6 text-gray-500 dark:text-gray-400">
-        The complete source code, build scripts, and release pipeline are public on GitHub.
-        Inspect it, fork it, or ship your own version.
+      <p class="mt-4 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
+        The complete source code, build scripts, CI, and release pipeline are public on GitHub. Inspect it, fork it, contribute, or ship your own version.
+        Releases are built and signed through GitHub Actions — every version you download is reproducible from a tag.
       </p>
       <div class="mt-5 flex flex-wrap gap-4 text-sm">
         <a class="text-gray-900 underline underline-offset-4 decoration-gray-300 transition hover:decoration-gray-500 dark:text-white dark:decoration-gray-600 dark:hover:decoration-gray-400" href={repoUrl} target="_blank" rel="noreferrer">Repository</a>
         <a class="text-gray-900 underline underline-offset-4 decoration-gray-300 transition hover:decoration-gray-500 dark:text-white dark:decoration-gray-600 dark:hover:decoration-gray-400" href={`${repoUrl}/actions`} target="_blank" rel="noreferrer">CI / Releases</a>
+        <a class="text-gray-900 underline underline-offset-4 decoration-gray-300 transition hover:decoration-gray-500 dark:text-white dark:decoration-gray-600 dark:hover:decoration-gray-400" href={`${repoUrl}/issues`} target="_blank" rel="noreferrer">Issues</a>
         <a class="text-gray-900 underline underline-offset-4 decoration-gray-300 transition hover:decoration-gray-500 dark:text-white dark:decoration-gray-600 dark:hover:decoration-gray-400" href={`${repoUrl}/blob/main/LICENSE`} target="_blank" rel="noreferrer">MIT License</a>
       </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="mt-28">
+      <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">FAQ</p>
+      <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">Frequently asked questions.</h2>
+
+      <dl class="mt-10 divide-y divide-gray-100 dark:divide-white/10">
+        {faqs.map((f) => (
+          <div class="py-5">
+            <dt class="text-sm font-semibold text-gray-900 dark:text-white">{f.q}</dt>
+            <dd class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">{f.a}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
 
     <!-- Download CTA -->
     <section class="mt-28 rounded-lg border border-gray-200 bg-gray-50 px-6 py-8 dark:border-white/15 dark:bg-white/[0.03] sm:px-8">
       <h2 class="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Get Fluent App</h2>
       <p class="mt-2 text-sm leading-6 text-gray-500 dark:text-gray-400">
-        Download the latest build from GitHub Releases. Free and open source.
+        Download the latest signed build from GitHub Releases. Free, open source, and yours to keep.
       </p>
       <div class="mt-5 flex flex-wrap gap-3">
         <a
@@ -267,7 +424,7 @@ const shortcuts = [
 
     <!-- Footer -->
     <footer class="mt-28 flex flex-col gap-4 border-t border-gray-100 pt-8 text-sm text-gray-500 dark:border-white/10 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between">
-      <p>Fluent App — open-source AI text shortcuts for macOS.</p>
+      <p>Fluent App — free, open-source AI text shortcuts for macOS.</p>
       <nav class="flex gap-4" aria-label="Footer">
         <a class="transition hover:text-gray-900 dark:hover:text-white" href={repoUrl}>GitHub</a>
         <a class="transition hover:text-gray-900 dark:hover:text-white" href={`${repoUrl}/releases`}>Releases</a>
