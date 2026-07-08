@@ -7,3 +7,4 @@
 *.sha256
 .swiftpm
 xcuserdata/
+*.profraw
