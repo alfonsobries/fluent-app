@@ -45,22 +45,6 @@ struct SettingsView: View {
             }
 
             Spacer()
-
-            Menu {
-                ForEach(settings.enabledActions) { action in
-                    Button("\(action.name) (\(action.shortcutDescription))") {
-                        controller.processSelection(with: action)
-                    }
-                }
-
-                Divider()
-
-                Button("Quit Fluent App") {
-                    NSApplication.shared.terminate(nil)
-                }
-            } label: {
-                Label("Quick Actions", systemImage: "sparkles")
-            }
         }
         .padding(20)
         .background(.bar)
