@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.8.0](https://github.com/alfonsobries/fluent-app/compare/v1.7.0...v1.8.0) (2026-07-08)
+
+
+### Features
+
+* **expo:** expand landing content and strengthen SEO ([3b9481a](https://github.com/alfonsobries/fluent-app/commit/3b9481a37dff465fa497c7066e50eaa7bdb99193))
+
+
+### Bug Fixes
+
+* phantom empty settings window at launch + settings cleanup ([#26](https://github.com/alfonsobries/fluent-app/issues/26)) ([a1f0826](https://github.com/alfonsobries/fluent-app/commit/a1f082655a3c433cd423c322f1a4fedd70b466db))
+
 ## [1.7.0](https://github.com/alfonsobries/fluent-app/compare/v1.6.2...v1.7.0) (2026-04-06)
 
 
