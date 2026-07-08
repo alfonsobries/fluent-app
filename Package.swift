@@ -38,12 +38,6 @@ let package = Package(
                 .product(name: "Sparkle", package: "Sparkle")
             ],
             path: "Sources/FluentApp",
-            exclude: [
-                "Contracts",
-                "Model",
-                "Providers",
-                "Services"
-            ],
             sources: [
                 "FluentApp.swift",
                 "UI/SettingsView.swift",

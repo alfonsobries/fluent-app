@@ -7,21 +7,13 @@ import SwiftUI
 import UserNotifications
 
 @main
-struct FluentApp: App {
-    @StateObject private var controller: AppController
-    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-
-    init() {
-        let controller = AppController.live()
-        _controller = StateObject(wrappedValue: controller)
-        AppDelegate.sharedController = controller
-    }
-
-    var body: some Scene {
-        // Empty WindowGroup that is never shown; the settings window is managed by AppDelegate
-        Settings {
-            EmptyView()
-        }
+enum FluentAppMain {
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        AppDelegate.sharedController = AppController.live()
+        app.delegate = delegate
+        app.run()
     }
 }
 
@@ -47,6 +39,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         setupStatusItem()
         bind(to: controller)
         try? updater.start()
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        // Launching the app while it is already running (Finder, login items)
+        // should surface the settings window instead of a phantom empty one.
+        showSettingsWindow()
+        return false
     }
 
     private func setupStatusItem() {
