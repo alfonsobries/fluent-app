@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.1](https://github.com/alfonsobries/fluent-app/compare/v1.8.0...v1.8.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* never register launch-at-login from non-bundle executables ([#28](https://github.com/alfonsobries/fluent-app/issues/28)) ([213399e](https://github.com/alfonsobries/fluent-app/commit/213399e2623043769136458097f5e9af3c408b1d))
+
 ## [1.8.0](https://github.com/alfonsobries/fluent-app/compare/v1.7.0...v1.8.0) (2026-07-08)
 
 
