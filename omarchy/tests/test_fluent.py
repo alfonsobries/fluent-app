@@ -165,7 +165,7 @@ class ClipboardTests(unittest.TestCase):
             calls.append(kwargs)
             return SimpleNamespace(returncode=0)
 
-        fluent.wl_copy("hello", runner=runner)
+        fluent.wl_copy("hello", runner=runner, binary="wl-copy")
         self.assertEqual(len(calls), 1)
         self.assertIs(calls[0]["stdout"], __import__("subprocess").DEVNULL)
         self.assertIs(calls[0]["stderr"], __import__("subprocess").DEVNULL)
@@ -177,7 +177,7 @@ class ClipboardTests(unittest.TestCase):
         def runner(*args, **kwargs):
             raise subprocess.TimeoutExpired(cmd="wl-copy", timeout=3)
 
-        fluent.wl_copy("hello", runner=runner)
+        fluent.wl_copy("hello", runner=runner, binary="wl-copy")
 
 
 class CaptureTests(unittest.TestCase):

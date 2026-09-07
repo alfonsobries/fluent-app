@@ -531,16 +531,16 @@ def wl_paste(primary: bool = False) -> str:
     return completed.stdout or ""
 
 
-def wl_copy(text: str, runner=None) -> None:
-    binary = which("wl-copy")
-    if not binary:
+def wl_copy(text: str, runner=None, binary: str | None = None) -> None:
+    copy_bin = binary or which("wl-copy")
+    if not copy_bin:
         raise FluentError("network_error", "wl-copy is not installed.")
     # Do not capture stdout/stderr: wl-copy daemonizes to serve the clipboard,
     # and holding those pipes makes it hang until our timeout.
     run = runner or subprocess.run
     try:
         completed = run(
-            [binary, "--type", "text/plain"],
+            [copy_bin, "--type", "text/plain"],
             input=text.encode("utf-8"),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
