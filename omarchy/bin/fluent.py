@@ -82,6 +82,7 @@ ERRORS = {
 DEFAULT_ACTIONS = [
     {
         "id": "translate",
+        "actionId": "translate",
         "name": "Translate",
         "key": "T",
         "enabled": True,
@@ -92,6 +93,7 @@ DEFAULT_ACTIONS = [
     },
     {
         "id": "improve",
+        "actionId": "improve",
         "name": "Improve writing",
         "key": "O",
         "enabled": True,
@@ -102,6 +104,7 @@ DEFAULT_ACTIONS = [
     },
     {
         "id": "grammar",
+        "actionId": "grammar",
         "name": "Fix grammar",
         "key": "G",
         "enabled": True,
@@ -112,6 +115,7 @@ DEFAULT_ACTIONS = [
     },
     {
         "id": "summarize",
+        "actionId": "summarize",
         "name": "Summarize",
         "key": "S",
         "enabled": True,
@@ -121,6 +125,7 @@ DEFAULT_ACTIONS = [
     },
     {
         "id": "tone",
+        "actionId": "tone",
         "name": "Make professional",
         "key": "P",
         "enabled": True,
@@ -190,12 +195,13 @@ def default_config() -> dict:
 
 
 def _sanitize_action(raw: dict, fallback_id: str) -> dict:
-    action_id = str(raw.get("id") or fallback_id).strip() or fallback_id
+    action_id = str(raw.get("actionId") or raw.get("id") or fallback_id).strip() or fallback_id
     key = str(raw.get("key") or "").strip().upper()
     if len(key) != 1 or not key.isalpha():
         key = ""
     return {
         "id": action_id,
+        "actionId": action_id,
         "name": str(raw.get("name") or action_id).strip() or action_id,
         "key": key,
         "enabled": bool(raw.get("enabled", True)),
@@ -225,7 +231,7 @@ def normalize_config(raw: dict | None) -> dict:
         cfg["models"][pid] = value or meta["model"]
 
     actions = raw.get("actions")
-    if isinstance(actions, list) and actions:
+    if isinstance(actions, list):
         normalized = []
         seen = set()
         for index, item in enumerate(actions):
@@ -234,11 +240,11 @@ def normalize_config(raw: dict | None) -> dict:
             action = _sanitize_action(item, f"action-{index + 1}")
             if action["id"] in seen:
                 action["id"] = f"{action['id']}-{index + 1}"
+                action["actionId"] = action["id"]
             seen.add(action["id"])
             if action["prompt"]:
                 normalized.append(action)
-        if normalized:
-            cfg["actions"] = normalized
+        cfg["actions"] = normalized
 
     chord = str(raw.get("hotkeyChord") or "").strip()
     if chord:
@@ -320,8 +326,10 @@ def public_config(cfg: dict, binds: dict | None = None) -> dict:
 
 def find_action(cfg: dict, action_id: str) -> dict | None:
     needle = str(action_id or "").strip()
+    if not needle:
+        return None
     for action in cfg["actions"]:
-        if action["id"] == needle:
+        if action.get("actionId") == needle or action.get("id") == needle:
             return action
     return None
 
@@ -355,11 +363,13 @@ def upsert_action(cfg: dict, action: dict) -> dict:
 
 def delete_action(cfg: dict, action_id: str) -> dict:
     next_cfg = normalize_config(cfg)
-    remaining = [action for action in next_cfg["actions"] if action["id"] != action_id]
+    remaining = [
+        action
+        for action in next_cfg["actions"]
+        if action.get("actionId") != action_id and action.get("id") != action_id
+    ]
     if len(remaining) == len(next_cfg["actions"]):
         raise FluentError("unknown_action")
-    if not remaining:
-        raise FluentError("unknown_action", "Keep at least one action.")
     next_cfg["actions"] = remaining
     return next_cfg
 

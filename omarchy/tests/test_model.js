@@ -21,7 +21,10 @@ const actions = [
 assert.strictEqual(JSON.stringify(M.enabledActions(actions).map((a) => a.id)), JSON.stringify(["translate", "grammar"]))
 assert.strictEqual(M.actionByKey(actions, "t").id, "translate")
 assert.strictEqual(M.actionByKey(actions, "O"), null)
+assert.strictEqual(M.actionId({ id: "translate", name: "Translate" }), "translate")
+assert.strictEqual(M.actionId({ actionId: "improve", id: "ignored" }), "improve")
 assert.strictEqual(M.actionById(actions, "grammar").key, "G")
+assert.strictEqual(M.actionById(actions, ""), null)
 assert.strictEqual(M.actionIndexById(actions, "improve"), 1)
 
 assert.strictEqual(M.formatHotkey("CTRL + ALT + SHIFT", "t"), "CTRL + ALT + SHIFT + T")

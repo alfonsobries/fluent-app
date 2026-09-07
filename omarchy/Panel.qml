@@ -129,7 +129,8 @@ Panel {
 
   function runAction(actionId) {
     if (runProc.running) return
-    var action = Model.actionById(actions, actionId)
+    var id = String(actionId || "")
+    var action = Model.actionById(actions, id)
     if (!action) {
       errorMessage = "Unknown action."
       runState = "failed"
@@ -142,20 +143,20 @@ Panel {
       if (!opened) open()
       return
     }
-    runningId = action.id
+    runningId = Model.actionId(action)
     runningName = action.name
     errorMessage = ""
     _runStdout = ""
     _runStderr = ""
     runState = "processing"
-    runProc.command = [pythonBin, scriptPath, "run", "--action", action.id]
+    runProc.command = [pythonBin, scriptPath, "run", "--action", Model.actionId(action)]
     runProc.running = true
   }
 
   function runSelected() {
     if (actions.length === 0) return
     var action = actions[Math.max(0, Math.min(actionIndex, actions.length - 1))]
-    if (action) runAction(action.id)
+    if (action) runAction(Model.actionId(action))
   }
 
   function setProvider(id) {
@@ -198,7 +199,7 @@ Panel {
     adding = false
     editing = true
     confirmRemove = false
-    editId = action.id
+    editId = Model.actionId(action)
     editName = action.name
     editKey = action.key || ""
     editPrompt = action.prompt || ""
@@ -331,17 +332,10 @@ Panel {
   }
 
   function handleTextKey(t) {
-    if (editing) return
-    if (t === "n" || t === "N") { startAdd(); return }
+    if (editing || busy) return
     if (t === "e" || t === "E") { startEdit(); return }
-    if (t === "k" || t === "K") {
-      focusSection = "key"
-      keyField.forceActiveFocus()
-      return
-    }
-    if (t === "i" || t === "I") { installBinds(); return }
     var action = Model.actionByKey(actions, t)
-    if (action) runAction(action.id)
+    if (action) runAction(Model.actionId(action))
   }
 
   implicitWidth: button.implicitWidth
@@ -875,7 +869,7 @@ Panel {
       onClicked: function(mouse) {
         root.setActionCursor(actionRow.rowIndex)
         if (mouse.button === Qt.RightButton) root.startEdit()
-        else if (actionRow.on) root.runAction(actionRow.action.id)
+        else if (actionRow.on) root.runAction(Model.actionId(actionRow.action))
       }
     }
 

@@ -93,10 +93,22 @@ class ConfigTests(unittest.TestCase):
         cfg = fluent.default_config()
         cfg = fluent.upsert_action(cfg, {"id": "joke", "name": "Joke", "key": "J", "prompt": "Make it funny."})
         self.assertEqual(cfg["actions"][-1]["id"], "joke")
+        self.assertEqual(cfg["actions"][-1]["actionId"], "joke")
         cfg = fluent.delete_action(cfg, "joke")
         self.assertIsNone(fluent.find_action(cfg, "joke"))
         with self.assertRaises(fluent.FluentError):
             fluent.delete_action(cfg, "missing")
+
+    def test_empty_saved_actions_are_not_replaced_with_defaults(self):
+        cfg = fluent.normalize_config({"provider": "openai", "actions": []})
+        self.assertEqual(cfg["actions"], [])
+
+    def test_actionId_is_preferred_over_id(self):
+        cfg = fluent.normalize_config({
+            "actions": [{"id": "old", "actionId": "translate", "name": "Translate", "key": "T", "prompt": "p"}]
+        })
+        self.assertEqual(cfg["actions"][0]["id"], "translate")
+        self.assertEqual(fluent.find_action(cfg, "translate")["name"], "Translate")
 
 
 class HotkeyTests(unittest.TestCase):

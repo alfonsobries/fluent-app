@@ -35,18 +35,30 @@ function enabledActions(actions) {
   return out
 }
 
+// QML treats `.id` as reserved on objects, so the panel must never read
+// `action.id`. This helper runs in real JS where the JSON field is visible.
+function actionId(action) {
+  if (!action) return ""
+  if (action.actionId) return String(action.actionId)
+  if (action.id) return String(action.id)
+  return ""
+}
+
 function actionById(actions, id) {
+  var needle = String(id || "")
+  if (!needle) return null
   var list = Array.isArray(actions) ? actions : []
   for (var i = 0; i < list.length; i++) {
-    if (list[i] && list[i].id === id) return list[i]
+    if (actionId(list[i]) === needle) return list[i]
   }
   return null
 }
 
 function actionIndexById(actions, id) {
+  var needle = String(id || "")
   var list = Array.isArray(actions) ? actions : []
   for (var i = 0; i < list.length; i++) {
-    if (list[i] && list[i].id === id) return i
+    if (actionId(list[i]) === needle) return i
   }
   return -1
 }
