@@ -93,7 +93,8 @@ GitHub flow:
 
 - `release-please.yml` manages changelog and version PRs.
 - `release.yml` builds a DMG when a `v*` tag is pushed or when run manually.
-- `ci.yml` validates build, tests, coverage, and website build.
+- `ci.yml` validates the macOS app, the Omarchy plugin tests, and the website.
+- `sync-omarchy-plugin.yml` publishes `omarchy/` to [alfonsobries/fluent-omarchy](https://github.com/alfonsobries/fluent-omarchy) on merge to main (needs `FLUENT_OMARCHY_TOKEN`). Linux updates are `omarchy plugin update`, not a DMG.
 
 ## Apple Signing And Notarization
 
@@ -150,11 +151,19 @@ The Linux desktop plugin lives in `omarchy/`. Tests do not need a Mac:
 bash omarchy/tests/run.sh
 ```
 
-Install from the plugin repository:
+Install from the plugin repository (this is what the marketplace clones):
 
 ```bash
 omarchy plugin add https://github.com/alfonsobries/fluent-omarchy.git --enable
 ```
+
+Update later with Omarchy's own command — there is no extra Fluent updater:
+
+```bash
+omarchy plugin update io.github.alfonsobries.fluent
+```
+
+`omarchy/` in this repo is the source of truth. Merges to `main` publish that folder to `alfonsobries/fluent-omarchy` (workflow `sync-omarchy-plugin.yml`, secret `FLUENT_OMARCHY_TOKEN`). Marketplace listing: https://github.com/omacom/omarchy-plugin-marketplace/issues/5445
 
 Or from this checkout:
 

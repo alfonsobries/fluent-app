@@ -18,6 +18,19 @@ Pick a bar section when prompted (`right` is the default). Then:
 2. Paste an OpenAI, Anthropic, Gemini, or xAI API key and press Save.
 3. Optionally click **Install Ctrl+Alt+Shift shortcuts**.
 
+## Update
+
+Omarchy updates git-installed plugins in place. There is no separate Fluent
+release artifact for Linux — `main` on this repository *is* the release:
+
+```sh
+omarchy plugin update io.github.alfonsobries.fluent
+```
+
+Source of truth is `omarchy/` in [alfonsobries/fluent-app](https://github.com/alfonsobries/fluent-app). A GitHub Action copies that folder here on every merge to main.
+
+Listed on the marketplace after review: https://github.com/omacom/omarchy-plugin-marketplace/issues/5445
+
 ## Usage
 
 - **Left-click** the bar icon to open or close the panel. The panel is for settings: API key, provider, and each action's prompt.

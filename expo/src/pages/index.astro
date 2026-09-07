@@ -117,7 +117,11 @@ const faqs = [
   },
   {
     q: 'How do I install the Omarchy plugin?',
-    a: 'Run omarchy plugin add https://github.com/alfonsobries/fluent-omarchy.git --enable, pick a bar section, then add an API key from the panel.'
+    a: 'Run omarchy plugin add https://github.com/alfonsobries/fluent-omarchy.git --enable, pick a bar section, then add an API key from the panel. Shortcuts rewrite in place; click an action in the panel to edit its prompt.'
+  },
+  {
+    q: 'How do I update the Omarchy plugin?',
+    a: 'Run omarchy plugin update io.github.alfonsobries.fluent. That is Omarchy’s own updater — Fluent does not ship a second one. Updates come from the fluent-omarchy git repository.'
   },
   {
     q: 'Where is the source code?',
@@ -373,11 +377,15 @@ const faqSchema = {
       <p class="text-xs font-medium uppercase tracking-widest text-blue-600 dark:text-blue-400">Omarchy</p>
       <h2 class="mt-3 text-3xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-4xl">A native bar plugin, not a ported window.</h2>
       <p class="mt-4 max-w-xl text-sm leading-6 text-gray-500 dark:text-gray-400">
-        On Omarchy, Fluent is a bar widget with a panel: action rows, provider pills, keyboard navigation, and the same rewrite-in-place flow. Install it like any other plugin.
+        On Omarchy, Fluent is a bar widget. Shortcuts rewrite the selection in place so the app keeps focus. The panel is for the API key, provider, and each action's prompt. Install it like any other plugin.
       </p>
       <pre class="mt-8 overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 dark:border-white/15 dark:bg-white/[0.03] dark:text-gray-200"><code>{omarchyInstall}</code></pre>
       <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-        Then click the icon, paste an API key, and optionally install the Ctrl+Alt+Shift shortcuts from the panel. Source lives in <a class="underline underline-offset-4 decoration-gray-300 hover:decoration-gray-500 dark:decoration-gray-600" href={pluginRepoUrl}>alfonsobries/fluent-omarchy</a>.
+        Then click the icon, paste an API key, and optionally install the Ctrl+Alt+Shift shortcuts from the panel. Updates are Omarchy's own command:
+      </p>
+      <pre class="mt-4 overflow-x-auto rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 dark:border-white/15 dark:bg-white/[0.03] dark:text-gray-200"><code>omarchy plugin update io.github.alfonsobries.fluent</code></pre>
+      <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+        Source lives in <a class="underline underline-offset-4 decoration-gray-300 hover:decoration-gray-500 dark:decoration-gray-600" href={pluginRepoUrl}>alfonsobries/fluent-omarchy</a>. Submitted to the <a class="underline underline-offset-4 decoration-gray-300 hover:decoration-gray-500 dark:decoration-gray-600" href="https://plugins.omarchy.org">Omarchy plugin marketplace</a>.
       </p>
     </section>
 
