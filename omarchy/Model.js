@@ -94,6 +94,14 @@ function wrapIndex(index, length, delta) {
   return next
 }
 
+function promptPreview(prompt, maxLen) {
+  var limit = maxLen || 56
+  var text = String(prompt || "").replace(/\s+/g, " ").trim()
+  if (!text) return "No prompt yet"
+  if (text.length <= limit) return text
+  return text.slice(0, limit - 1) + "…"
+}
+
 function processingLabel(actionName) {
   var name = String(actionName || "").toLowerCase()
   if (name === "translate") return "Translating"

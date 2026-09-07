@@ -155,9 +155,7 @@ Panel {
   }
 
   function runSelected() {
-    if (actions.length === 0) return
-    var action = actions[Math.max(0, Math.min(actionIndex, actions.length - 1))]
-    if (action) runAction(Model.actionId(action))
+    startEdit()
   }
 
   function setProvider(id) {
@@ -190,7 +188,7 @@ Panel {
     editPrompt = ""
     editEnabled = true
     focusSection = "edit"
-    Qt.callLater(function() { nameField.forceActiveFocus(); nameField.selectAll() })
+    Qt.callLater(function() { if (promptField) promptField.forceActiveFocus() })
   }
 
   function startEdit() {
@@ -206,7 +204,15 @@ Panel {
     editPrompt = action.prompt || ""
     editEnabled = action.enabled !== false
     focusSection = "edit"
-    Qt.callLater(function() { nameField.forceActiveFocus(); nameField.selectAll() })
+    Qt.callLater(function() {
+      if (nameField) nameField.text = root.editName
+      if (keyLetterField) keyLetterField.text = root.editKey
+      if (promptField) {
+        promptField.text = root.editPrompt
+        promptField.forceActiveFocus()
+        promptField.cursorPosition = promptField.text.length
+      }
+    })
   }
 
   function cancelEdit() {
@@ -292,7 +298,7 @@ Panel {
 
   function activateCursor() {
     ensureCursor()
-    if (focusSection === "actions") runSelected()
+    if (focusSection === "actions") startEdit()
     else if (focusSection === "providers") {
       if (providerOptions.length > 0) setProvider(providerOptions[providerIndex].value)
     } else if (focusSection === "key") {
@@ -336,7 +342,9 @@ Panel {
     if (editing || busy) return
     if (t === "e" || t === "E") { startEdit(); return }
     var action = Model.actionByKey(actions, t)
-    if (action) runAction(Model.actionId(action))
+    if (!action) return
+    var idx = Model.actionIndexById(actions, Model.actionId(action))
+    if (idx >= 0) setActionCursor(idx)
   }
 
   implicitWidth: button.implicitWidth
@@ -560,19 +568,39 @@ Panel {
               font.pixelSize: Style.font.caption
             }
 
-            TextField {
-              id: promptField
+            Text {
               width: parent.width
-              placeholderText: "Prompt"
-              text: root.editPrompt
-              foreground: root.foreground
+              text: "PROMPT"
+              color: root.dim
               font.family: root.fontFamily
-              onTextChanged: root.editPrompt = text
-              Keys.onPressed: function(event) {
-                if (event.key === Qt.Key_Escape) { root.cancelEdit(); event.accepted = true }
-                if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && (event.modifiers & Qt.ControlModifier)) {
-                  root.saveEdit()
-                  event.accepted = true
+              font.pixelSize: Style.font.caption
+              font.letterSpacing: 1.2
+            }
+
+            BorderSurface {
+              width: parent.width
+              implicitHeight: Style.space(140)
+              color: "transparent"
+              borderSpec: Border.controlSpec(promptField.activeFocus ? "focus" : "normal", root.foreground, Color.accent)
+
+              TextArea {
+                id: promptField
+                anchors.fill: parent
+                anchors.margins: Style.space(8)
+                wrapMode: TextEdit.Wrap
+                text: root.editPrompt
+                color: root.foreground
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.body
+                placeholderText: "Instructions sent to the model with the selected text."
+                background: Item {}
+                onTextChanged: root.editPrompt = text
+                Keys.onPressed: function(event) {
+                  if (event.key === Qt.Key_Escape) { root.cancelEdit(); event.accepted = true }
+                  if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && (event.modifiers & Qt.ControlModifier)) {
+                    root.saveEdit()
+                    event.accepted = true
+                  }
                 }
               }
             }
@@ -631,6 +659,15 @@ Panel {
                 fontFamily: root.fontFamily
                 onClicked: root.startAdd()
               }
+            }
+
+            Text {
+              width: parent.width
+              text: "Shortcuts rewrite in place. Click an action to edit its prompt."
+              color: root.dim
+              font.family: root.fontFamily
+              font.pixelSize: Style.font.caption
+              wrapMode: Text.WordWrap
             }
 
             Text {
@@ -917,8 +954,7 @@ Panel {
       onEntered: root.setActionCursor(actionRow.rowIndex)
       onClicked: function(mouse) {
         root.setActionCursor(actionRow.rowIndex)
-        if (mouse.button === Qt.RightButton) root.startEdit()
-        else if (actionRow.on) root.runAction(Model.actionId(actionRow.action))
+        root.startEdit()
       }
     }
 
@@ -948,8 +984,7 @@ Panel {
         Text {
           textFormat: Text.PlainText
           Layout.fillWidth: true
-          visible: actionRow.action && actionRow.action.key
-          text: Model.formatHotkey(root.snapshot.hotkeyChord || "CTRL + ALT + SHIFT", actionRow.action ? actionRow.action.key : "")
+          text: Model.promptPreview(actionRow.action ? actionRow.action.prompt : "")
           color: root.dim
           font.family: root.fontFamily
           font.pixelSize: Style.font.caption

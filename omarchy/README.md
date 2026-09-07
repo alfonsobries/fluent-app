@@ -20,9 +20,10 @@ Pick a bar section when prompted (`right` is the default). Then:
 
 ## Usage
 
-- **Left-click** the bar icon to open or close the panel.
-- Click an action, or press **Enter** on the highlighted row, to rewrite the current selection.
-- **j / k** move. **h / l** walk providers. **e** edits an action, **n** adds one, **k** focuses the API key field. Escape closes.
+- **Left-click** the bar icon to open or close the panel. The panel is for settings: API key, provider, and each action's prompt.
+- Click an action (or press **Enter**) to edit its name, key, prompt, or to disable it. **+** adds a new action.
+- Rewrite happens with the global shortcuts, so the original app keeps focus and the selection can be replaced in place.
+- **j / k** move. **h / l** walk providers. Escape closes.
 - Global shortcuts (after install):
 
 | Shortcut | Action |
