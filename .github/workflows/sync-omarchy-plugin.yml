@@ -1,0 +1,32 @@
+name: Sync Omarchy Plugin
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - omarchy/**
+      - scripts/publish-omarchy-plugin.sh
+      - .github/workflows/sync-omarchy-plugin.yml
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish fluent-omarchy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish plugin repo
+        env:
+          GH_TOKEN: ${{ secrets.FLUENT_OMARCHY_TOKEN }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: github-actions[bot]@users.noreply.github.com
+        run: |
+          if [[ -z "${GH_TOKEN:-}" ]]; then
+            echo "Skipping publish: add repository secret FLUENT_OMARCHY_TOKEN"
+            echo "with repo access to alfonsobries/fluent-omarchy."
+            exit 0
+          fi
+          git config --global url."https://x-access-token:${GH_TOKEN}@github.com/".insteadOf "https://github.com/"
+          bash scripts/publish-omarchy-plugin.sh

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.alfonsobries.fluent",
+  "name": "Fluent",
+  "version": "1.1.0",
+  "author": "Alfonso Bribiesca",
+  "license": "MIT",
+  "description": "AI text shortcuts in the Omarchy bar. Select text anywhere, then translate, rewrite, fix grammar, summarize, or change tone in place with your own OpenAI, Claude, Gemini, or Grok key.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Fluent",
+    "description": "Rewrite selected text in place from the bar: translate, improve, grammar, summarize, professional.",
+    "category": "AI",
+    "aliases": ["fluent", "rewrite", "translate", "grammar"],
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

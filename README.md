@@ -1,6 +1,6 @@
 # Fluent App
 
-Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Select text anywhere, trigger a global shortcut, and Fluent App rewrites, translates, summarizes, or transforms the text and pastes the result back.
+Fluent App is a native macOS menu bar app — and an [Omarchy](https://omarchy.org) bar plugin — for AI-powered text shortcuts. Select text anywhere, trigger a global shortcut, and Fluent App rewrites, translates, summarizes, or transforms the text and pastes the result back.
 
 ## What Changed
 
@@ -19,13 +19,15 @@ Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Select 
 
 ## Current Shortcut Templates
 
+macOS (menu bar app):
+
 - `Cmd+Shift+O`: Translate
 - `Cmd+Shift+I`: Improve Writing
 - `Cmd+Shift+G`: Fix Grammar
 - `Cmd+Shift+S`: Summarize
 - `Cmd+Shift+P`: Make Professional
 
-You can add blank shortcuts or start from templates in the Shortcuts tab.
+Omarchy: `Ctrl+Alt+Shift` + T/O/G/S/P (F opens the panel). Remappable.
 
 ## Supported Providers
 
@@ -89,7 +91,8 @@ GitHub flow:
 
 - `release-please.yml` manages changelog and version PRs.
 - `release.yml` builds a DMG when a `v*` tag is pushed or when run manually.
-- `ci.yml` validates build, tests, coverage, and website build.
+- `ci.yml` validates the macOS app, the Omarchy plugin, and the website.
+- `sync-omarchy-plugin.yml` publishes `omarchy/` to [fluent-omarchy](https://github.com/alfonsobries/fluent-omarchy) on merge to main.
 
 ## Apple Signing And Notarization
 
@@ -134,9 +137,17 @@ This makes new shortcuts easy to add without touching the live platform adapters
 
 ## Privacy
 
-- API keys stay local on your Mac.
+- API keys stay local on the machine.
 - Text goes directly from Fluent App to the provider you selected.
 - No analytics, telemetry, or remote app backend is included.
+
+## Omarchy plugin
+
+```bash
+bash omarchy/tests/run.sh
+omarchy plugin add https://github.com/alfonsobries/fluent-omarchy.git --enable
+omarchy plugin update io.github.alfonsobries.fluent
+```
 
 ## Website
 
