@@ -493,6 +493,8 @@ def run_command(command: list[str], timeout: float = 8, input_text: str | None =
         check=False,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=timeout,
         input=input_text,
         env=env,
@@ -517,7 +519,7 @@ def wl_paste(primary: bool = False) -> str:
     binary = which("wl-paste")
     if not binary:
         return ""
-    command = [binary, "--no-newline"]
+    command = [binary, "--type", "text", "--no-newline"]
     if primary:
         command.append("--primary")
     try:
@@ -529,12 +531,27 @@ def wl_paste(primary: bool = False) -> str:
     return completed.stdout or ""
 
 
-def wl_copy(text: str) -> None:
+def wl_copy(text: str, runner=None) -> None:
     binary = which("wl-copy")
     if not binary:
         raise FluentError("network_error", "wl-copy is not installed.")
-    completed = run_command([binary, "--trim-newline"], timeout=2, input_text=text)
-    if completed.returncode != 0:
+    # Do not capture stdout/stderr: wl-copy daemonizes to serve the clipboard,
+    # and holding those pipes makes it hang until our timeout.
+    run = runner or subprocess.run
+    try:
+        completed = run(
+            [binary, "--type", "text/plain"],
+            input=text.encode("utf-8"),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=3,
+            start_new_session=True,
+        )
+    except subprocess.TimeoutExpired:
+        return
+    except OSError as error:
+        raise FluentError("network_error", "Could not write to the clipboard.") from error
+    if getattr(completed, "returncode", 0) not in (0, None):
         raise FluentError("network_error", "Could not write to the clipboard.")
 
 
@@ -1129,6 +1146,8 @@ def main(argv: list[str] | None = None) -> int:
         return emit(error.as_dict(), ok=False)
     except KeyboardInterrupt:
         return emit({"ok": False, "error": "busy", "message": "Cancelled."}, ok=False)
+    except Exception as error:
+        return emit({"ok": False, "error": "unknown", "message": str(error) or error.__class__.__name__}, ok=False)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ from __future__ import annotations
 import importlib.util
 import io
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -154,6 +155,29 @@ class HotkeyTests(unittest.TestCase):
             self.assertTrue((path.with_suffix(".lua.bak")).exists() or Path(str(path) + ".bak").exists())
             fluent.remove_binds(path=path, reload=False)
             self.assertNotIn(fluent.BIND_BEGIN, path.read_text(encoding="utf-8"))
+
+
+class ClipboardTests(unittest.TestCase):
+    def test_wl_copy_does_not_hold_pipes(self):
+        calls = []
+
+        def runner(*args, **kwargs):
+            calls.append(kwargs)
+            return SimpleNamespace(returncode=0)
+
+        fluent.wl_copy("hello", runner=runner)
+        self.assertEqual(len(calls), 1)
+        self.assertIs(calls[0]["stdout"], __import__("subprocess").DEVNULL)
+        self.assertIs(calls[0]["stderr"], __import__("subprocess").DEVNULL)
+        self.assertNotIn("capture_output", calls[0])
+        self.assertIsInstance(calls[0]["input"], (bytes, bytearray))
+        self.assertTrue(calls[0]["start_new_session"])
+
+    def test_wl_copy_timeout_is_success(self):
+        def runner(*args, **kwargs):
+            raise subprocess.TimeoutExpired(cmd="wl-copy", timeout=3)
+
+        fluent.wl_copy("hello", runner=runner)
 
 
 class CaptureTests(unittest.TestCase):

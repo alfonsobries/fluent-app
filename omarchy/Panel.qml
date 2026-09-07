@@ -33,6 +33,8 @@ Panel {
   property string keyDraft: ""
   property int phraseIndex: 0
   property bool mutating: false
+  property string _runStdout: ""
+  property string _runStderr: ""
 
   readonly property color foreground: bar ? bar.foreground : Color.foreground
   readonly property color urgent: bar ? bar.urgent : Color.urgent
@@ -143,6 +145,8 @@ Panel {
     runningId = action.id
     runningName = action.name
     errorMessage = ""
+    _runStdout = ""
+    _runStderr = ""
     runState = "processing"
     runProc.command = [pythonBin, scriptPath, "run", "--action", action.id]
     runProc.running = true
@@ -822,17 +826,32 @@ Panel {
 
   Process {
     id: runProc
-    stdout: StdioCollector { id: runOut; waitForEnd: true }
-    stderr: StdioCollector { id: runErr; waitForEnd: true }
+    stdout: StdioCollector {
+      id: runOut
+      waitForEnd: true
+      onStreamFinished: root._runStdout = text
+    }
+    stderr: StdioCollector {
+      id: runErr
+      waitForEnd: true
+      onStreamFinished: root._runStderr = text
+    }
     onExited: function(code) {
-      var parsed = Model.parseRunResult(String(runOut.text || ""))
+      var text = String(runOut.text || root._runStdout || "")
+      var err = String(runErr.text || root._runStderr || "")
+      var parsed = Model.parseRunResult(text)
       if (parsed && parsed.ok) {
         root.runState = "completed"
         root.errorMessage = ""
         completedReset.restart()
       } else {
         root.runState = "failed"
-        root.errorMessage = (parsed && parsed.message) ? parsed.message : "Could not rewrite the selection."
+        var message = parsed && parsed.message ? parsed.message : ""
+        if (!message) {
+          var line = err.replace(/^\s+|\s+$/g, "").split("\n").pop()
+          message = line || "Could not rewrite the selection."
+        }
+        root.errorMessage = message
       }
     }
   }
