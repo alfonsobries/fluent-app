@@ -27,9 +27,7 @@ macOS (menu bar app):
 - `Cmd+Shift+S`: Summarize
 - `Cmd+Shift+P`: Make Professional
 
-Omarchy (bar plugin) uses `Ctrl+Alt+Shift` plus the action letter, because Super+T/O/G/S/P are already tiling and app launches. Defaults: T translate, O improve, G grammar, S summarize, P professional, F opens the panel. All remappable.
-
-You can add blank shortcuts or start from templates in Settings (macOS) or the panel (Omarchy).
+Omarchy: `Ctrl+Alt+Shift` + T/O/G/S/P (F opens the panel). Remappable.
 
 ## Supported Providers
 
@@ -93,8 +91,8 @@ GitHub flow:
 
 - `release-please.yml` manages changelog and version PRs.
 - `release.yml` builds a DMG when a `v*` tag is pushed or when run manually.
-- `ci.yml` validates the macOS app, the Omarchy plugin tests, and the website.
-- `sync-omarchy-plugin.yml` publishes `omarchy/` to [alfonsobries/fluent-omarchy](https://github.com/alfonsobries/fluent-omarchy) on merge to main (needs `FLUENT_OMARCHY_TOKEN`). Linux updates are `omarchy plugin update`, not a DMG.
+- `ci.yml` validates the macOS app, the Omarchy plugin, and the website.
+- `sync-omarchy-plugin.yml` publishes `omarchy/` to [fluent-omarchy](https://github.com/alfonsobries/fluent-omarchy) on merge to main.
 
 ## Apple Signing And Notarization
 
@@ -145,32 +143,10 @@ This makes new shortcuts easy to add without touching the live platform adapters
 
 ## Omarchy plugin
 
-The Linux desktop plugin lives in `omarchy/`. Tests do not need a Mac:
-
 ```bash
 bash omarchy/tests/run.sh
-```
-
-Install from the plugin repository (this is what the marketplace clones):
-
-```bash
 omarchy plugin add https://github.com/alfonsobries/fluent-omarchy.git --enable
-```
-
-Update later with Omarchy's own command — there is no extra Fluent updater:
-
-```bash
 omarchy plugin update io.github.alfonsobries.fluent
-```
-
-`omarchy/` in this repo is the source of truth. Merges to `main` publish that folder to `alfonsobries/fluent-omarchy` (workflow `sync-omarchy-plugin.yml`, secret `FLUENT_OMARCHY_TOKEN`). Marketplace listing: https://github.com/omacom/omarchy-plugin-marketplace/issues/5445
-
-Or from this checkout:
-
-```bash
-rsync -a --delete omarchy/ ~/.config/omarchy/plugins/io.github.alfonsobries.fluent/
-omarchy plugin validate ~/.config/omarchy/plugins/io.github.alfonsobries.fluent
-omarchy plugin enable io.github.alfonsobries.fluent --section right
 ```
 
 ## Website

@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Copy omarchy/ into alfonsobries/fluent-omarchy so `omarchy plugin add`
-# and `omarchy plugin update` get a repo with manifest.json at the root.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

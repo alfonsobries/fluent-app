@@ -662,15 +662,6 @@ Panel {
             }
 
             Text {
-              width: parent.width
-              text: "Shortcuts rewrite in place. Click an action to edit its prompt."
-              color: root.dim
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.caption
-              wrapMode: Text.WordWrap
-            }
-
-            Text {
               visible: root.actions.length === 0
               width: parent.width
               text: "No actions yet."
