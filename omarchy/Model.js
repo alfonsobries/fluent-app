@@ -1,0 +1,138 @@
+.pragma library
+
+// Pure helpers for the Fluent Omarchy panel. Qt-free so node can unit-test it.
+
+var DEFAULT_CHORD = "CTRL + ALT + SHIFT"
+
+var PROVIDERS = [
+  { id: "openai", label: "OpenAI" },
+  { id: "claude", label: "Claude" },
+  { id: "gemini", label: "Gemini" },
+  { id: "grok", label: "Grok" }
+]
+
+var READY_PHRASES = [
+  "Rewriting in place",
+  "Keeping your voice",
+  "One shortcut, done",
+  "Staying out of the way",
+  "Talking to your key"
+]
+
+function providerLabel(id) {
+  for (var i = 0; i < PROVIDERS.length; i++) {
+    if (PROVIDERS[i].id === id) return PROVIDERS[i].label
+  }
+  return "OpenAI"
+}
+
+function enabledActions(actions) {
+  var list = Array.isArray(actions) ? actions : []
+  var out = []
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && list[i].enabled !== false) out.push(list[i])
+  }
+  return out
+}
+
+function actionById(actions, id) {
+  var list = Array.isArray(actions) ? actions : []
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && list[i].id === id) return list[i]
+  }
+  return null
+}
+
+function actionIndexById(actions, id) {
+  var list = Array.isArray(actions) ? actions : []
+  for (var i = 0; i < list.length; i++) {
+    if (list[i] && list[i].id === id) return i
+  }
+  return -1
+}
+
+function actionByKey(actions, key) {
+  var letter = String(key || "").toUpperCase()
+  var list = enabledActions(actions)
+  for (var i = 0; i < list.length; i++) {
+    if (String(list[i].key || "").toUpperCase() === letter) return list[i]
+  }
+  return null
+}
+
+function formatHotkey(chord, key) {
+  var letter = String(key || "").trim().toUpperCase()
+  if (!letter) return ""
+  var parts = String(chord || DEFAULT_CHORD).trim()
+  return parts + " + " + letter
+}
+
+function clampIndex(index, length) {
+  if (!(length > 0)) return -1
+  if (index < 0) return 0
+  if (index > length - 1) return length - 1
+  return index
+}
+
+function wrapIndex(index, length, delta) {
+  if (!(length > 0)) return -1
+  var next = index + delta
+  if (next < 0) return length - 1
+  if (next > length - 1) return 0
+  return next
+}
+
+function heroTitle(snapshot) {
+  if (!snapshot) return "Fluent"
+  return "Fluent"
+}
+
+function heroMeta(snapshot, state, phrase, errorMessage) {
+  if (state === "processing") {
+    var name = snapshot && snapshot.runningName ? snapshot.runningName : "selection"
+    return "Rewriting " + String(name).toLowerCase()
+  }
+  if (state === "failed") return String(errorMessage || "Something went wrong")
+  if (state === "completed") return "Pasted in place"
+  if (!snapshot || !snapshot.hasCurrentKey) return "Add an API key to start"
+  if (snapshot.binds && snapshot.binds.installed === false) return "Shortcuts not installed"
+  return phrase || READY_PHRASES[0]
+}
+
+function heroDetail(snapshot) {
+  if (!snapshot) return ""
+  var id = snapshot.provider || "openai"
+  for (var i = 0; i < (snapshot.providers || []).length; i++) {
+    if (snapshot.providers[i].id === id) return snapshot.providers[i].displayName || snapshot.providers[i].id
+  }
+  return providerLabel(id)
+}
+
+function parseDump(raw) {
+  if (!raw) return null
+  try {
+    var parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== "object") return null
+    return parsed
+  } catch (e) {
+    return null
+  }
+}
+
+function parseRunResult(raw) {
+  var parsed = parseDump(raw)
+  if (!parsed) return { ok: false, error: "invalid_response", message: "Invalid response from Fluent." }
+  return parsed
+}
+
+function emptySnapshot() {
+  return {
+    provider: "openai",
+    providers: [],
+    actions: [],
+    hotkeyChord: DEFAULT_CHORD,
+    panelKey: "F",
+    hasCurrentKey: false,
+    binds: { installed: false, collisions: [] }
+  }
+}
