@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import Quickshell.Wayland
 import qs.Commons
 import qs.Ui
 import "Model.js" as Model
@@ -383,6 +384,54 @@ Panel {
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.RightButton) root.refresh()
       else root.toggle()
+    }
+  }
+
+  PanelWindow {
+    id: workHud
+    visible: root.runState === "processing"
+    color: "transparent"
+    anchors { top: true; left: true; right: true }
+    implicitHeight: Style.bar.sizeHorizontal + Style.space(48)
+    exclusiveZone: 0
+    WlrLayershell.namespace: "fluent-hud"
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+    exclusionMode: ExclusionMode.Ignore
+    mask: Region {}
+
+    BorderSurface {
+      id: hudCard
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.top: parent.top
+      anchors.topMargin: Style.bar.sizeHorizontal + Style.space(8)
+      color: Color.popups.background
+      borderSpec: Border.surfaceSpec("popups", "border", Color.popups.border, Math.max(1, Style.space(2)))
+      radius: Style.cornerRadius > 0 ? Style.cornerRadius : Style.space(10)
+      implicitWidth: hudRow.implicitWidth + Style.space(20)
+      implicitHeight: hudRow.implicitHeight + Style.space(14)
+
+      Row {
+        id: hudRow
+        anchors.centerIn: parent
+        spacing: Style.space(8)
+
+        FluentIcon {
+          anchors.verticalCenter: parent.verticalCenter
+          iconSize: Style.font.body
+          color: root.foreground
+          busy: true
+        }
+
+        Text {
+          anchors.verticalCenter: parent.verticalCenter
+          text: Model.processingLabel(root.runningName) + "…"
+          color: root.foreground
+          font.family: root.fontFamily
+          font.pixelSize: Style.font.body
+          font.bold: true
+        }
+      }
     }
   }
 

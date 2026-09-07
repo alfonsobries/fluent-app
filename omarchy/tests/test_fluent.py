@@ -193,7 +193,26 @@ class ClipboardTests(unittest.TestCase):
 
 
 class CaptureTests(unittest.TestCase):
-    def test_primary_selection_wins(self):
+    def test_clipboard_change_beats_stale_primary(self):
+        state = {"clip": "old", "primary": "stale"}
+
+        def paste(primary=False):
+            return state["primary"] if primary else state["clip"]
+
+        def shortcut(mods, key):
+            self.assertEqual((mods, key), ("CTRL", "C"))
+            state["clip"] = "fresh selection"
+
+        text = fluent.capture_selection(
+            delay=0,
+            sleeper=lambda _s: None,
+            paste=paste,
+            window_is_terminal=lambda: False,
+            shortcut=shortcut,
+        )
+        self.assertEqual(text, "fresh selection")
+
+    def test_primary_fallback_when_copy_does_not_change_clipboard(self):
         def paste(primary=False):
             return "highlighted" if primary else "clipboard"
 
@@ -202,7 +221,7 @@ class CaptureTests(unittest.TestCase):
             sleeper=lambda _s: None,
             paste=paste,
             window_is_terminal=lambda: False,
-            shortcut=lambda *_a: self.fail("should not send a shortcut"),
+            shortcut=lambda *_a: None,
         )
         self.assertEqual(text, "highlighted")
 

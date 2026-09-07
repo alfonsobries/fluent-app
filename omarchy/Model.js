@@ -94,6 +94,17 @@ function wrapIndex(index, length, delta) {
   return next
 }
 
+function processingLabel(actionName) {
+  var name = String(actionName || "").toLowerCase()
+  if (name === "translate") return "Translating"
+  if (name === "improve writing") return "Improving"
+  if (name === "fix grammar") return "Fixing grammar"
+  if (name === "summarize") return "Summarizing"
+  if (name === "make professional") return "Rewriting"
+  if (name) return name.charAt(0).toUpperCase() + name.slice(1)
+  return "Working"
+}
+
 function heroTitle(snapshot) {
   if (!snapshot) return "Fluent"
   return "Fluent"
