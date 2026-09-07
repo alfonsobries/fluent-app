@@ -9,7 +9,7 @@ interface Props {
 
 const {
   title,
-  description = "Fluent App is a free, open-source macOS menu bar app for AI-powered text shortcuts. Select text in any app and translate, rewrite, summarize, fix grammar, or change tone with a single keyboard shortcut. Works with OpenAI, Claude, Gemini, and Grok using your own API keys.",
+  description = "Fluent App is a free, open-source app for AI-powered text shortcuts on macOS and Omarchy. Select text in any app and translate, rewrite, summarize, fix grammar, or change tone with a single keyboard shortcut. Works with OpenAI, Claude, Gemini, and Grok using your own API keys.",
   image = "/fluent-demo-poster.jpg"
 } = Astro.props;
 
@@ -38,7 +38,7 @@ const appVersion = "1.7.0";
     <title>{title}</title>
     <meta name="title" content={title} />
     <meta name="description" content={description} />
-    <meta name="keywords" content="macOS AI app, menu bar AI shortcuts, translate text Mac, rewrite selected text, summarize text Mac, fix grammar Mac, improve writing Mac, OpenAI Mac app, Claude Mac app, Gemini Mac app, Grok Mac app, open source Mac app, bring your own API key, privacy-first AI, native macOS app" />
+    <meta name="keywords" content="macOS AI app, Omarchy plugin, Linux AI shortcuts, menu bar AI shortcuts, translate text Mac, rewrite selected text, summarize text, fix grammar, improve writing, OpenAI, Claude, Gemini, Grok, open source, bring your own API key, privacy-first AI, native macOS app, Omarchy bar widget" />
     <meta name="author" content="Alfonso Bribiesca" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="googlebot" content="index, follow" />
@@ -52,7 +52,7 @@ const appVersion = "1.7.0";
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={`${siteUrl}${image}`} />
-    <meta property="og:image:alt" content="Fluent App — AI text shortcuts for macOS" />
+    <meta property="og:image:alt" content="Fluent App — AI text shortcuts for macOS and Omarchy" />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:locale" content="en_US" />
 
@@ -67,7 +67,7 @@ const appVersion = "1.7.0";
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "Fluent App",
-      "operatingSystem": "macOS 13 or later",
+      "operatingSystem": "macOS 13 or later, Omarchy Linux",
       "applicationCategory": "ProductivityApplication",
       "applicationSubCategory": "Utilities",
       "url": siteUrl,
@@ -75,9 +75,9 @@ const appVersion = "1.7.0";
       "softwareVersion": appVersion,
       "license": "https://github.com/alfonsobries/fluent-app/blob/main/LICENSE",
       "isAccessibleForFree": true,
-      "description": "Fluent App is a free and open-source macOS menu bar app that brings AI-powered text shortcuts to every application. Select text anywhere — Mail, Slack, Notes, Figma, Safari, or any editor — press a keyboard shortcut, and Fluent translates, rewrites, summarizes, fixes grammar, or changes the tone of your selection and pastes the result back in place. You bring your own API key from OpenAI, Anthropic (Claude), Google Gemini, or xAI Grok, so your text and keys never pass through a third-party server.",
+      "description": "Fluent App is a free and open-source app that brings AI-powered text shortcuts to macOS and Omarchy. Select text anywhere, press a keyboard shortcut, and Fluent translates, rewrites, summarizes, fixes grammar, or changes the tone of your selection and pastes the result back in place. You bring your own API key from OpenAI, Anthropic (Claude), Google Gemini, or xAI Grok, so your text and keys never pass through a third-party server.",
       "featureList": [
-        "Global keyboard shortcuts for any text in any macOS app",
+        "Global keyboard shortcuts for selected text on macOS and Omarchy",
         "Translate text between languages with automatic language detection",
         "Improve writing: grammar, clarity, and tone",
         "Summarize long selections in place",

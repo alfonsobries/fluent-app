@@ -1,6 +1,6 @@
 # Fluent App
 
-Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Select text anywhere, trigger a global shortcut, and Fluent App rewrites, translates, summarizes, or transforms the text and pastes the result back.
+Fluent App is a native macOS menu bar app — and an [Omarchy](https://omarchy.org) bar plugin — for AI-powered text shortcuts. Select text anywhere, trigger a global shortcut, and Fluent App rewrites, translates, summarizes, or transforms the text and pastes the result back.
 
 ## What Changed
 
@@ -19,13 +19,17 @@ Fluent App is a native macOS menu bar app for AI-powered text shortcuts. Select 
 
 ## Current Shortcut Templates
 
+macOS (menu bar app):
+
 - `Cmd+Shift+O`: Translate
 - `Cmd+Shift+I`: Improve Writing
 - `Cmd+Shift+G`: Fix Grammar
 - `Cmd+Shift+S`: Summarize
 - `Cmd+Shift+P`: Make Professional
 
-You can add blank shortcuts or start from templates in the Shortcuts tab.
+Omarchy (bar plugin) uses `Ctrl+Alt+Shift` plus the action letter, because Super+T/O/G/S/P are already tiling and app launches. Defaults: T translate, O improve, G grammar, S summarize, P professional, F opens the panel. All remappable.
+
+You can add blank shortcuts or start from templates in Settings (macOS) or the panel (Omarchy).
 
 ## Supported Providers
 
@@ -134,9 +138,31 @@ This makes new shortcuts easy to add without touching the live platform adapters
 
 ## Privacy
 
-- API keys stay local on your Mac.
+- API keys stay local on the machine.
 - Text goes directly from Fluent App to the provider you selected.
 - No analytics, telemetry, or remote app backend is included.
+
+## Omarchy plugin
+
+The Linux desktop plugin lives in `omarchy/`. Tests do not need a Mac:
+
+```bash
+bash omarchy/tests/run.sh
+```
+
+Install from the plugin repository:
+
+```bash
+omarchy plugin add https://github.com/alfonsobries/fluent-omarchy.git --enable
+```
+
+Or from this checkout:
+
+```bash
+rsync -a --delete omarchy/ ~/.config/omarchy/plugins/io.github.alfonsobries.fluent/
+omarchy plugin validate ~/.config/omarchy/plugins/io.github.alfonsobries.fluent
+omarchy plugin enable io.github.alfonsobries.fluent --section right
+```
 
 ## Website
 

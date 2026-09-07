@@ -24,6 +24,21 @@ jobs:
       - name: Verify Coverage
         run: ./scripts/test_coverage.sh
 
+  omarchy-plugin:
+    name: Omarchy Plugin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Test plugin
+        run: bash omarchy/tests/run.sh
+
   build-website:
     name: Build Website
     runs-on: ubuntu-latest
