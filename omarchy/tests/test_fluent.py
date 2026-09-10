@@ -5,6 +5,7 @@ import importlib.util
 import io
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -22,8 +23,14 @@ class FakeResponse:
         self._payload = json.dumps(payload).encode("utf-8") if not isinstance(payload, bytes) else payload
         self.status = status
 
-    def read(self):
-        return self._payload
+    def read(self, n=-1):
+        if n is None or n < 0:
+            out = self._payload
+            self._payload = b""
+            return out
+        out = self._payload[:n]
+        self._payload = self._payload[n:]
+        return out
 
     def __enter__(self):
         return self
@@ -353,6 +360,103 @@ class ProviderTests(unittest.TestCase):
             fluent.complete_text(cfg, "hola", "inst", opener=opener)
         self.assertEqual(raised.exception.code, "network_error")
         self.assertIn("boom", raised.exception.message)
+
+
+class BoundsTests(unittest.TestCase):
+    def test_read_capped_rejects_overflow_before_parse(self):
+        payload = b'{"choices":[]}' + b"x" * 32
+        with self.assertRaises(fluent.FluentError) as raised:
+            fluent.read_capped(io.BytesIO(payload), 8)
+        self.assertEqual(raised.exception.code, "too_large")
+        self.assertIn("8", raised.exception.message)
+
+    def test_http_success_body_is_capped_before_json(self):
+        def opener(request, timeout=60):
+            return FakeResponse(b"x" * (fluent.HTTP_MAX_BYTES + 2), status=200)
+
+        with self.assertRaises(fluent.FluentError) as raised:
+            fluent.http_json("https://api.openai.com/v1/chat/completions", {}, {}, opener=opener)
+        self.assertEqual(raised.exception.code, "too_large")
+
+    def test_http_error_body_is_capped_before_json(self):
+        def opener(request, timeout=60):
+            raise fluent.urllib.error.HTTPError(
+                request.full_url,
+                500,
+                "err",
+                hdrs=None,
+                fp=io.BytesIO(b"x" * (fluent.HTTP_MAX_BYTES + 2)),
+            )
+
+        with self.assertRaises(fluent.FluentError) as raised:
+            fluent.http_json("https://api.openai.com/v1/chat/completions", {}, {}, opener=opener)
+        self.assertEqual(raised.exception.code, "too_large")
+
+    def test_complete_text_rejects_oversized_source_before_provider(self):
+        cfg = fluent.default_config()
+        cfg["apiKeys"]["openai"] = "key"
+        called = {"n": 0}
+
+        def opener(request, timeout=60):
+            called["n"] += 1
+            return FakeResponse({"choices": [{"message": {"content": "nope"}}]})
+
+        with self.assertRaises(fluent.FluentError) as raised:
+            fluent.complete_text(cfg, "x" * (fluent.CLIPBOARD_MAX_BYTES + 1), "inst", opener=opener)
+        self.assertEqual(raised.exception.code, "too_large")
+        self.assertEqual(called["n"], 0)
+
+    def test_run_command_rejects_oversized_stdout(self):
+        with self.assertRaises(fluent.FluentError) as raised:
+            fluent.run_command(
+                [sys.executable, "-c", "import sys; sys.stdout.buffer.write(b'x' * 4096)"],
+                timeout=5,
+                max_stdout=1024,
+            )
+        self.assertEqual(raised.exception.code, "too_large")
+
+    def test_wl_paste_forwards_clipboard_ceiling(self):
+        seen = {}
+
+        def fake_run(command, timeout=8, **kwargs):
+            seen["max_stdout"] = kwargs.get("max_stdout")
+            seen["timeout"] = timeout
+            return SimpleNamespace(returncode=0, stdout="hi")
+
+        original_run, original_which = fluent.run_command, fluent.which
+        fluent.run_command = fake_run
+        fluent.which = lambda name: "/usr/bin/wl-paste" if name == "wl-paste" else None
+        try:
+            self.assertEqual(fluent.wl_paste(), "hi")
+        finally:
+            fluent.run_command = original_run
+            fluent.which = original_which
+        self.assertEqual(seen["max_stdout"], fluent.CLIPBOARD_MAX_BYTES)
+        self.assertEqual(seen["timeout"], 2)
+
+    def test_load_config_refuses_symlink(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            real = Path(tmp) / "real.json"
+            real.write_text('{"apiKeys":{"openai":"sk-secret"}}', encoding="utf-8")
+            link = Path(tmp) / "omarchy.json"
+            link.symlink_to(real)
+            cfg = fluent.load_config(link)
+            self.assertEqual(cfg["apiKeys"], {})
+
+    def test_cmd_complete_reads_bounded_stdin(self):
+        original = fluent.read_capped_stdin
+
+        def boom(limit=fluent.STDIN_MAX_BYTES):
+            raise fluent.too_large(limit)
+
+        fluent.read_capped_stdin = boom
+        try:
+            with self.assertRaises(fluent.FluentError) as raised:
+                args = SimpleNamespace(provider=None, action=None, prompt="inst", text=None)
+                fluent.cmd_complete(args)
+        finally:
+            fluent.read_capped_stdin = original
+        self.assertEqual(raised.exception.code, "too_large")
 
 
 class RunActionTests(unittest.TestCase):
