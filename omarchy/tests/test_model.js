@@ -47,7 +47,11 @@ assert.strictEqual(M.heroMeta({ hasCurrentKey: true, binds: { installed: false }
 assert.strictEqual(M.heroMeta({ hasCurrentKey: true, binds: { installed: true } }, "idle", "Rewriting in place"), "Rewriting in place")
 
 assert.strictEqual(M.heroDetail({ provider: "grok", providers: [{ id: "grok", displayName: "xAI (Grok)" }] }), "xAI (Grok)")
+assert.strictEqual(M.plain("<img src=x>hi&"), "img src=xhi")
+assert.strictEqual(M.plain("ok", 2), "ok")
+assert.strictEqual(M.plain("abcdef", 3), "abc")
 assert.strictEqual(M.parseDump("not-json"), null)
+assert.strictEqual(M.parseDump("x".repeat(65537)), null)
 assert.strictEqual(M.parseRunResult("{not").error, "invalid_response")
 assert.strictEqual(M.parseRunResult('{"ok":true,"result":"Hi"}').result, "Hi")
 

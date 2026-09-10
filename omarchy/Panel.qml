@@ -36,6 +36,12 @@ Panel {
   property bool mutating: false
   property string _runStdout: ""
   property string _runStderr: ""
+  property string _configBuf: ""
+  property string _mutateBuf: ""
+  property string _mutateStdin: ""
+  property string _runBuf: ""
+  property string _runErrBuf: ""
+  readonly property int helperStdoutMax: 65536
 
   readonly property color foreground: bar ? bar.foreground : Color.foreground
   readonly property color urgent: bar ? bar.urgent : Color.urgent
@@ -48,7 +54,7 @@ Panel {
   readonly property bool bindsInstalled: snapshot && snapshot.binds && snapshot.binds.installed === true
   readonly property bool busy: runState === "processing" || mutating || runProc.running || mutateProc.running
   readonly property string pluginDir: pluginDirectory()
-  readonly property string pythonBin: "python3"
+  readonly property string pythonBin: "/usr/bin/python3"
   readonly property string scriptPath: pluginDir + "/bin/fluent.py"
   readonly property string heroPhrase: Model.READY_PHRASES[phraseIndex % Model.READY_PHRASES.length]
   readonly property string currentProviderId: snapshot && snapshot.provider ? snapshot.provider : "openai"
@@ -81,9 +87,15 @@ Panel {
     return url
   }
 
+  function helperCommand(args) {
+    var command = [pythonBin, "-I", "-S", scriptPath]
+    for (var i = 0; i < args.length; i++) command.push(args[i])
+    return command
+  }
+
   function providerShort(provider) {
     if (!provider) return ""
-    var name = String(provider.displayName || provider.id || "")
+    var name = Model.plain(String(provider.displayName || provider.id || ""), 40)
     if (name.indexOf("OpenAI") === 0) return "OpenAI"
     if (name.indexOf("Anthropic") === 0) return "Claude"
     if (name.indexOf("Google") === 0) return "Gemini"
@@ -115,16 +127,18 @@ Panel {
 
   function refresh() {
     if (configProc.running) return
-    configProc.command = [pythonBin, scriptPath, "config", "dump"]
+    root._configBuf = ""
+    configProc.command = helperCommand(["config", "dump"])
     configProc.running = true
   }
 
-  function mutate(args) {
+  function mutate(args, stdinText) {
     if (mutateProc.running) return
     mutating = true
-    var command = [pythonBin, scriptPath]
-    for (var i = 0; i < args.length; i++) command.push(args[i])
-    mutateProc.command = command
+    root._mutateBuf = ""
+    root._mutateStdin = stdinText ? String(stdinText) : ""
+    mutateProc.command = helperCommand(args)
+    mutateProc.stdinEnabled = root._mutateStdin.length > 0
     mutateProc.running = true
   }
 
@@ -149,8 +163,10 @@ Panel {
     errorMessage = ""
     _runStdout = ""
     _runStderr = ""
+    _runBuf = ""
+    _runErrBuf = ""
     runState = "processing"
-    runProc.command = [pythonBin, scriptPath, "run", "--action", Model.actionId(action)]
+    runProc.command = helperCommand(["run", "--action", Model.actionId(action), "--quiet-result"])
     runProc.running = true
   }
 
@@ -165,7 +181,7 @@ Panel {
   function saveKey() {
     var value = String(keyField.text || keyDraft || "").trim()
     if (!value) return
-    mutate(["config", "set-key", "--provider", currentProviderId, "--key", value])
+    mutate(["config", "set-key", "--provider", currentProviderId], value)
     keyField.text = ""
     keyDraft = ""
   }
@@ -433,6 +449,7 @@ Panel {
 
         Text {
           anchors.verticalCenter: parent.verticalCenter
+          textFormat: Text.PlainText
           text: Model.processingLabel(root.runningName) + "…"
           color: root.foreground
           font.family: root.fontFamily
@@ -486,14 +503,14 @@ Panel {
             id: hero
             width: parent.width
             title: "Fluent"
-            detail: Model.heroDetail(root.snapshot)
-            meta: Model.heroMeta({
+            detail: Model.plain(Model.heroDetail(root.snapshot), 80)
+            meta: Model.plain(Model.heroMeta({
               hasCurrentKey: root.hasKey,
               binds: root.snapshot.binds,
               runningName: root.runningName,
               provider: root.currentProviderId,
               providers: root.providers
-            }, root.runState, root.heroPhrase, root.errorMessage)
+            }, root.runState, root.heroPhrase, root.errorMessage), 160)
             foreground: root.runState === "failed" ? root.urgent : root.foreground
             fontFamily: root.fontFamily
             iconOpacity: root.hasKey ? 1.0 : 0.55
@@ -510,7 +527,8 @@ Panel {
           Text {
             visible: root.runState === "failed" && root.errorMessage !== ""
             width: parent.width
-            text: root.errorMessage
+            textFormat: Text.PlainText
+            text: Model.plain(root.errorMessage, 240)
             color: root.urgent
             font.family: root.fontFamily
             font.pixelSize: Style.font.bodySmall
@@ -533,6 +551,7 @@ Panel {
               width: parent.width
               placeholderText: "Name"
               text: root.editName
+              maximumLength: 80
               foreground: root.foreground
               font.family: root.fontFamily
               onTextChanged: root.editName = text
@@ -546,6 +565,7 @@ Panel {
               width: Style.space(70)
               placeholderText: "Key"
               text: root.editKey
+              maximumLength: 1
               foreground: root.foreground
               font.family: root.fontFamily
               onTextChanged: {
@@ -562,6 +582,7 @@ Panel {
             Text {
               width: parent.width
               visible: root.editKey !== ""
+              textFormat: Text.PlainText
               text: Model.formatHotkey(root.snapshot.hotkeyChord || "CTRL + ALT + SHIFT", root.editKey)
               color: root.dim
               font.family: root.fontFamily
@@ -570,6 +591,7 @@ Panel {
 
             Text {
               width: parent.width
+              textFormat: Text.PlainText
               text: "PROMPT"
               color: root.dim
               font.family: root.fontFamily
@@ -588,13 +610,17 @@ Panel {
                 anchors.fill: parent
                 anchors.margins: Style.space(8)
                 wrapMode: TextEdit.Wrap
+                textFormat: TextEdit.PlainText
                 text: root.editPrompt
                 color: root.foreground
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.body
                 placeholderText: "Instructions sent to the model with the selected text."
                 background: Item {}
-                onTextChanged: root.editPrompt = text
+                onTextChanged: {
+                  if (text.length > 8000) text = text.substring(0, 8000)
+                  root.editPrompt = text
+                }
                 Keys.onPressed: function(event) {
                   if (event.key === Qt.Key_Escape) { root.cancelEdit(); event.accepted = true }
                   if ((event.key === Qt.Key_Return || event.key === Qt.Key_Enter) && (event.modifiers & Qt.ControlModifier)) {
@@ -664,6 +690,7 @@ Panel {
             Text {
               visible: root.actions.length === 0
               width: parent.width
+              textFormat: Text.PlainText
               text: "No actions yet."
               color: root.dim
               font.family: root.fontFamily
@@ -738,7 +765,8 @@ Panel {
             Text {
               visible: root.currentKeyHint() !== ""
               width: parent.width
-              text: "Saved " + root.currentKeyHint()
+              textFormat: Text.PlainText
+              text: "Saved " + Model.plain(root.currentKeyHint(), 16)
               color: root.dim
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
@@ -753,6 +781,7 @@ Panel {
                 width: parent.width - saveKeyButton.implicitWidth - parent.spacing
                 password: true
                 placeholderText: root.hasKey ? "Replace key" : "Paste API key"
+                maximumLength: 256
                 foreground: root.foreground
                 font.family: root.fontFamily
                 hasCursor: root.cursorActive && root.focusSection === "key" && !activeFocus
@@ -823,6 +852,7 @@ Panel {
 
                 Text {
                   width: parent.width
+                  textFormat: Text.PlainText
                   text: root.bindsInstalled ? "Remove Ctrl+Alt+Shift shortcuts" : "Install Ctrl+Alt+Shift shortcuts"
                   color: root.foreground
                   font.family: root.fontFamily
@@ -832,6 +862,7 @@ Panel {
 
                 Text {
                   width: parent.width
+                  textFormat: Text.PlainText
                   text: "T translate · O improve · G grammar · S summarize · P professional · F this panel"
                   color: root.dim
                   font.family: root.fontFamily
@@ -860,26 +891,77 @@ Panel {
     onTriggered: if (root.runState === "completed") root.runState = "idle"
   }
 
+  Timer {
+    id: helperKill
+    interval: 2000
+    repeat: false
+    onTriggered: {
+      if (configProc.running) configProc.signal(9)
+      if (mutateProc.running) mutateProc.signal(9)
+      if (runProc.running) runProc.signal(9)
+    }
+  }
+
+  function takeCapped(which, proc, chunk) {
+    if (which === "config") {
+      root._configBuf += chunk
+      if (root._configBuf.length > root.helperStdoutMax) {
+        proc.signal(15); helperKill.restart(); root._configBuf = ""
+      }
+    } else if (which === "mutate") {
+      root._mutateBuf += chunk
+      if (root._mutateBuf.length > root.helperStdoutMax) {
+        proc.signal(15); helperKill.restart(); root._mutateBuf = ""
+      }
+    } else if (which === "run") {
+      root._runBuf += chunk
+      if (root._runBuf.length > root.helperStdoutMax) {
+        proc.signal(15); helperKill.restart(); root._runBuf = ""
+      }
+    } else if (which === "runErr") {
+      root._runErrBuf += chunk
+      if (root._runErrBuf.length > root.helperStdoutMax) {
+        proc.signal(15); helperKill.restart(); root._runErrBuf = ""
+      }
+    }
+  }
+
   Process {
     id: configProc
-    stdout: StdioCollector { id: configOut; waitForEnd: true }
-    stderr: StdioCollector { id: configErr; waitForEnd: true }
+    stdout: SplitParser {
+      splitMarker: ""
+      onRead: function(chunk) { root.takeCapped("config", configProc, chunk) }
+    }
+    stderr: SplitParser { splitMarker: "" }
     onExited: function(code) {
-      var text = String(configOut.text || "")
+      var text = root._configBuf
+      root._configBuf = ""
       if (code === 0) root.applySnapshot(text)
     }
   }
 
   Process {
     id: mutateProc
-    stdout: StdioCollector { id: mutateOut; waitForEnd: true }
-    stderr: StdioCollector { id: mutateErr; waitForEnd: true }
+    stdinEnabled: false
+    stdout: SplitParser {
+      splitMarker: ""
+      onRead: function(chunk) { root.takeCapped("mutate", mutateProc, chunk) }
+    }
+    stderr: SplitParser { splitMarker: "" }
+    onStarted: {
+      if (root._mutateStdin !== "") {
+        mutateProc.write(root._mutateStdin)
+        mutateProc.stdinEnabled = false
+        root._mutateStdin = ""
+      }
+    }
     onExited: function(code) {
       root.mutating = false
-      var text = String(mutateOut.text || "")
+      var text = root._mutateBuf
+      root._mutateBuf = ""
       var parsed = Model.parseDump(text)
       if (parsed && parsed.ok === false) {
-        root.errorMessage = parsed.message || "Could not save settings."
+        root.errorMessage = Model.plain(parsed.message || "Could not save settings.", 240)
         root.runState = "failed"
         return
       }
@@ -897,19 +979,19 @@ Panel {
 
   Process {
     id: runProc
-    stdout: StdioCollector {
-      id: runOut
-      waitForEnd: true
-      onStreamFinished: root._runStdout = text
+    stdout: SplitParser {
+      splitMarker: ""
+      onRead: function(chunk) { root.takeCapped("run", runProc, chunk) }
     }
-    stderr: StdioCollector {
-      id: runErr
-      waitForEnd: true
-      onStreamFinished: root._runStderr = text
+    stderr: SplitParser {
+      splitMarker: ""
+      onRead: function(chunk) { root.takeCapped("runErr", runProc, chunk) }
     }
     onExited: function(code) {
-      var text = String(runOut.text || root._runStdout || "")
-      var err = String(runErr.text || root._runStderr || "")
+      var text = root._runBuf
+      var err = root._runErrBuf
+      root._runBuf = ""
+      root._runErrBuf = ""
       var parsed = Model.parseRunResult(text)
       if (parsed && parsed.ok) {
         root.runState = "completed"
@@ -919,12 +1001,18 @@ Panel {
         root.runState = "failed"
         var message = parsed && parsed.message ? parsed.message : ""
         if (!message) {
-          var line = err.replace(/^\s+|\s+$/g, "").split("\n").pop()
+          var line = String(err).replace(/^\s+|\s+$/g, "").split("\n").pop()
           message = line || "Could not rewrite the selection."
         }
-        root.errorMessage = message
+        root.errorMessage = Model.plain(message, 240)
       }
     }
+  }
+
+  Component.onDestruction: {
+    if (configProc.running) configProc.signal(15)
+    if (mutateProc.running) mutateProc.signal(15)
+    if (runProc.running) runProc.signal(15)
   }
 
   component ActionRow: CursorSurface {
@@ -965,7 +1053,7 @@ Panel {
         Text {
           textFormat: Text.PlainText
           Layout.fillWidth: true
-          text: actionRow.action ? actionRow.action.name : ""
+          text: actionRow.action ? Model.plain(actionRow.action.name, 80) : ""
           color: actionRow.on ? root.foreground : root.dim
           font.family: root.fontFamily
           font.pixelSize: Style.font.body
@@ -985,7 +1073,8 @@ Panel {
 
       Text {
         visible: actionRow.action && actionRow.action.key
-        text: actionRow.action ? String(actionRow.action.key) : ""
+        textFormat: Text.PlainText
+        text: actionRow.action ? Model.plain(String(actionRow.action.key), 1) : ""
         color: root.dim
         font.family: root.fontFamily
         font.pixelSize: Style.font.body

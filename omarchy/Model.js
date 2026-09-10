@@ -94,6 +94,22 @@ function wrapIndex(index, length, delta) {
   return next
 }
 
+function plain(value, maxLen) {
+  var limit = maxLen || 240
+  var text = String(value || "")
+  var out = ""
+  for (var i = 0; i < text.length && out.length < limit; i++) {
+    var ch = text.charAt(i)
+    var code = text.charCodeAt(i)
+    if (ch === "<" || ch === ">" || ch === "&") continue
+    if (code < 32 || (code >= 127 && code < 160)) continue
+    if (code === 0x202A || code === 0x202B || code === 0x202C || code === 0x202D || code === 0x202E) continue
+    if (code === 0x2066 || code === 0x2067 || code === 0x2068 || code === 0x2069) continue
+    out += ch
+  }
+  return out
+}
+
 function promptPreview(prompt, maxLen) {
   var limit = maxLen || 56
   var text = String(prompt || "").replace(/\s+/g, " ").trim()
@@ -141,9 +157,12 @@ function heroDetail(snapshot) {
 
 function parseDump(raw) {
   if (!raw) return null
+  if (String(raw).length > 65536) return null
   try {
     var parsed = JSON.parse(raw)
     if (!parsed || typeof parsed !== "object") return null
+    if (Array.isArray(parsed.actions) && parsed.actions.length > 64) return null
+    if (Array.isArray(parsed.providers) && parsed.providers.length > 16) return null
     return parsed
   } catch (e) {
     return null

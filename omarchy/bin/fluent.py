@@ -11,7 +11,10 @@ import argparse
 import json
 import os
 import re
+import select
 import shutil
+import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -27,6 +30,17 @@ DEFAULT_CHORD = "CTRL + ALT + SHIFT"
 DEFAULT_PANEL_KEY = "F"
 CONFIG_DIR_NAME = "fluent-app"
 CONFIG_FILE_NAME = "omarchy.json"
+
+# Hard ceilings for untrusted input. Overflow is rejected, never truncated.
+# Values are bytes. Timeouts below are unchanged from 1.1.0.
+CLIPBOARD_MAX_BYTES = 256 * 1024
+STDIN_MAX_BYTES = 256 * 1024
+HTTP_MAX_BYTES = 1 * 1024 * 1024
+CONFIG_MAX_BYTES = 64 * 1024
+BINDINGS_MAX_BYTES = 256 * 1024
+HYPRCTL_MAX_BYTES = 256 * 1024
+PROCESS_STDERR_MAX_BYTES = 8 * 1024
+NOTIFY_MAX_CHARS = 240
 
 # Hyprland modmask bits (same as hyprctl binds -j).
 MOD_SHIFT = 1
@@ -77,6 +91,7 @@ ERRORS = {
     "busy": "Fluent is already running.",
     "server_error": "Server error (code: {status}). Please try again.",
     "collision": "Shortcut collision: {detail}",
+    "too_large": "Input exceeded the {limit} byte limit.",
 }
 
 DEFAULT_ACTIONS = [
@@ -161,6 +176,166 @@ class FluentError(Exception):
         if self.status is not None:
             payload["status"] = self.status
         return payload
+
+
+def too_large(limit: int) -> FluentError:
+    return FluentError("too_large", ERRORS["too_large"].format(limit=limit))
+
+
+def read_capped(fp, limit: int) -> bytes:
+    """Read at most limit+1 bytes so overflow is visible before any parse."""
+    if fp is None:
+        return b""
+    reader = getattr(fp, "read", None)
+    if reader is None:
+        return b""
+    raw = reader(limit + 1)
+    if raw is None:
+        return b""
+    if isinstance(raw, str):
+        raw = raw.encode("utf-8")
+    if len(raw) > limit:
+        raise too_large(limit)
+    return raw
+
+
+def read_capped_stdin(limit: int = STDIN_MAX_BYTES) -> str:
+    return read_capped(sys.stdin.buffer, limit).decode("utf-8", errors="replace")
+
+
+def require_token(value: str) -> str:
+    token = str(value or "")
+    if not token or any(ch in token for ch in "\r\n\x00"):
+        raise FluentError("invalid_api_key")
+    return token
+
+
+def plain_text(value: str, limit: int = NOTIFY_MAX_CHARS) -> str:
+    out = []
+    for ch in str(value or ""):
+        code = ord(ch)
+        if ch in "<>&" or code < 32 or (127 <= code < 160):
+            continue
+        if code in {0x202A, 0x202B, 0x202C, 0x202D, 0x202E, 0x2066, 0x2067, 0x2068, 0x2069}:
+            continue
+        out.append(ch)
+        if len(out) >= limit:
+            break
+    return "".join(out)
+
+
+def _kill_group(proc: subprocess.Popen) -> None:
+    if proc.pid is None:
+        return
+    try:
+        os.killpg(proc.pid, signal.SIGTERM)
+    except OSError:
+        try:
+            proc.terminate()
+        except OSError:
+            pass
+    try:
+        proc.wait(timeout=1)
+        return
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+    try:
+        os.killpg(proc.pid, signal.SIGKILL)
+    except OSError:
+        try:
+            proc.kill()
+        except OSError:
+            pass
+    try:
+        proc.wait(timeout=1)
+    except (subprocess.TimeoutExpired, OSError):
+        pass
+
+
+def read_regular_file(path: Path, limit: int, *, secret: bool = False) -> bytes | None:
+    flags = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+    try:
+        fd = os.open(str(path), flags)
+    except FileNotFoundError:
+        return None
+    except OSError as error:
+        raise PermissionError(str(error)) from error
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode) or st.st_nlink != 1:
+            raise PermissionError("refusing non-regular or hard-linked file")
+        if secret:
+            if st.st_uid != os.geteuid():
+                raise PermissionError("refusing file owned by another user")
+            if st.st_mode & 0o077:
+                os.fchmod(fd, 0o600)
+        if st.st_size > limit:
+            raise too_large(limit)
+        os.set_blocking(fd, True)
+        data = b""
+        while len(data) <= limit:
+            chunk = os.read(fd, min(65536, limit + 1 - len(data)))
+            if not chunk:
+                break
+            data += chunk
+        if len(data) > limit:
+            raise too_large(limit)
+        return data
+    finally:
+        os.close(fd)
+
+
+def write_regular_file(path: Path, data: bytes, *, mode: int = 0o600, limit: int = CONFIG_MAX_BYTES) -> None:
+    if len(data) > limit:
+        raise too_large(limit)
+    parent = path.parent
+    parent.mkdir(parents=True, exist_ok=True)
+    if path.name == CONFIG_FILE_NAME:
+        try:
+            os.chmod(parent, 0o700)
+        except OSError:
+            pass
+    fd, tmp_name = tempfile.mkstemp(prefix=".fluent-", suffix=".tmp", dir=str(parent))
+    try:
+        os.fchmod(fd, mode)
+        view = memoryview(data)
+        while view:
+            written = os.write(fd, view)
+            view = view[written:]
+        os.fsync(fd)
+        os.replace(tmp_name, path)
+        try:
+            dir_fd = os.open(str(parent), os.O_RDONLY | os.O_DIRECTORY | os.O_CLOEXEC)
+            try:
+                os.fsync(dir_fd)
+            finally:
+                os.close(dir_fd)
+        except OSError:
+            pass
+    except Exception:
+        try:
+            os.unlink(tmp_name)
+        except OSError:
+            pass
+        raise
+    finally:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def _default_urlopen(request, timeout=60):
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        _NoRedirect(),
+    )
+    return opener.open(request, timeout=timeout)
 
 
 def config_path(env: dict | None = None) -> Path:
@@ -259,33 +434,28 @@ def normalize_config(raw: dict | None) -> dict:
 
 def load_config(path: Path | None = None) -> dict:
     target = path or config_path()
-    if not target.exists():
+    try:
+        raw = read_regular_file(target, CONFIG_MAX_BYTES, secret=True)
+    except FileNotFoundError:
+        return default_config()
+    except FluentError:
+        raise
+    except (OSError, PermissionError):
+        return default_config()
+    if raw is None:
         return default_config()
     try:
-        raw = json.loads(target.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        parsed = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError):
         return default_config()
-    return normalize_config(raw)
+    return normalize_config(parsed)
 
 
 def save_config(cfg: dict, path: Path | None = None) -> dict:
     target = path or config_path()
     normalized = normalize_config(cfg)
-    target.parent.mkdir(parents=True, exist_ok=True)
-    encoded = json.dumps(normalized, indent=2, ensure_ascii=False) + "\n"
-    fd, tmp_name = tempfile.mkstemp(prefix="fluent-", suffix=".json", dir=str(target.parent))
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as handle:
-            handle.write(encoded)
-        os.chmod(tmp_name, 0o600)
-        os.replace(tmp_name, target)
-        os.chmod(target, 0o600)
-    except Exception:
-        try:
-            os.unlink(tmp_name)
-        except OSError:
-            pass
-        raise
+    encoded = (json.dumps(normalized, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    write_regular_file(target, encoded, mode=0o600, limit=CONFIG_MAX_BYTES)
     return normalized
 
 
@@ -497,17 +667,116 @@ def colliding_binds(binds: list[dict], chord: str, keys: list[str]) -> list[dict
     return collisions
 
 
-def run_command(command: list[str], timeout: float = 8, input_text: str | None = None, env: dict | None = None) -> subprocess.CompletedProcess:
-    return subprocess.run(
+def _drain_capped(
+    proc: subprocess.Popen,
+    timeout: float,
+    max_stdout: int,
+    max_stderr: int,
+    stdin_bytes: bytes | None,
+) -> tuple[bytes, bytes]:
+    deadline = time.monotonic() + timeout
+    stdout = bytearray()
+    stderr = bytearray()
+    if stdin_bytes is not None and proc.stdin is not None:
+        try:
+            proc.stdin.write(stdin_bytes)
+        except BrokenPipeError:
+            pass
+        try:
+            proc.stdin.close()
+        except OSError:
+            pass
+    streams: dict[int, tuple[object, bytearray, int]] = {}
+    if proc.stdout is not None:
+        streams[proc.stdout.fileno()] = (proc.stdout, stdout, max_stdout)
+    if proc.stderr is not None:
+        streams[proc.stderr.fileno()] = (proc.stderr, stderr, max_stderr)
+
+    overflow: int | bool = False
+    while streams:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            _kill_group(proc)
+            raise subprocess.TimeoutExpired(proc.args, timeout)
+        try:
+            ready, _, _ = select.select(list(streams), [], [], remaining)
+        except (ValueError, OSError):
+            break
+        if not ready:
+            if proc.poll() is not None:
+                ready = list(streams)
+            else:
+                continue
+        for fd in list(ready):
+            if fd not in streams:
+                continue
+            fp, buf, limit = streams[fd]
+            try:
+                chunk = os.read(fd, 65536)
+            except OSError:
+                chunk = b""
+            if not chunk:
+                try:
+                    fp.close()
+                except OSError:
+                    pass
+                streams.pop(fd, None)
+                continue
+            buf.extend(chunk)
+            if len(buf) > limit:
+                overflow = limit
+                _kill_group(proc)
+                streams.clear()
+                break
+    if proc.poll() is None:
+        remaining = deadline - time.monotonic()
+        try:
+            proc.wait(timeout=max(0.05, remaining))
+        except subprocess.TimeoutExpired:
+            _kill_group(proc)
+            raise
+    if overflow is not False:
+        raise too_large(int(overflow))
+    return bytes(stdout), bytes(stderr)
+
+
+def run_command(
+    command: list[str],
+    timeout: float = 8,
+    input_text: str | None = None,
+    env: dict | None = None,
+    max_stdout: int = HYPRCTL_MAX_BYTES,
+    max_stderr: int = PROCESS_STDERR_MAX_BYTES,
+) -> subprocess.CompletedProcess:
+    stdin_bytes = None
+    if input_text is not None:
+        stdin_bytes = input_text.encode("utf-8") if isinstance(input_text, str) else input_text
+    proc = subprocess.Popen(
         command,
-        check=False,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-        timeout=timeout,
-        input=input_text,
+        stdin=subprocess.PIPE if stdin_bytes is not None else subprocess.DEVNULL,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        start_new_session=True,
         env=env,
+    )
+    try:
+        stdout, stderr = _drain_capped(proc, timeout, max_stdout, max_stderr, stdin_bytes)
+    except subprocess.TimeoutExpired:
+        _kill_group(proc)
+        raise
+    finally:
+        for fp in (proc.stdin, proc.stdout, proc.stderr):
+            if fp is None:
+                continue
+            try:
+                fp.close()
+            except OSError:
+                pass
+    return subprocess.CompletedProcess(
+        args=command,
+        returncode=proc.returncode if proc.returncode is not None else 1,
+        stdout=stdout.decode("utf-8", errors="replace"),
+        stderr=stderr.decode("utf-8", errors="replace"),
     )
 
 
@@ -520,8 +789,12 @@ def notify(title: str, body: str, urgency: str = "low") -> None:
     if not binary:
         return
     try:
-        run_command([binary, "-a", "Fluent", "-u", urgency, title, body], timeout=3)
-    except (OSError, subprocess.TimeoutExpired):
+        run_command(
+            [binary, "-a", "Fluent", "-u", urgency, "--", plain_text(title, 80), plain_text(body)],
+            timeout=3,
+            max_stdout=1024,
+        )
+    except (OSError, subprocess.TimeoutExpired, FluentError):
         return
 
 
@@ -533,7 +806,14 @@ def wl_paste(primary: bool = False) -> str:
     if primary:
         command.append("--primary")
     try:
-        completed = run_command(command, timeout=2)
+        completed = run_command(
+            command,
+            timeout=2,
+            max_stdout=CLIPBOARD_MAX_BYTES,
+            max_stderr=PROCESS_STDERR_MAX_BYTES,
+        )
+    except FluentError:
+        raise
     except (OSError, subprocess.TimeoutExpired):
         return ""
     if completed.returncode != 0:
@@ -696,13 +976,15 @@ def map_status_error(status: int, default: str = "server_error") -> FluentError:
 def http_json(url: str, headers: dict, body: dict, timeout: float = 60, opener=None) -> tuple[int, dict | None, bytes]:
     encoded = json.dumps(body).encode("utf-8")
     request = urllib.request.Request(url, data=encoded, headers=headers, method="POST")
-    open_url = opener or urllib.request.urlopen
+    open_url = opener or _default_urlopen
     try:
         with open_url(request, timeout=timeout) as response:
-            raw = response.read()
+            raw = read_capped(response, HTTP_MAX_BYTES)
             status = getattr(response, "status", 200)
+    except FluentError:
+        raise
     except urllib.error.HTTPError as error:
-        raw = error.read() if error.fp else b""
+        raw = read_capped(error, HTTP_MAX_BYTES) if error.fp else b""
         status = error.code
     except urllib.error.URLError as error:
         raise FluentError("network_error", f"Network error: {error.reason}") from error
@@ -784,11 +1066,11 @@ def complete_gemini(text: str, api_key: str, prompt: str, model: str, opener=Non
 
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{model}:generateContent?key={quote(api_key, safe='')}"
+        f"{quote(model, safe='')}:generateContent"
     )
     status, payload, raw = http_json(
         url,
-        {"Content-Type": "application/json"},
+        {"Content-Type": "application/json", "x-goog-api-key": api_key},
         {
             "system_instruction": {"parts": [{"text": prompt}]},
             "contents": [{"parts": [{"text": text}]}],
@@ -856,8 +1138,12 @@ def complete_text(cfg: dict, text: str, prompt: str, opener=None) -> str:
     api_key = (cfg.get("apiKeys") or {}).get(provider, "")
     if not api_key:
         raise FluentError("no_api_key", ERRORS["no_api_key"].format(provider=PROVIDERS[provider]["displayName"]))
+    api_key = require_token(api_key)
+    source = str(text or "")
+    if len(source.encode("utf-8")) > CLIPBOARD_MAX_BYTES:
+        raise too_large(CLIPBOARD_MAX_BYTES)
     model = (cfg.get("models") or {}).get(provider) or PROVIDERS[provider]["model"]
-    return COMPLETERS[provider](text, api_key, prompt, model, opener=opener)
+    return COMPLETERS[provider](source, api_key, prompt, model, opener=opener)
 
 
 def load_hypr_binds(loader=None) -> list[dict]:
@@ -882,10 +1168,22 @@ def bind_keys_for(cfg: dict) -> list[str]:
     return keys
 
 
+def _read_bindings(path: Path) -> str:
+    try:
+        raw = read_regular_file(path, BINDINGS_MAX_BYTES, secret=False)
+    except FileNotFoundError:
+        return ""
+    except FluentError:
+        raise
+    except (OSError, PermissionError):
+        return ""
+    if raw is None:
+        return ""
+    return raw.decode("utf-8", errors="replace")
+
+
 def binds_status(cfg: dict, *, existing: str | None = None, hypr_binds: list[dict] | None = None) -> dict:
-    text = existing if existing is not None else (
-        bindings_path().read_text(encoding="utf-8") if bindings_path().exists() else ""
-    )
+    text = existing if existing is not None else _read_bindings(bindings_path())
     binds = hypr_binds if hypr_binds is not None else load_hypr_binds()
     keys = bind_keys_for(cfg)
     collisions = colliding_binds(binds, cfg["hotkeyChord"], keys)
@@ -901,7 +1199,7 @@ def binds_status(cfg: dict, *, existing: str | None = None, hypr_binds: list[dic
 
 def install_binds(cfg: dict, *, path: Path | None = None, hypr_binds: list[dict] | None = None, reload: bool = True) -> dict:
     target = path or bindings_path()
-    existing = target.read_text(encoding="utf-8") if target.exists() else ""
+    existing = _read_bindings(target)
     status = binds_status(cfg, existing=existing, hypr_binds=hypr_binds)
     if status["collisions"] and not status["installed"]:
         detail = ", ".join(
@@ -910,10 +1208,15 @@ def install_binds(cfg: dict, *, path: Path | None = None, hypr_binds: list[dict]
         )
         raise FluentError("collision", ERRORS["collision"].format(detail=detail))
     next_text = replace_bind_block(existing, status["block"])
-    target.parent.mkdir(parents=True, exist_ok=True)
-    if target.exists():
-        shutil.copy2(target, target.with_suffix(target.suffix + ".bak"))
-    target.write_text(next_text, encoding="utf-8")
+    encoded = next_text.encode("utf-8")
+    if target.exists() or existing:
+        write_regular_file(
+            target.with_suffix(target.suffix + ".bak"),
+            existing.encode("utf-8"),
+            mode=0o644,
+            limit=BINDINGS_MAX_BYTES,
+        )
+    write_regular_file(target, encoded, mode=0o644, limit=BINDINGS_MAX_BYTES)
     if reload:
         try:
             run_command(["hyprctl", "reload"], timeout=5)
@@ -925,10 +1228,15 @@ def install_binds(cfg: dict, *, path: Path | None = None, hypr_binds: list[dict]
 
 def remove_binds(*, path: Path | None = None, reload: bool = True) -> dict:
     target = path or bindings_path()
-    if not target.exists():
+    existing = _read_bindings(target)
+    if not existing:
         return {"installed": False}
-    existing = target.read_text(encoding="utf-8")
-    target.write_text(strip_bind_block(existing), encoding="utf-8")
+    write_regular_file(
+        target,
+        strip_bind_block(existing).encode("utf-8"),
+        mode=0o644,
+        limit=BINDINGS_MAX_BYTES,
+    )
     if reload:
         try:
             run_command(["hyprctl", "reload"], timeout=5)
@@ -957,6 +1265,8 @@ def run_action(
     source = text if text is not None else capture()
     if not str(source or "").strip():
         raise FluentError("no_selection")
+    if len(str(source).encode("utf-8")) > CLIPBOARD_MAX_BYTES:
+        raise too_large(CLIPBOARD_MAX_BYTES)
 
     try:
         result = complete_text(cfg, source, action["prompt"], opener=opener)
@@ -1011,9 +1321,9 @@ def cmd_config_set_key(args: argparse.Namespace) -> int:
     provider = args.provider or cfg["provider"]
     if provider not in PROVIDERS:
         raise FluentError("unknown_provider")
-    key = (args.key or "").strip()
+    key = read_capped_stdin(CONFIG_MAX_BYTES).strip()
     if key:
-        cfg["apiKeys"][provider] = key
+        cfg["apiKeys"][provider] = require_token(key)
     else:
         cfg["apiKeys"].pop(provider, None)
     save_config(cfg)
@@ -1076,7 +1386,7 @@ def cmd_complete(args: argparse.Namespace) -> int:
     prompt = args.prompt or (action["prompt"] if action else "")
     if not prompt:
         raise FluentError("unknown_action", "A prompt is required.")
-    text = args.text if args.text is not None else sys.stdin.read()
+    text = args.text if args.text is not None else read_capped_stdin(STDIN_MAX_BYTES)
     result = complete_text(cfg, text, prompt)
     return emit({"ok": True, "result": result})
 
@@ -1115,7 +1425,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     key = config_sub.add_parser("set-key")
     key.add_argument("--provider")
-    key.add_argument("--key", default="")
     key.set_defaults(func=cmd_config_set_key)
 
     action = config_sub.add_parser("set-action")
