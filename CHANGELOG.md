@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.9.0](https://github.com/alfonsobries/fluent-app/compare/v1.8.1...v1.9.0) (2026-09-10)
+
+
+### Features
+
+* Omarchy bar plugin for AI text shortcuts ([#31](https://github.com/alfonsobries/fluent-app/issues/31)) ([b6c6c1c](https://github.com/alfonsobries/fluent-app/commit/b6c6c1c8d6d60e1caafcae941b6db1d73c19fc1a))
+
+
+### Bug Fixes
+
+* bound Omarchy clipboard, HTTP, and stdin before parse ([#33](https://github.com/alfonsobries/fluent-app/issues/33)) ([483c320](https://github.com/alfonsobries/fluent-app/commit/483c320b5b1b3e91ae022b949719a347b14f8395))
+
 ## [1.8.1](https://github.com/alfonsobries/fluent-app/compare/v1.8.0...v1.8.1) (2026-07-09)
 
 
