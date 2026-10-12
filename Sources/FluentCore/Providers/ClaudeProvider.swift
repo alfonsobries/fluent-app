@@ -14,7 +14,7 @@ public final class ClaudeProvider: AIProvider {
     public init(
         httpClient: HTTPClient = URLSessionHTTPClient(),
         baseURL: URL = URL(string: "https://api.anthropic.com/v1/messages")!,
-        model: String = "claude-3-haiku-20240307",
+        model: String = "claude-haiku-5-5",
         apiVersion: String = "2023-06-01"
     ) {
         self.httpClient = httpClient
@@ -70,7 +70,7 @@ public final class ClaudeProvider: AIProvider {
             guard
                 let json = try? JSONSerialization.jsonObject(with: response.0) as? [String: Any],
                 let content = json["content"] as? [[String: Any]],
-                let first = content.first?["text"] as? String
+                let first = content.first(where: { $0["type"] as? String == "text" })?["text"] as? String
             else {
                 return .failure(.invalidResponse)
             }

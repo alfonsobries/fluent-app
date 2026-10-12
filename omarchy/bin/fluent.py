@@ -37,6 +37,8 @@ CLIPBOARD_MAX_BYTES = 256 * 1024
 STDIN_MAX_BYTES = 256 * 1024
 HTTP_MAX_BYTES = 1 * 1024 * 1024
 CONFIG_MAX_BYTES = 64 * 1024
+# Model IDs the provider has retired (API returns 404); saved configs fall back to the default.
+RETIRED_MODELS = {"claude-3-haiku-20240307"}
 BINDINGS_MAX_BYTES = 256 * 1024
 HYPRCTL_MAX_BYTES = 256 * 1024
 PROCESS_STDERR_MAX_BYTES = 8 * 1024
@@ -61,7 +63,7 @@ PROVIDERS = {
         "displayName": "Anthropic (Claude)",
         "apiKeyURL": "https://console.anthropic.com/api-keys",
         "apiKeyPlaceholder": "sk-ant-...",
-        "model": "claude-3-haiku-20240307",
+        "model": "claude-haiku-5-5",
     },
     "gemini": {
         "id": "gemini",
@@ -403,6 +405,8 @@ def normalize_config(raw: dict | None) -> dict:
     models = raw.get("models") if isinstance(raw.get("models"), dict) else {}
     for pid, meta in PROVIDERS.items():
         value = str(models.get(pid) or "").strip()
+        if value in RETIRED_MODELS:
+            value = ""
         cfg["models"][pid] = value or meta["model"]
 
     actions = raw.get("actions")
@@ -1052,8 +1056,8 @@ def complete_claude(text: str, api_key: str, prompt: str, model: str, opener=Non
     if not raw:
         raise FluentError("no_content")
     try:
-        content = payload["content"][0]["text"]
-    except (TypeError, KeyError, IndexError):
+        content = next(b["text"] for b in payload["content"] if b.get("type") == "text")
+    except (TypeError, KeyError, AttributeError, StopIteration):
         raise FluentError("invalid_response") from None
     content = str(content or "").strip()
     if not content:
