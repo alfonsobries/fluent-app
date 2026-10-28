@@ -7,6 +7,7 @@ public final class AppSettings: ObservableObject {
     public enum Keys {
         public static let selectedProvider = "selectedProvider"
         public static let shortcutActions = "shortcutActions"
+        public static let models = "models"
         public static let launchAtStartup = "launchAtStartup"
         public static let legacyAPIKey = "apiKey"
         /// Plain-text `[provider: key]` dictionary used before keys moved to the secret store.
@@ -27,6 +28,15 @@ public final class AppSettings: ObservableObject {
         didSet {
             objectWillChange.send()
             saveAPIKeys(previous: oldValue)
+        }
+    }
+
+    /// Model chosen per provider. A provider without an entry uses its default model.
+    public var models: [AIProviderType: String] {
+        didSet {
+            objectWillChange.send()
+            let rawDictionary = Dictionary(uniqueKeysWithValues: models.map { ($0.key.rawValue, $0.value) })
+            userDefaults.set(rawDictionary, forKey: Keys.models)
         }
     }
 
@@ -91,6 +101,7 @@ public final class AppSettings: ObservableObject {
         var loadError: String?
         apiKeys = Self.loadAPIKeys(from: secretStore, error: &loadError)
         apiKeyStorageError = loadError
+        models = Self.loadModels(from: userDefaults)
         shortcutActions = Self.loadShortcutActions(from: userDefaults)
 
         if userDefaults.object(forKey: Keys.launchAtStartup) != nil {
@@ -107,6 +118,21 @@ public final class AppSettings: ObservableObject {
 
     public var currentAPIKey: String {
         apiKeys[selectedProvider] ?? ""
+    }
+
+    public var currentModel: String {
+        model(for: selectedProvider)
+    }
+
+    public func model(for provider: AIProviderType) -> String {
+        models[provider] ?? provider.defaultModel
+    }
+
+    /// Stores a model ID for the provider; a blank value or the default model clears the
+    /// override so the provider keeps following future default updates.
+    public func setModel(_ model: String, for provider: AIProviderType) {
+        let trimmed = model.trimmingCharacters(in: .whitespacesAndNewlines)
+        models[provider] = trimmed.isEmpty || trimmed == provider.defaultModel ? nil : trimmed
     }
 
     public var currentProvider: AIProvider {
@@ -196,6 +222,15 @@ public final class AppSettings: ObservableObject {
                 }
             } catch let readError {
                 error = readError.localizedDescription
+            }
+        }
+    }
+
+    private static func loadModels(from userDefaults: UserDefaults) -> [AIProviderType: String] {
+        let rawDictionary = userDefaults.dictionary(forKey: Keys.models) as? [String: String] ?? [:]
+        return rawDictionary.reduce(into: [:]) { partialResult, element in
+            if let provider = AIProviderType(rawValue: element.key), !element.value.isEmpty {
+                partialResult[provider] = element.value
             }
         }
     }

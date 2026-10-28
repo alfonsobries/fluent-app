@@ -78,16 +78,19 @@ final class StubAIProvider: AIProvider {
     var receivedTexts: [String] = []
     var receivedKeys: [String] = []
     var receivedInstructions: [String] = []
+    var receivedModels: [String] = []
 
     func processText(
         text: String,
         apiKey: String,
+        model: String,
         instructions: String,
         completion: @escaping (Result<String, AIProviderError>) -> Void
     ) {
         receivedTexts.append(text)
         receivedKeys.append(apiKey)
         receivedInstructions.append(instructions)
+        receivedModels.append(model)
         completion(nextResult)
     }
 }
@@ -103,6 +106,7 @@ final class DelayedStubAIProvider: AIProvider {
     func processText(
         text: String,
         apiKey: String,
+        model: String,
         instructions: String,
         completion: @escaping (Result<String, AIProviderError>) -> Void
     ) {

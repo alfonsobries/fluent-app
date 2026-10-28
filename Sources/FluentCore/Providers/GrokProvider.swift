@@ -8,21 +8,19 @@ public final class GrokProvider: AIProvider {
 
     private let httpClient: HTTPClient
     private let baseURL: URL
-    private let model: String
 
     public init(
         httpClient: HTTPClient = URLSessionHTTPClient(),
-        baseURL: URL = URL(string: "https://api.x.ai/v1/chat/completions")!,
-        model: String = "grok-4.7"
+        baseURL: URL = URL(string: "https://api.x.ai/v1/chat/completions")!
     ) {
         self.httpClient = httpClient
         self.baseURL = baseURL
-        self.model = model
     }
 
     public func processText(
         text: String,
         apiKey: String,
+        model: String,
         instructions: String,
         completion: @escaping (Result<String, AIProviderError>) -> Void
     ) {

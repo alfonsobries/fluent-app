@@ -51,6 +51,7 @@ final class AppControllerTests: XCTestCase {
             providerFactory: AIProviderFactory(providers: [.openai: provider])
         )
         settings.setAPIKey("key", for: .openai)
+        settings.setModel("gpt-6-astra", for: .openai)
         let clipboard = MockClipboardService()
         clipboard.copiedText = "Hola"
         let hotKeys = MockHotKeyManager()
@@ -67,6 +68,7 @@ final class AppControllerTests: XCTestCase {
             XCTAssertEqual(provider.receivedTexts, ["Hola"])
             XCTAssertEqual(provider.receivedKeys, ["key"])
             XCTAssertEqual(provider.receivedInstructions, [action.prompt])
+            XCTAssertEqual(provider.receivedModels, ["gpt-6-astra"])
             controller.clearTransientState()
             XCTAssertEqual(controller.state, .idle)
             expectation.fulfill()

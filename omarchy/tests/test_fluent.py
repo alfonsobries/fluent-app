@@ -353,8 +353,10 @@ class ProviderTests(unittest.TestCase):
 
         self.assertEqual(bodies[0]["model"], "gpt-6-luna")
         self.assertEqual(bodies[0]["reasoning_effort"], "none")
+        self.assertEqual(bodies[0]["temperature"], 0.7)
         self.assertEqual(bodies[1]["model"], "gpt-4.1-mini")
         self.assertNotIn("reasoning_effort", bodies[1])
+        self.assertNotIn("temperature", bodies[1])
 
     def test_claude_gemini_grok_parsers(self):
         cfg = fluent.default_config()

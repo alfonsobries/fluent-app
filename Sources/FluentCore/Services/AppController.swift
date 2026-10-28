@@ -70,8 +70,9 @@ public final class AppController: ObservableObject {
 
         let provider = settings.currentProvider
         let apiKey = settings.currentAPIKey
+        let model = settings.currentModel
 
-        provider.processText(text: text, apiKey: apiKey, instructions: action.prompt) { [weak self] result in
+        provider.processText(text: text, apiKey: apiKey, model: model, instructions: action.prompt) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
 

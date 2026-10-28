@@ -234,4 +234,45 @@ final class AppSettingsTests: XCTestCase {
 
         XCTAssertNil(settings.apiKeyStorageError)
     }
+
+    func testModelSelectionPersistsAndFallsBackToDefault() {
+        let settings = AppSettings(userDefaults: userDefaults)
+
+        XCTAssertEqual(settings.currentModel, "gpt-6-luna")
+        XCTAssertEqual(settings.model(for: .claude), "claude-haiku-5-5")
+
+        settings.setModel("  claude-opus-5-5 ", for: .claude)
+        settings.setModel("my-fine-tune", for: .openai)
+        XCTAssertEqual(settings.model(for: .claude), "claude-opus-5-5")
+        XCTAssertEqual(settings.currentModel, "my-fine-tune")
+        XCTAssertEqual(
+            userDefaults.dictionary(forKey: AppSettings.Keys.models) as? [String: String],
+            ["claude": "claude-opus-5-5", "openai": "my-fine-tune"]
+        )
+
+        let reloaded = AppSettings(userDefaults: userDefaults)
+        XCTAssertEqual(reloaded.model(for: .claude), "claude-opus-5-5")
+
+        settings.setModel("", for: .openai)
+        settings.setModel("claude-haiku-5-5", for: .claude)
+        XCTAssertEqual(settings.currentModel, "gpt-6-luna")
+        XCTAssertTrue(settings.models.isEmpty)
+    }
+
+    func testInvalidSavedModelsAreIgnored() {
+        userDefaults.set(["openai": "", "nope": "x", "grok": "grok-4.3"], forKey: AppSettings.Keys.models)
+
+        let settings = AppSettings(userDefaults: userDefaults)
+
+        XCTAssertEqual(settings.models, [.grok: "grok-4.3"])
+        XCTAssertEqual(settings.model(for: .openai), "gpt-6-luna")
+    }
+
+    func testEveryProviderOffersItsDefaultModelFirst() {
+        for provider in AIProviderType.allCases {
+            XCTAssertFalse(provider.modelOptions.isEmpty)
+            XCTAssertEqual(provider.defaultModel, provider.modelOptions[0].id)
+            XCTAssertEqual(Set(provider.modelOptions.map(\.id)).count, provider.modelOptions.count)
+        }
+    }
 }
