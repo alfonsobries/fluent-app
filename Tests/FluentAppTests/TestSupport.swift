@@ -146,3 +146,26 @@ final class MockURLProtocol: URLProtocol {
 
     override func stopLoading() {}
 }
+
+final class FailingSecretStore: SecretStoring {
+    var failReads: Bool
+    var failWrites: Bool
+
+    init(failReads: Bool = false, failWrites: Bool = false) {
+        self.failReads = failReads
+        self.failWrites = failWrites
+    }
+
+    func secret(for account: String) throws -> String? {
+        if failReads { throw TestError.failed }
+        return nil
+    }
+
+    func setSecret(_ secret: String, for account: String) throws {
+        if failWrites { throw TestError.failed }
+    }
+
+    func removeSecret(for account: String) throws {
+        if failWrites { throw TestError.failed }
+    }
+}
