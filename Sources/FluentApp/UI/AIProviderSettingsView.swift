@@ -25,7 +25,7 @@ struct AIProviderSettingsView: View {
                 }
 
                 if let error = settings.apiKeyStorageError {
-                    Label("Couldn’t access the Keychain: \(error)", systemImage: "exclamationmark.triangle.fill")
+                    Label("Couldn’t access the Keychain, so key changes may not be kept after Fluent App quits. \(error)", systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.red)
                         .font(.caption)
                 }
