@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.9.0](https://github.com/alfonsobries/fluent-app/compare/v1.8.1...v1.9.0) (2026-10-28)
+
+
+### Features
+
+* Omarchy bar plugin for AI text shortcuts ([#31](https://github.com/alfonsobries/fluent-app/issues/31)) ([b6c6c1c](https://github.com/alfonsobries/fluent-app/commit/b6c6c1c8d6d60e1caafcae941b6db1d73c19fc1a))
+* ship a universal binary that runs on Intel Macs ([#38](https://github.com/alfonsobries/fluent-app/issues/38)) ([6def408](https://github.com/alfonsobries/fluent-app/commit/6def408585e420784949fd76516b6ed6aad7f893))
+
+
+### Bug Fixes
+
+* bound Omarchy clipboard, HTTP, and stdin before parse ([#33](https://github.com/alfonsobries/fluent-app/issues/33)) ([483c320](https://github.com/alfonsobries/fluent-app/commit/483c320b5b1b3e91ae022b949719a347b14f8395))
+* replace retired Claude model causing 404 errors ([#34](https://github.com/alfonsobries/fluent-app/issues/34)) ([3c684ce](https://github.com/alfonsobries/fluent-app/commit/3c684cee6fed44aa402537941eeb447359b1a774))
+* replace retired OpenAI, Gemini and Grok default models ([#37](https://github.com/alfonsobries/fluent-app/issues/37)) ([4824c06](https://github.com/alfonsobries/fluent-app/commit/4824c06c1d2184175a3603ea7fba345af0900b06))
+* store provider API keys in the macOS Keychain ([#36](https://github.com/alfonsobries/fluent-app/issues/36)) ([4534147](https://github.com/alfonsobries/fluent-app/commit/4534147f490dcf105ae12c9fbca55c734391f77f))
+
 ## [1.8.1](https://github.com/alfonsobries/fluent-app/compare/v1.8.0...v1.8.1) (2026-07-09)
 
 
