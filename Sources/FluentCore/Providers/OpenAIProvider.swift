@@ -9,15 +9,20 @@ public final class OpenAIProvider: AIProvider {
     private let httpClient: HTTPClient
     private let baseURL: URL
     private let model: String
+    private let reasoningEffort: String?
 
+    /// `reasoningEffort` must be nil for non-reasoning models, which reject the
+    /// parameter. Reasoning models only accept a custom `temperature` with "none".
     public init(
         httpClient: HTTPClient = URLSessionHTTPClient(),
         baseURL: URL = URL(string: "https://api.openai.com/v1/chat/completions")!,
-        model: String = "gpt-4o-mini"
+        model: String = "gpt-6-luna",
+        reasoningEffort: String? = "none"
     ) {
         self.httpClient = httpClient
         self.baseURL = baseURL
         self.model = model
+        self.reasoningEffort = reasoningEffort
     }
 
     public func processText(
@@ -35,14 +40,18 @@ public final class OpenAIProvider: AIProvider {
         request.httpMethod = "POST"
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try! JSONSerialization.data(withJSONObject: [
+        var body: [String: Any] = [
             "model": model,
             "messages": [
                 ["role": "system", "content": instructions],
                 ["role": "user", "content": text]
             ],
             "temperature": 0.7
-        ])
+        ]
+        if let reasoningEffort {
+            body["reasoning_effort"] = reasoningEffort
+        }
+        request.httpBody = try! JSONSerialization.data(withJSONObject: body)
 
         perform(request, completion: completion) { json in
             guard

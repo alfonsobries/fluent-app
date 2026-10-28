@@ -11,7 +11,7 @@ public final class GeminiProvider: AIProvider {
 
     public init(
         httpClient: HTTPClient = URLSessionHTTPClient(),
-        model: String = "gemini-1.5-flash"
+        model: String = "gemini-3.8-flash"
     ) {
         self.httpClient = httpClient
         self.model = model
@@ -43,7 +43,8 @@ public final class GeminiProvider: AIProvider {
             ]],
             "generationConfig": [
                 "temperature": 0.7,
-                "maxOutputTokens": 4096
+                // Gemini 3 models think by default and count thought tokens here.
+                "maxOutputTokens": 8192
             ]
         ])
 
@@ -66,7 +67,7 @@ public final class GeminiProvider: AIProvider {
                 let candidates = json["candidates"] as? [[String: Any]],
                 let content = candidates.first?["content"] as? [String: Any],
                 let parts = content["parts"] as? [[String: Any]],
-                let text = parts.first?["text"] as? String
+                let text = parts.first(where: { $0["thought"] as? Bool != true })?["text"] as? String
             else {
                 return .failure(.invalidResponse)
             }

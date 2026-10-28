@@ -37,8 +37,9 @@ CLIPBOARD_MAX_BYTES = 256 * 1024
 STDIN_MAX_BYTES = 256 * 1024
 HTTP_MAX_BYTES = 1 * 1024 * 1024
 CONFIG_MAX_BYTES = 64 * 1024
-# Model IDs the provider has retired (API returns 404); saved configs fall back to the default.
-RETIRED_MODELS = {"claude-3-haiku-20240307"}
+# Former defaults the providers have retired or scheduled for shutdown; saved configs fall
+# back to the current default.
+RETIRED_MODELS = {"claude-3-haiku-20240307", "gpt-4o-mini", "gemini-1.5-flash", "grok-beta"}
 BINDINGS_MAX_BYTES = 256 * 1024
 HYPRCTL_MAX_BYTES = 256 * 1024
 PROCESS_STDERR_MAX_BYTES = 8 * 1024
@@ -56,7 +57,7 @@ PROVIDERS = {
         "displayName": "OpenAI (GPT)",
         "apiKeyURL": "https://platform.openai.com/api-keys",
         "apiKeyPlaceholder": "sk-...",
-        "model": "gpt-4o-mini",
+        "model": "gpt-6-luna",
     },
     "claude": {
         "id": "claude",
@@ -70,14 +71,14 @@ PROVIDERS = {
         "displayName": "Google (Gemini)",
         "apiKeyURL": "https://aistudio.google.com/apikey",
         "apiKeyPlaceholder": "AI...",
-        "model": "gemini-1.5-flash",
+        "model": "gemini-3.8-flash",
     },
     "grok": {
         "id": "grok",
         "displayName": "xAI (Grok)",
         "apiKeyURL": "https://console.x.ai",
         "apiKeyPlaceholder": "xai-...",
-        "model": "grok-beta",
+        "model": "grok-4.3",
     },
 }
 
@@ -1005,20 +1006,25 @@ def http_json(url: str, headers: dict, body: dict, timeout: float = 60, opener=N
 
 
 def complete_openai(text: str, api_key: str, prompt: str, model: str, opener=None) -> str:
+    body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": text},
+        ],
+        "temperature": 0.7,
+    }
+    # The default is a reasoning model: it only takes a custom temperature with effort "none",
+    # while non-reasoning models a user may configure reject the parameter outright.
+    if model == PROVIDERS["openai"]["model"]:
+        body["reasoning_effort"] = "none"
     status, payload, raw = http_json(
         "https://api.openai.com/v1/chat/completions",
         {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
         },
-        {
-            "model": model,
-            "messages": [
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": text},
-            ],
-            "temperature": 0.7,
-        },
+        body,
         opener=opener,
     )
     if status != 200:
@@ -1078,7 +1084,8 @@ def complete_gemini(text: str, api_key: str, prompt: str, model: str, opener=Non
         {
             "system_instruction": {"parts": [{"text": prompt}]},
             "contents": [{"parts": [{"text": text}]}],
-            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 4096},
+            # Gemini 3 models think by default and count thought tokens toward this limit.
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192},
         },
         opener=opener,
     )
@@ -1087,8 +1094,9 @@ def complete_gemini(text: str, api_key: str, prompt: str, model: str, opener=Non
     if not raw:
         raise FluentError("no_content")
     try:
-        content = payload["candidates"][0]["content"]["parts"][0]["text"]
-    except (TypeError, KeyError, IndexError):
+        parts = payload["candidates"][0]["content"]["parts"]
+        content = next(p["text"] for p in parts if not p.get("thought"))
+    except (TypeError, KeyError, IndexError, AttributeError, StopIteration):
         raise FluentError("invalid_response") from None
     content = str(content or "").strip()
     if not content:
