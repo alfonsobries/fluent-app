@@ -19,6 +19,11 @@ struct AIProviderSettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Section("Model") {
+                ModelPicker(settings: settings, provider: settings.selectedProvider)
+                    .id(settings.selectedProvider)
+            }
+
             Section("API Keys") {
                 ForEach(AIProviderType.allCases) { provider in
                     APIKeyRow(provider: provider, apiKey: binding(for: provider), isSelected: settings.selectedProvider == provider)
@@ -162,5 +167,73 @@ struct APIKeyRow: View {
     private func discardDraft() {
         tempKey = apiKey
         isEditing = false
+    }
+}
+
+struct ModelPicker: View {
+    @ObservedObject var settings: AppSettings
+    let provider: AIProviderType
+
+    private static let customTag = "__custom__"
+
+    @State private var isCustom = false
+    @State private var customModel = ""
+
+    var body: some View {
+        Picker("\(provider.displayName) model", selection: selection) {
+            ForEach(provider.modelOptions) { option in
+                Text(option.name).tag(option.id)
+            }
+            Divider()
+            Text("Custom…").tag(Self.customTag)
+        }
+        .onAppear(perform: showSavedCustomModel)
+
+        if isCustom {
+            HStack {
+                TextField("Model ID", text: $customModel, prompt: Text(provider.defaultModel))
+                    .textFieldStyle(.roundedBorder)
+                    .onSubmit(saveCustomModel)
+                Button("Save", action: saveCustomModel)
+                    .disabled(customModel.trimmingCharacters(in: .whitespacesAndNewlines) == settings.model(for: provider))
+            }
+            Text("Any model ID from \(provider.displayName). Fluent App sends it as is, so an unknown ID fails when a shortcut runs.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else if let option = selectedOption {
+            Text(option.detail)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func showSavedCustomModel() {
+        guard selectedOption == nil else { return }
+        customModel = settings.model(for: provider)
+        isCustom = true
+    }
+
+    private var selectedOption: AIModelOption? {
+        provider.modelOptions.first { $0.id == settings.model(for: provider) }
+    }
+
+    private var selection: Binding<String> {
+        Binding(
+            get: { isCustom ? Self.customTag : settings.model(for: provider) },
+            set: { newValue in
+                if newValue == Self.customTag {
+                    customModel = settings.model(for: provider)
+                    isCustom = true
+                } else {
+                    isCustom = false
+                    settings.setModel(newValue, for: provider)
+                }
+            }
+        )
+    }
+
+    private func saveCustomModel() {
+        settings.setModel(customModel, for: provider)
+        customModel = settings.model(for: provider)
     }
 }

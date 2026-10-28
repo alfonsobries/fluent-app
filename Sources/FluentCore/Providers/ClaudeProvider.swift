@@ -8,24 +8,22 @@ public final class ClaudeProvider: AIProvider {
 
     private let httpClient: HTTPClient
     private let baseURL: URL
-    private let model: String
     private let apiVersion: String
 
     public init(
         httpClient: HTTPClient = URLSessionHTTPClient(),
         baseURL: URL = URL(string: "https://api.anthropic.com/v1/messages")!,
-        model: String = "claude-haiku-5-5",
         apiVersion: String = "2023-06-01"
     ) {
         self.httpClient = httpClient
         self.baseURL = baseURL
-        self.model = model
         self.apiVersion = apiVersion
     }
 
     public func processText(
         text: String,
         apiKey: String,
+        model: String,
         instructions: String,
         completion: @escaping (Result<String, AIProviderError>) -> Void
     ) {
@@ -41,7 +39,8 @@ public final class ClaudeProvider: AIProvider {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try! JSONSerialization.data(withJSONObject: [
             "model": model,
-            "max_tokens": 4096,
+            // Adaptive thinking counts toward max_tokens on the larger models.
+            "max_tokens": 8192,
             "system": instructions,
             "messages": [["role": "user", "content": text]]
         ])

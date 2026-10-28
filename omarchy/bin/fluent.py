@@ -40,6 +40,7 @@ CONFIG_MAX_BYTES = 64 * 1024
 # Former defaults the providers have retired or scheduled for shutdown; saved configs fall
 # back to the current default.
 RETIRED_MODELS = {"claude-3-haiku-20240307", "gpt-4o-mini", "gemini-1.5-flash", "grok-beta"}
+OPENAI_MODELS_WITHOUT_REASONING = {"gpt-6-luna"}
 BINDINGS_MAX_BYTES = 256 * 1024
 HYPRCTL_MAX_BYTES = 256 * 1024
 PROCESS_STDERR_MAX_BYTES = 8 * 1024
@@ -1012,12 +1013,12 @@ def complete_openai(text: str, api_key: str, prompt: str, model: str, opener=Non
             {"role": "system", "content": prompt},
             {"role": "user", "content": text},
         ],
-        "temperature": 0.7,
     }
-    # The default is a reasoning model: it only takes a custom temperature with effort "none",
-    # while non-reasoning models a user may configure reject the parameter outright.
-    if model == PROVIDERS["openai"]["model"]:
+    # Reasoning models only take a custom temperature with effort "none", and non-reasoning
+    # models reject reasoning_effort, so any other configured model gets the API defaults.
+    if model in OPENAI_MODELS_WITHOUT_REASONING:
         body["reasoning_effort"] = "none"
+        body["temperature"] = 0.7
     status, payload, raw = http_json(
         "https://api.openai.com/v1/chat/completions",
         {

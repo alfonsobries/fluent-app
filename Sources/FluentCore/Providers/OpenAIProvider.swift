@@ -8,26 +8,24 @@ public final class OpenAIProvider: AIProvider {
 
     private let httpClient: HTTPClient
     private let baseURL: URL
-    private let model: String
-    private let reasoningEffort: String?
+    /// Models known to accept `reasoning_effort: "none"`, the only effort with which a
+    /// reasoning model takes a custom `temperature`. Any other model, including custom IDs,
+    /// gets neither parameter: non-reasoning models reject `reasoning_effort`, and the API
+    /// defaults are accepted by every model.
+    static let modelsWithoutReasoning: Set<String> = ["gpt-6-luna"]
 
-    /// `reasoningEffort` must be nil for non-reasoning models, which reject the
-    /// parameter. Reasoning models only accept a custom `temperature` with "none".
     public init(
         httpClient: HTTPClient = URLSessionHTTPClient(),
-        baseURL: URL = URL(string: "https://api.openai.com/v1/chat/completions")!,
-        model: String = "gpt-6-luna",
-        reasoningEffort: String? = "none"
+        baseURL: URL = URL(string: "https://api.openai.com/v1/chat/completions")!
     ) {
         self.httpClient = httpClient
         self.baseURL = baseURL
-        self.model = model
-        self.reasoningEffort = reasoningEffort
     }
 
     public func processText(
         text: String,
         apiKey: String,
+        model: String,
         instructions: String,
         completion: @escaping (Result<String, AIProviderError>) -> Void
     ) {
@@ -45,11 +43,11 @@ public final class OpenAIProvider: AIProvider {
             "messages": [
                 ["role": "system", "content": instructions],
                 ["role": "user", "content": text]
-            ],
-            "temperature": 0.7
+            ]
         ]
-        if let reasoningEffort {
-            body["reasoning_effort"] = reasoningEffort
+        if Self.modelsWithoutReasoning.contains(model) {
+            body["reasoning_effort"] = "none"
+            body["temperature"] = 0.7
         }
         request.httpBody = try! JSONSerialization.data(withJSONObject: body)
 

@@ -7,19 +7,17 @@ public final class GeminiProvider: AIProvider {
     public static let apiKeyPlaceholder = "AI..."
 
     private let httpClient: HTTPClient
-    private let model: String
 
-    public init(
-        httpClient: HTTPClient = URLSessionHTTPClient(),
-        model: String = "gemini-3.8-flash"
-    ) {
+    private static let modelIDAllowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._"))
+
+    public init(httpClient: HTTPClient = URLSessionHTTPClient()) {
         self.httpClient = httpClient
-        self.model = model
     }
 
     public func processText(
         text: String,
         apiKey: String,
+        model: String,
         instructions: String,
         completion: @escaping (Result<String, AIProviderError>) -> Void
     ) {
@@ -29,7 +27,7 @@ public final class GeminiProvider: AIProvider {
         }
 
         let encodedKey = apiKey.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(encodedKey)")!
+        let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model.addingPercentEncoding(withAllowedCharacters: Self.modelIDAllowed)!):generateContent?key=\(encodedKey)")!
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

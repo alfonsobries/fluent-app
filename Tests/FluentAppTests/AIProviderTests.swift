@@ -67,19 +67,21 @@ final class AIProviderTests: XCTestCase {
         let body = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(request.httpBody)) as? [String: Any])
         XCTAssertEqual(body["model"] as? String, "gpt-6-luna")
         XCTAssertEqual(body["reasoning_effort"] as? String, "none")
+        XCTAssertEqual(body["temperature"] as? Double, 0.7)
     }
 
-    func testOpenAIProviderOmitsReasoningEffortForNonReasoningModels() throws {
+    func testOpenAIProviderSendsOnlyDefaultParametersForOtherModels() throws {
         let client = MockHTTPClient()
-        let provider = OpenAIProvider(httpClient: client, model: "gpt-4.1-mini", reasoningEffort: nil)
+        let provider = OpenAIProvider(httpClient: client)
         client.nextResult = .success((jsonData(["choices": [["message": ["content": "hi"]]]]), httpResponse(statusCode: 200)))
 
-        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("hi"))
+        assert(provider.processResult(text: "hola", apiKey: "key", model: "gpt-6-astra", instructions: "inst"), equals: .success("hi"))
 
         let request = try XCTUnwrap(client.requests.last)
         let body = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(request.httpBody)) as? [String: Any])
-        XCTAssertEqual(body["model"] as? String, "gpt-4.1-mini")
+        XCTAssertEqual(body["model"] as? String, "gpt-6-astra")
         XCTAssertNil(body["reasoning_effort"])
+        XCTAssertNil(body["temperature"])
     }
 
     func testClaudeProviderRequestAndResponses() throws {
@@ -161,6 +163,10 @@ final class AIProviderTests: XCTestCase {
 
         let request = try XCTUnwrap(client.requests.last)
         XCTAssertTrue(request.url?.absoluteString.contains("models/gemini-3.8-flash:generateContent?key=key") == true)
+
+        client.nextResult = .success((Data(), httpResponse(statusCode: 404)))
+        _ = provider.processResult(text: "hola", apiKey: "key", model: "my model/../x", instructions: "inst")
+        XCTAssertTrue(client.requests.last?.url?.absoluteString.contains("models/my%20model%2F..%2Fx:generateContent") == true)
     }
 
     func testGrokProviderRequestAndResponses() throws {
@@ -217,11 +223,12 @@ final class AIProviderTests: XCTestCase {
 }
 
 private extension AIProvider {
-    func processResult(text: String, apiKey: String, instructions: String) -> Result<String, AIProviderError> {
+    func processResult(text: String, apiKey: String, model: String? = nil, instructions: String) -> Result<String, AIProviderError> {
+        let model = model ?? AIProviderType(rawValue: Self.identifier)?.defaultModel ?? "test-model"
         let expectation = XCTestExpectation(description: "provider")
         var captured: Result<String, AIProviderError>!
 
-        processText(text: text, apiKey: apiKey, instructions: instructions) { result in
+        processText(text: text, apiKey: apiKey, model: model, instructions: instructions) { result in
             captured = result
             expectation.fulfill()
         }
