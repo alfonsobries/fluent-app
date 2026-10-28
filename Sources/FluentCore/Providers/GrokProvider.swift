@@ -13,7 +13,7 @@ public final class GrokProvider: AIProvider {
     public init(
         httpClient: HTTPClient = URLSessionHTTPClient(),
         baseURL: URL = URL(string: "https://api.x.ai/v1/chat/completions")!,
-        model: String = "grok-4.3"
+        model: String = "grok-4.7"
     ) {
         self.httpClient = httpClient
         self.baseURL = baseURL

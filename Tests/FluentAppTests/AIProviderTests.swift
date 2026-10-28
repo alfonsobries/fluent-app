@@ -193,7 +193,7 @@ final class AIProviderTests: XCTestCase {
         let request = try XCTUnwrap(client.requests.last)
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer key")
         let body = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(request.httpBody)) as? [String: Any])
-        XCTAssertEqual(body["model"] as? String, "grok-4.3")
+        XCTAssertEqual(body["model"] as? String, "grok-4.7")
     }
 
     private func httpResponse(statusCode: Int) -> HTTPURLResponse {

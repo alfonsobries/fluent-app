@@ -78,7 +78,7 @@ PROVIDERS = {
         "displayName": "xAI (Grok)",
         "apiKeyURL": "https://console.x.ai",
         "apiKeyPlaceholder": "xai-...",
-        "model": "grok-4.3",
+        "model": "grok-4.7",
     },
 }
 
