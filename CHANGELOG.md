@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.10.0](https://github.com/alfonsobries/fluent-app/compare/v1.9.0...v1.10.0) (2026-10-28)
+
+
+### Features
+
+* choose the model for each provider in Settings ([#41](https://github.com/alfonsobries/fluent-app/issues/41)) ([c69a2bc](https://github.com/alfonsobries/fluent-app/commit/c69a2bc617dcced020a2091731dee66dbb2d809a))
+
+
+### Bug Fixes
+
+* default Grok to xAI's recommended grok-4.7 ([#39](https://github.com/alfonsobries/fluent-app/issues/39)) ([6b6715f](https://github.com/alfonsobries/fluent-app/commit/6b6715f30cdd47a9eefa8d2086a2a80490119d44))
+
 ## [1.9.0](https://github.com/alfonsobries/fluent-app/compare/v1.8.1...v1.9.0) (2026-10-28)
 
 
