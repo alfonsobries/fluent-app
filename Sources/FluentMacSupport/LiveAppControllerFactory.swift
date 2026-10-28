@@ -5,7 +5,8 @@ public extension AppController {
         AppController(
             settings: AppSettings(
                 providerFactory: .live,
-                launchAtLoginController: SMAppLaunchController()
+                launchAtLoginController: SMAppLaunchController(),
+                secretStore: KeychainSecretStore()
             ),
             clipboardService: LiveClipboardService(),
             hotKeyManager: LiveHotKeyManager.shared

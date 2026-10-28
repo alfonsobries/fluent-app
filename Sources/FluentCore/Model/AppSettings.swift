@@ -6,10 +6,11 @@ public final class AppSettings: ObservableObject {
 
     public enum Keys {
         public static let selectedProvider = "selectedProvider"
-        public static let apiKeys = "apiKeys"
         public static let shortcutActions = "shortcutActions"
         public static let launchAtStartup = "launchAtStartup"
         public static let legacyAPIKey = "apiKey"
+        /// Plain-text `[provider: key]` dictionary used before keys moved to the secret store.
+        public static let legacyAPIKeys = "apiKeys"
         public static let legacyShortcutKeyCode = "shortcutKeyCode"
         public static let legacyShortcutModifiers = "shortcutModifiers"
         public static let legacyPrompt = "prompt"
@@ -25,7 +26,7 @@ public final class AppSettings: ObservableObject {
     public var apiKeys: [AIProviderType: String] {
         didSet {
             objectWillChange.send()
-            saveAPIKeys()
+            saveAPIKeys(previous: oldValue)
         }
     }
 
@@ -48,6 +49,12 @@ public final class AppSettings: ObservableObject {
         }
     }
 
+    public private(set) var apiKeyStorageError: String? {
+        didSet {
+            objectWillChange.send()
+        }
+    }
+
     public private(set) var launchAtStartupError: String? {
         didSet {
             objectWillChange.send()
@@ -59,15 +66,18 @@ public final class AppSettings: ObservableObject {
     private let userDefaults: UserDefaults
     private let launchAtLoginController: LaunchAtLoginControlling
     private let providerFactory: AIProviderFactory
+    private let secretStore: SecretStoring
 
     public init(
         userDefaults: UserDefaults = .standard,
         providerFactory: AIProviderFactory = .live,
-        launchAtLoginController: LaunchAtLoginControlling = NoopLaunchAtLoginController()
+        launchAtLoginController: LaunchAtLoginControlling = NoopLaunchAtLoginController(),
+        secretStore: SecretStoring = InMemorySecretStore()
     ) {
         self.userDefaults = userDefaults
         self.providerFactory = providerFactory
         self.launchAtLoginController = launchAtLoginController
+        self.secretStore = secretStore
 
         if
             let rawProvider = userDefaults.string(forKey: Keys.selectedProvider),
@@ -78,7 +88,9 @@ public final class AppSettings: ObservableObject {
             selectedProvider = .openai
         }
 
-        apiKeys = Self.loadAPIKeys(from: userDefaults)
+        var loadError: String?
+        apiKeys = Self.loadAPIKeys(from: secretStore, error: &loadError)
+        apiKeyStorageError = loadError
         shortcutActions = Self.loadShortcutActions(from: userDefaults)
 
         if userDefaults.object(forKey: Keys.launchAtStartup) != nil {
@@ -88,6 +100,7 @@ public final class AppSettings: ObservableObject {
             userDefaults.set(true, forKey: Keys.launchAtStartup)
         }
 
+        migratePlaintextAPIKeys()
         migrateLegacyValues()
         synchronizeLaunchAtStartupPreference()
     }
@@ -150,9 +163,22 @@ public final class AppSettings: ObservableObject {
         enabledActions.first { $0.keyCode == keyCode && $0.modifiers == modifiers }
     }
 
-    private func saveAPIKeys() {
-        let rawDictionary = Dictionary(uniqueKeysWithValues: apiKeys.map { ($0.key.rawValue, $0.value) })
-        userDefaults.set(rawDictionary, forKey: Keys.apiKeys)
+    private func saveAPIKeys(previous: [AIProviderType: String]) {
+        let changed = AIProviderType.allCases.filter { (apiKeys[$0] ?? "") != (previous[$0] ?? "") }
+        guard !changed.isEmpty else { return }
+
+        do {
+            for provider in changed {
+                if let key = apiKeys[provider], !key.isEmpty {
+                    try secretStore.setSecret(key, for: provider.rawValue)
+                } else {
+                    try secretStore.removeSecret(for: provider.rawValue)
+                }
+            }
+            apiKeyStorageError = nil
+        } catch {
+            apiKeyStorageError = error.localizedDescription
+        }
     }
 
     private func saveShortcutActions() {
@@ -162,14 +188,14 @@ public final class AppSettings: ObservableObject {
         onShortcutsChanged?()
     }
 
-    private static func loadAPIKeys(from userDefaults: UserDefaults) -> [AIProviderType: String] {
-        guard let rawDictionary = userDefaults.dictionary(forKey: Keys.apiKeys) as? [String: String] else {
-            return [:]
-        }
-
-        return rawDictionary.reduce(into: [:]) { partialResult, element in
-            if let provider = AIProviderType(rawValue: element.key) {
-                partialResult[provider] = element.value
+    private static func loadAPIKeys(from secretStore: SecretStoring, error: inout String?) -> [AIProviderType: String] {
+        AIProviderType.allCases.reduce(into: [:]) { partialResult, provider in
+            do {
+                if let key = try secretStore.secret(for: provider.rawValue), !key.isEmpty {
+                    partialResult[provider] = key
+                }
+            } catch let readError {
+                error = readError.localizedDescription
             }
         }
     }
@@ -199,6 +225,28 @@ public final class AppSettings: ObservableObject {
         }
 
         return ShortcutCatalog.defaults
+    }
+
+    /// Moves keys saved in plain text by older versions into the secret store. The
+    /// plain-text copy is only removed once every key is stored, so a failing
+    /// store never loses a key.
+    private func migratePlaintextAPIKeys() {
+        guard let rawDictionary = userDefaults.dictionary(forKey: Keys.legacyAPIKeys) as? [String: String] else {
+            userDefaults.removeObject(forKey: Keys.legacyAPIKeys)
+            return
+        }
+
+        var merged = apiKeys
+        for (rawProvider, key) in rawDictionary where !key.isEmpty {
+            if let provider = AIProviderType(rawValue: rawProvider), merged[provider]?.isEmpty ?? true {
+                merged[provider] = key
+            }
+        }
+        apiKeys = merged
+
+        if apiKeyStorageError == nil {
+            userDefaults.removeObject(forKey: Keys.legacyAPIKeys)
+        }
     }
 
     private func migrateLegacyValues() {

@@ -27,6 +27,7 @@ let package = Package(
                 .linkedFramework("Carbon"),
                 .linkedFramework("AppKit"),
                 .linkedFramework("ApplicationServices"),
+                .linkedFramework("Security"),
                 .linkedFramework("ServiceManagement")
             ]
         ),
@@ -52,7 +53,7 @@ let package = Package(
         ),
         .testTarget(
             name: "FluentAppTests",
-            dependencies: ["FluentCore"],
+            dependencies: ["FluentCore", "FluentMacSupport"],
             path: "Tests/FluentAppTests"
         )
     ]

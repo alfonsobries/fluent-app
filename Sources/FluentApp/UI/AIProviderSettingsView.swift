@@ -23,10 +23,16 @@ struct AIProviderSettingsView: View {
                 ForEach(AIProviderType.allCases) { provider in
                     APIKeyRow(provider: provider, apiKey: binding(for: provider), isSelected: settings.selectedProvider == provider)
                 }
+
+                if let error = settings.apiKeyStorageError {
+                    Label("Couldn’t access the Keychain: \(error)", systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                        .font(.caption)
+                }
             }
 
             Section("Notes") {
-                Text("Keys are stored locally in user defaults on this Mac. For open source distribution, document your own preferred storage strategy if you later migrate to Keychain.")
+                Text("Keys are stored in your macOS Keychain and are only sent to the provider you select.")
                     .foregroundStyle(.secondary)
             }
         }
