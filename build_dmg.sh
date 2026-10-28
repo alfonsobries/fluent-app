@@ -15,7 +15,12 @@ APP_BUNDLE="$APP_BUNDLE_NAME.app"
 DMG_NAME="${ARTIFACT_STEM}-${VERSION}.dmg"
 RESOURCES_DIR="Resources"
 ICON_FILE=""
+# Universal binary so the same DMG runs on Apple silicon and Intel Macs.
+BUILD_ARCHS="${BUILD_ARCHS:-arm64 x86_64}"
 SWIFT_BUILD_ARGS=(-c release)
+for arch in $BUILD_ARCHS; do
+  SWIFT_BUILD_ARGS+=(--arch "$arch")
+done
 if [[ -n "${DEVELOPER_ID_APPLICATION:-}" ]]; then
   SIGNING_IDENTITY="$DEVELOPER_ID_APPLICATION"
 else
@@ -41,6 +46,15 @@ echo "Creating app bundle..."
 rm -rf "$APP_BUNDLE"
 mkdir -p "$APP_BUNDLE/Contents/MacOS" "$APP_BUNDLE/Contents/Resources"
 cp "$BUILD_DIR/$EXECUTABLE_NAME" "$APP_BUNDLE/Contents/MacOS/$EXECUTABLE_NAME"
+
+BUILT_ARCHS="$(lipo -archs "$APP_BUNDLE/Contents/MacOS/$EXECUTABLE_NAME")"
+for arch in $BUILD_ARCHS; do
+  if [[ " $BUILT_ARCHS " != *" $arch "* ]]; then
+    echo "Executable is missing the $arch slice (has: $BUILT_ARCHS)" >&2
+    exit 1
+  fi
+done
+echo "  Architectures: $BUILT_ARCHS"
 
 if [[ -f "$RESOURCES_DIR/AppIcon.icns" ]]; then
   cp "$RESOURCES_DIR/AppIcon.icns" "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
