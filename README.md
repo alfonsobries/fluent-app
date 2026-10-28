@@ -70,7 +70,7 @@ swift run FluentApp
 
 ## Installation Flow
 
-1. Download the latest DMG from GitHub Releases.
+1. Download the latest DMG from GitHub Releases. It is a universal build that runs on Apple silicon and Intel Macs.
 2. Drag `Fluent App.app` to `/Applications`.
 3. Launch Fluent App.
 4. Grant Accessibility access in System Settings.
@@ -86,6 +86,8 @@ make coverage
 VERSION=1.2.0 ./build_dmg.sh
 ./scripts/release.sh 1.2.0
 ```
+
+`build_dmg.sh` builds a universal (`arm64` + `x86_64`) binary and fails if a slice is missing. Set `BUILD_ARCHS=arm64` for a faster single-architecture local build.
 
 GitHub flow:
 
