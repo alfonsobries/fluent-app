@@ -81,8 +81,11 @@ final class AIProviderTests: XCTestCase {
         client.nextResult = .success((jsonData(["content": []]), httpResponse(statusCode: 200)))
         assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidResponse))
 
-        client.nextResult = .success((jsonData(["content": [["text": " bonjour "]]]), httpResponse(statusCode: 200)))
+        client.nextResult = .success((jsonData(["content": [["type": "text", "text": " bonjour "]]]), httpResponse(statusCode: 200)))
         assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("bonjour"))
+
+        client.nextResult = .success((jsonData(["content": [["type": "thinking", "thinking": ""], ["type": "text", "text": "salut"]]]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("salut"))
 
         client.nextResult = .success((Data(), httpResponse(statusCode: 401)))
         assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidAPIKey))

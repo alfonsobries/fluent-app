@@ -103,7 +103,13 @@ else
 fi
 
 echo "Code signing with identity: $SIGNING_IDENTITY"
-codesign --force --deep --options runtime --sign "$SIGNING_IDENTITY" "$APP_BUNDLE"
+# Hardened runtime enables library validation, which rejects ad-hoc signed frameworks
+# (no Team ID) and makes the app crash at launch; only enable it for real identities.
+CODESIGN_ARGS=(--force --deep --sign "$SIGNING_IDENTITY")
+if [[ "$SIGNING_IDENTITY" != "-" ]]; then
+  CODESIGN_ARGS+=(--options runtime)
+fi
+codesign "${CODESIGN_ARGS[@]}" "$APP_BUNDLE"
 codesign --verify --deep --strict "$APP_BUNDLE"
 
 echo "Creating DMG..."

@@ -327,8 +327,14 @@ class ProviderTests(unittest.TestCase):
         cfg["apiKeys"]["claude"] = "key"
         cfg["provider"] = "claude"
         self.assertEqual(
-            fluent.complete_text(cfg, "hola", "inst", opener=opener_for(200, {"content": [{"text": " bonjour "}]})),
+            fluent.complete_text(cfg, "hola", "inst", opener=opener_for(200, {"content": [{"type": "text", "text": " bonjour "}]})),
             "bonjour",
+        )
+        self.assertEqual(
+            fluent.complete_text(cfg, "hola", "inst", opener=opener_for(200, {
+                "content": [{"type": "thinking", "thinking": ""}, {"type": "text", "text": "salut"}]
+            })),
+            "salut",
         )
 
         cfg["provider"] = "gemini"
