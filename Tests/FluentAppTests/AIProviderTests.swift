@@ -64,6 +64,22 @@ final class AIProviderTests: XCTestCase {
         let request = try XCTUnwrap(client.requests.last)
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer key")
         XCTAssertEqual(request.httpMethod, "POST")
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(request.httpBody)) as? [String: Any])
+        XCTAssertEqual(body["model"] as? String, "gpt-6-luna")
+        XCTAssertEqual(body["reasoning_effort"] as? String, "none")
+    }
+
+    func testOpenAIProviderOmitsReasoningEffortForNonReasoningModels() throws {
+        let client = MockHTTPClient()
+        let provider = OpenAIProvider(httpClient: client, model: "gpt-4.1-mini", reasoningEffort: nil)
+        client.nextResult = .success((jsonData(["choices": [["message": ["content": "hi"]]]]), httpResponse(statusCode: 200)))
+
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("hi"))
+
+        let request = try XCTUnwrap(client.requests.last)
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(request.httpBody)) as? [String: Any])
+        XCTAssertEqual(body["model"] as? String, "gpt-4.1-mini")
+        XCTAssertNil(body["reasoning_effort"])
     }
 
     func testClaudeProviderRequestAndResponses() throws {
@@ -125,6 +141,15 @@ final class AIProviderTests: XCTestCase {
         ]), httpResponse(statusCode: 200)))
         assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("resumen"))
 
+        client.nextResult = .success((jsonData([
+            "candidates": [[
+                "content": [
+                    "parts": [["text": "planning…", "thought": true], ["text": "resultado"]]
+                ]
+            ]]
+        ]), httpResponse(statusCode: 200)))
+        assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .success("resultado"))
+
         client.nextResult = .success((Data(), httpResponse(statusCode: 400)))
         assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.invalidAPIKey))
 
@@ -135,7 +160,7 @@ final class AIProviderTests: XCTestCase {
         assert(provider.processResult(text: "hola", apiKey: "key", instructions: "inst"), equals: .failure(.serverError(500)))
 
         let request = try XCTUnwrap(client.requests.last)
-        XCTAssertTrue(request.url?.absoluteString.contains("models/gemini-1.5-flash:generateContent?key=key") == true)
+        XCTAssertTrue(request.url?.absoluteString.contains("models/gemini-3.8-flash:generateContent?key=key") == true)
     }
 
     func testGrokProviderRequestAndResponses() throws {
@@ -167,6 +192,8 @@ final class AIProviderTests: XCTestCase {
 
         let request = try XCTUnwrap(client.requests.last)
         XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer key")
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(request.httpBody)) as? [String: Any])
+        XCTAssertEqual(body["model"] as? String, "grok-4.3")
     }
 
     private func httpResponse(statusCode: Int) -> HTTPURLResponse {

@@ -68,6 +68,22 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(cfg["hotkeyChord"], "CTRL + ALT + SHIFT")
         self.assertEqual(cfg["panelKey"], "F")
 
+    def test_normalize_replaces_retired_models_and_keeps_custom_ones(self):
+        cfg = fluent.normalize_config({
+            "models": {
+                "openai": "gpt-4o-mini",
+                "claude": "claude-3-haiku-20240307",
+                "gemini": "gemini-1.5-flash",
+                "grok": "my-custom-grok",
+            },
+        })
+        self.assertEqual(cfg["models"], {
+            "openai": "gpt-6-luna",
+            "claude": "claude-haiku-5-5",
+            "gemini": "gemini-3.8-flash",
+            "grok": "my-custom-grok",
+        })
+
     def test_normalize_drops_unknown_provider_and_blank_keys(self):
         cfg = fluent.normalize_config({
             "provider": "nope",
@@ -322,6 +338,24 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, "server_error")
         self.assertEqual(raised.exception.status, 503)
 
+    def test_openai_reasoning_effort_only_for_default_model(self):
+        bodies = []
+
+        def capture(request, timeout=60):
+            bodies.append(json.loads(request.data))
+            return FakeResponse({"choices": [{"message": {"content": "ok"}}]})
+
+        cfg = fluent.default_config()
+        cfg["apiKeys"]["openai"] = "key"
+        fluent.complete_text(cfg, "hola", "inst", opener=capture)
+        cfg["models"]["openai"] = "gpt-4.1-mini"
+        fluent.complete_text(cfg, "hola", "inst", opener=capture)
+
+        self.assertEqual(bodies[0]["model"], "gpt-6-luna")
+        self.assertEqual(bodies[0]["reasoning_effort"], "none")
+        self.assertEqual(bodies[1]["model"], "gpt-4.1-mini")
+        self.assertNotIn("reasoning_effort", bodies[1])
+
     def test_claude_gemini_grok_parsers(self):
         cfg = fluent.default_config()
         cfg["apiKeys"]["claude"] = "key"
@@ -344,6 +378,12 @@ class ProviderTests(unittest.TestCase):
                 "candidates": [{"content": {"parts": [{"text": " resumen "}]}}]
             })),
             "resumen",
+        )
+        self.assertEqual(
+            fluent.complete_text(cfg, "hola", "inst", opener=opener_for(200, {
+                "candidates": [{"content": {"parts": [{"text": "planning", "thought": True}, {"text": "resultado"}]}}]
+            })),
+            "resultado",
         )
 
         cfg["provider"] = "grok"
